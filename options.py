@@ -1019,7 +1019,8 @@ def calcular_mtm(meta):
 
     # Calculando o MTM para cada data
     mtm = 22.0462 * 1.04 * sugar_data * forex_data
-
+    mtm = pd.Series(mtm, index=sugar_data.index)
+    
     # Criando DataFrame pandas com o MTM
     mtm_df = pd.DataFrame({'Date': mtm.index, 'MTM': mtm.values, 'Meta': meta})
     mtm_df['Date'] = mtm_df['Date'].dt.strftime('%d/%b/%Y')
