@@ -1011,28 +1011,19 @@ def plot_heatmap(meta):
 # Função para calcular o MTM
 def calcular_mtm(meta):
     start_date = datetime(2024, 7, 8)
-    end_date = datetime(2024,7,31)
+    end_date = datetime(2024, 7, 31)
 
     # Obtendo os dados históricos do contrato futuro de açúcar e do par de moedas USD/BRL
-    sugar_data = yf.download('SB=F', start=start_date, end=end_date)['Close']
-    forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)['Close']
-    
-    # Alinhando os índices das séries
-    sugar_data, forex_data = sugar_data.align(forex_data, join='inner')
-    
+    sugar_data = yf.download('SB=F', start=start_date, end=end_date)['Close'].squeeze()
+    forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)['Close'].squeeze()
+
     # Calculando o MTM para cada data
     mtm = 22.0462 * 1.04 * sugar_data * forex_data
-    mtm = pd.Series(mtm, index=sugar_data.index)
-
-    mtm_df = pd.DataFrame({
-        'Date': mtm.index,
-        'MTM': mtm.values,
-        'Meta': meta
-    })
 
     # Criando DataFrame pandas com o MTM
     mtm_df = pd.DataFrame({'Date': mtm.index, 'MTM': mtm.values, 'Meta': meta})
-    mtm_df['Date'] = mtm_df['Date'].dt.strftime('%d/%b/%Y')
+    mtm_df['Date'] = pd.to_datetime(mtm_df['Date']).dt.strftime('%d/%b/%Y')
+
     return mtm_df
 
 import streamlit as st
