@@ -1016,11 +1016,20 @@ def calcular_mtm(meta):
     # Obtendo os dados históricos do contrato futuro de açúcar e do par de moedas USD/BRL
     sugar_data = yf.download('SB=F', start=start_date, end=end_date)['Close']
     forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)['Close']
-
+    
+    # Alinhando os índices das séries
+    sugar_data, forex_data = sugar_data.align(forex_data, join='inner')
+    
     # Calculando o MTM para cada data
     mtm = 22.0462 * 1.04 * sugar_data * forex_data
     mtm = pd.Series(mtm, index=sugar_data.index)
-    
+
+    mtm_df = pd.DataFrame({
+        'Date': mtm.index,
+        'MTM': mtm.values,
+        'Meta': meta
+    })
+
     # Criando DataFrame pandas com o MTM
     mtm_df = pd.DataFrame({'Date': mtm.index, 'MTM': mtm.values, 'Meta': meta})
     mtm_df['Date'] = mtm_df['Date'].dt.strftime('%d/%b/%Y')
