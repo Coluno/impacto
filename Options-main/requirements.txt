@@ -1,0 +1,16 @@
+altair
+numpy
+pandas
+pydeck
+streamlit
+matplotlib
+seaborn
+yfinance
+scipy
+plotly
+scikit-learn
+xgboost
+openpyxl
+statsmodels
+xlrd
+xlsxwriter
