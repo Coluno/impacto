@@ -248,6 +248,7 @@ def atr():
 
 
 def calcular_var(data, n_days, current_price, z_score):
+    data['Adj Close'] = data['Adj Close'].values
     data['Returns'] = data['Adj Close'].pct_change()
     lambda_ = 0.94
     data['EWMA_Vol'] = data['Returns'].ewm(span=(2/(1-lambda_)-1)).std()
