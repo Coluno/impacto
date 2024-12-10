@@ -849,7 +849,7 @@ def calcular_dias_uteis(data_inicial, data_final):
 def simulacao_monte_carlo(data, media_retornos_diarios, desvio_padrao_retornos_diarios, dias_simulados, num_simulacoes, limite_inferior, limite_superior):
     retornos_diarios_simulados = np.random.normal(media_retornos_diarios, desvio_padrao_retornos_diarios, (dias_simulados, num_simulacoes))
 
-    preco_inicial = data['Close'].iloc[-1]
+    preco_inicial = float(data['Close'].iloc[-1])
     precos_simulados = np.ones((dias_simulados + 1, num_simulacoes)) * preco_inicial
 
     for dia in range(1, dias_simulados + 1):
