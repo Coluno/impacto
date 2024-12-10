@@ -1,14 +1,53 @@
-# Options
+# Gestão de Risco e Derivativos na Indústria Açucareira
 
-Gestão de Risco e Derivativos
-A indústria açucareira é um dos pilares da economia em muitos países, mas está sujeita a flutuações significativas nos preços do açúcar e do dólar, entre outros fatores. Nesse cenário, a gestão de riscos desempenha um papel fundamental para garantir a estabilidade e a lucratividade das operações.
+## Descrição
+Este projeto visa auxiliar na gestão de risco da indústria açucareira, utilizando estratégias de proteção cambial, fixações e operações no mercado de opções. O sistema foi desenvolvido em Python e Streamlit, com o objetivo de fornecer uma ferramenta para a análise e simulação de riscos relacionados à volatilidade dos preços do açúcar e do dólar.
 
-Proteção Cambial: A volatilidade no mercado de câmbio pode afetar diretamente os resultados financeiros de uma usina de açúcar, especialmente em países onde a moeda local é suscetível a oscilações. A proteção cambial é uma estratégia essencial para mitigar esse risco. Uma maneira comum de proteger-se é através do uso de contratos futuros de câmbio, que permitem fixar uma taxa de câmbio para transações futuras em moeda estrangeira, garantindo assim um preço previsível para as exportações de açúcar.
+A volatilidade nos mercados financeiros pode afetar diretamente os resultados de uma usina de açúcar, e a implementação de estratégias como contratos futuros, swaps e opções ajuda a mitigar os riscos financeiros.
 
-Fixações: Além da proteção cambial, as usinas de açúcar frequentemente recorrem a estratégias de fixações para garantir um preço mínimo para sua produção. Isso pode ser feito através de contratos a termo ou swaps, onde um preço é acordado antecipadamente para uma determinada quantidade de açúcar. Essas fixações fornecem uma certa segurança contra quedas abruptas nos preços do açúcar, permitindo que a usina planeje suas operações com mais confiança.
+## Funcionalidades
+- Proteção Cambial: Simulação de contratos futuros de câmbio para garantir uma taxa de câmbio previsível para exportações.
+Fixações: Uso de contratos a termo e swaps para garantir um preço mínimo para a produção de açúcar.
+- Mercado de Opções: Simulação de opções de venda e compra de açúcar, permitindo flexibilidade para proteger-se contra movimentos desfavoráveis nos preços.
+Análises Estatísticas: Cálculo de médias, volatilidade e projeções para os preços do açúcar.
+- Simulação de Monte Carlo: Geração de cenários futuros com base na distribuição dos retornos - 
+- históricos dos preços do açúcar.
+## Tecnologias Utilizadas
+- Python: Linguagem de programação utilizada para o desenvolvimento do algoritmo.
+- Streamlit: Framework para criação da interface interativa.
+- Pandas: Manipulação e análise de dados financeiros.
+- yFinance: Obtenção de dados históricos de preços do açúcar e do dólar.
+- NumPy: Cálculos matemáticos e estatísticos.
+- Matplotlib/Plotly: Visualização dos dados e gráficos interativos.
+## Requisitos
+Python 3.12 ou superior
+Bibliotecas:
+streamlit
+yfinance
+pandas
+numpy
+matplotlib
+plotly
 
-Mercado de Opções do Açúcar: Outra ferramenta importante na gestão de riscos é o mercado de opções do açúcar. As opções oferecem às usinas de açúcar a flexibilidade de proteger-se contra movimentos desfavoráveis nos preços do açúcar, enquanto ainda se beneficiam de movimentos favoráveis. Por exemplo, uma usina pode comprar opções de venda para proteger-se contra quedas nos preços do açúcar, enquanto ainda pode aproveitar os aumentos de preço se o mercado se mover a seu favor.
+## Instalação
+Clone este repositório para o seu ambiente local
+Link com o site da Streamlit
 
-Em resumo, a gestão de riscos na indústria açucareira é essencial para garantir a estabilidade financeira e o crescimento sustentável das usinas de açúcar. Estratégias como proteção cambial, fixações e o uso inteligente do mercado de opções são fundamentais para mitigar os riscos inerentes a esse setor e maximizar os retornos sobre o investimento.
+## Instale as dependências:
+pip install -r requirements.txt
 
-https://options-sfclq7rss6gwdjrgz46pem.streamlit.app/
+## Executando o Projeto
+Execute o site Streamlit e link o rebositorio do github
+
+## Como Utilizar
+Selecione o ativo: Escolha o ativo desejado, como "SBV24.NYB", "USDBRL=X", etc.
+Defina o intervalo de datas: Selecione um período para análise.
+Escolha o indicador: Selecione o indicador que deseja analisar, como EWMA, CCI, MACD, etc.
+Calcule e visualize os resultados: Após definir as opções, clique no botão "Calcular" para gerar as análises e gráficos interativos.
+
+## Colaboradores
+Gabriel Canuto de Alencar
+
+## Licença
+Este projeto está licenciado sob a MIT License.
+https://share.streamlit.io/user/coluno
