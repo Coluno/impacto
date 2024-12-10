@@ -589,7 +589,7 @@ def mercado():
         sobrecompra = st.slider("Selecione o nível de sobrecompra do CCI", 100, 250, step=50, value=100)
 
     if st.button("Calcular"):
-        data_filtrado = data[(data.index >= filtro_datas[0]) & (data.index <= filtro_datas[1])]
+        data_filtrado = data[(data['Date'] >= filtro_datas[0]) & (data['Date'] <= filtro_datas[1])]
 
         # Inicialização das variáveis para KPIs
         quantidade_entradas = 0
