@@ -248,7 +248,6 @@ def atr():
 
 
 def calcular_var(data, n_days, current_price, z_score):
-    data['Adj Close'] = data['Adj Close'].values
     data['Returns'] = data['Adj Close'].pct_change()
     lambda_ = 0.94
     data['EWMA_Vol'] = data['Returns'].ewm(span=(2/(1-lambda_)-1)).std()
@@ -269,7 +268,8 @@ def VaR():
     escolha = st.selectbox('Selecione o ativo:', ['USDBRL=X', 'SB=F'])
 
     data = yf.download(escolha, start='2013-01-01', end='2025-01-01')
-
+    data.reset_index(inplace=True)
+    data.columns = data.columns.droplevel(1)
     
     current_price = data['Adj Close'].iloc[-1]
 
