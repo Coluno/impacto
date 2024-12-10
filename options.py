@@ -872,7 +872,9 @@ def monte_carlo():
         ativo = "USDBRL=X"
 
     data = yf.download(ativo, start="2013-01-01", end="2025-01-01")
-
+    data.reset_index(inplace=True)
+    data.columns = data.columns.droplevel(1)
+    
     # Calcular média e desvio padrão dos retornos diários
     data['Daily Return'] = data['Close'].pct_change()
     media_retornos_diarios = data['Daily Return'].mean()
