@@ -268,12 +268,14 @@ def VaR():
     escolha = st.selectbox('Selecione o ativo:', ['USDBRL=X', 'SB=F'])
 
     data = yf.download(escolha, start='2013-01-01', end='2025-01-01')
+    
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
     
     current_price = data['Adj Close'].iloc[-1]
 
     data_fim = st.date_input('Selecione a data final:', datetime.now())
+    data_fim = pd.to_datetime(data_fim)
     n_days = calcular_dias_uteis(data.index[-1], data_fim)
 
     # Input para selecionar o nível de confiança
