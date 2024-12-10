@@ -281,7 +281,8 @@ def VaR():
     z_score = norm.ppf((100 - confianca) / 100)  # Calcula o z-score correspondente ao nível de confiança
 
     if st.button('Calcular'):
-        data = data[data.index >= '2013-01-01']
+        data_inicio = pd.to_datetime('2013-01-01')
+        data = data[data.index >= data_inicio]
         VaR_EWMA, price_at_risk, mean_returns, std_returns = calcular_var(data, n_days, current_price, z_score)
 
         # Exibir KPIs
