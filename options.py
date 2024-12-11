@@ -944,10 +944,6 @@ def monte_carlo():
         st.write("Mediana dos valores simulados: **{:.4f}**".format(mediana_simulada))
 
 
-
-
-
-
 # Função para plotar o heatmap das metas
 def plot_heatmap(meta):
     # Preço do açúcar e do dólar
@@ -981,6 +977,7 @@ def plot_heatmap(meta):
 # Função para calcular o MTM
 def calcular_mtm(meta):
     start_date = datetime.date(2013, 1, 1)
+    today = datetime.date.today()
     end_date = today.strftime('%Y-%m-%d')
 
     # Obtendo os dados históricos do contrato futuro de açúcar e do par de moedas USD/BRL
