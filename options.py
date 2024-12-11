@@ -977,8 +977,8 @@ def plot_heatmap(meta):
 
 # Função para calcular o MTM
 def calcular_mtm(meta):
-    start_date = datetime.date(2013, 1, 1)
-    today = datetime.date.today()
+    start_date = date(2013, 1, 1)
+    today = date.today()
     end_date = today.strftime('%Y-%m-%d')
 
     # Obtendo os dados históricos do contrato futuro de açúcar e do par de moedas USD/BRL
