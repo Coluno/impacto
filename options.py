@@ -122,17 +122,37 @@ def regressaoDolar():
         sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.2f', linewidths=0.5, ax=ax)
         st.pyplot(fig)
 
+        # Função para adicionar a linha de tendência aos gráficos de dispersão
+        def add_trendline(x, y, fig, row, col, title, xlabel, ylabel):
+            # Criar o modelo de regressão linear
+            model = LinearRegression()
+            model.fit(x.reshape(-1, 1), y)  # Ajuste da linha de regressão
+            y_pred = model.predict(x.reshape(-1, 1))  # Predição com o modelo ajustado
+            
+            # Adicionar pontos de dispersão
+            fig.add_trace(go.Scatter(x=x, y=y, mode='markers', name="Pontos de Dados", marker=dict(color='blue', opacity=0.6)), row=row, col=col)
+            # Adicionar linha de regressão
+            fig.add_trace(go.Scatter(x=x, y=y_pred, mode='lines', name="Linha de Tendência", line=dict(color='red', dash='dash', width=2)), row=row, col=col)
+            
+            # Títulos e rótulos
+            fig.update_xaxes(title_text=xlabel, row=row, col=col)
+            fig.update_yaxes(title_text=ylabel, row=row, col=col)
+            fig.update_layout(title_text=title)
+        
         # Gráficos de dispersão
         fig = sp.make_subplots(rows=1, cols=3, subplot_titles=["Log_Razao_Juros vs Taxa de Câmbio", "Dif_Prod_Industrial vs Taxa de Câmbio", "Dif_Oferta_Moeda vs Taxa de Câmbio"])
 
-        scatter1 = go.Scatter(x=df_with_target['Log_Razao_Juros'], y=df_with_target['Taxa de Câmbio'], mode='markers', name='Log_Razao_Juros vs Taxa de Câmbio')
-        fig.add_trace(scatter1, row=1, col=1)
-        scatter2 = go.Scatter(x=df_with_target['Dif_Prod_Industrial'], y=df_with_target['Taxa de Câmbio'], mode='markers', name='Dif_Prod_Industrial vs Taxa de Câmbio')
-        fig.add_trace(scatter2, row=1, col=2)
-        scatter3 = go.Scatter(x=df_with_target['Dif_Oferta_Moeda'], y=df_with_target['Taxa de Câmbio'], mode='markers', name='Dif_Oferta_Moeda vs Taxa de Câmbio')
-        fig.add_trace(scatter3, row=1, col=3)
+        # Adicionando os gráficos de dispersão com linha de tendência
+        add_trendline(df_with_target['Log_Razao_Juros'].values, df_with_target['Taxa de Câmbio'].values, fig, row=1, col=1, 
+                      title="Log_Razao_Juros vs Taxa de Câmbio", xlabel="Log(Razão Juros)", ylabel="Taxa de Câmbio")
 
-        fig.update_layout(height=400, width=1200, title_text="Gráficos de Dispersão: Taxa de Câmbio vs Variáveis Remanescentes")
+        add_trendline(df_with_target['Dif_Prod_Industrial'].values, df_with_target['Taxa de Câmbio'].values, fig, row=1, col=2, 
+                      title="Dif_Prod_Industrial vs Taxa de Câmbio", xlabel="Diferença Prod. Industrial", ylabel="Taxa de Câmbio")
+
+        add_trendline(df_with_target['Dif_Oferta_Moeda'].values, df_with_target['Taxa de Câmbio'].values, fig, row=1, col=3, 
+                      title="Dif_Oferta_Moeda vs Taxa de Câmbio", xlabel="Diferença Oferta Moeda", ylabel="Taxa de Câmbio")
+
+        fig.update_layout(height=400, width=1200, title_text="Gráficos de Dispersão com Linhas de Tendência")
         st.plotly_chart(fig)
 
         # Gráfico com valor predito e valor real
@@ -142,7 +162,6 @@ def regressaoDolar():
 
         fig.update_layout(title='Valor Real vs Valor Predito', xaxis_title='Data', yaxis_title='Taxa de Câmbio')
         st.plotly_chart(fig)
-
 
 @st.cache_data
 def load_dados():
