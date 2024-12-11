@@ -3,37 +3,34 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import yfinance as yf
-from pandas.tseries.offsets import BDay
-from datetime import datetime
 import time
 import seaborn as sns
-from matplotlib.ticker import FuncFormatter
 import math
 import scipy.stats as stats
-from scipy.stats import norm
-from plotly.subplots import make_subplots
-import streamlit as st
 import yfinance as yf
 import io  
-import numpy as np
-import pandas as pd
 import plotly.express as px
 import plotly.graph_objs as go
-from datetime import datetime, timedelta
 import scipy.stats as si
+import smtplib
+import statsmodels.api as sm
+import plotly.graph_objs as go
+import plotly.subplots as sp
+import requests
 
+from bs4 import BeautifulSoup
 
-import pandas as pd
-import numpy as np
+from pandas.tseries.offsets import BDay
+from datetime import datetime
+from datetime import datetime, timedelta
+from matplotlib.ticker import FuncFormatter
+from scipy.stats import norm
+from plotly.subplots import make_subplots
+from email.mime.text import MIMEText
+
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
-import statsmodels.api as sm
-import seaborn as sns
-import matplotlib.pyplot as plt
-import plotly.graph_objs as go
-import plotly.subplots as sp
-import streamlit as st
 
 # Função para carregar e transformar os dados
 @st.cache
@@ -136,13 +133,6 @@ def regressaoDolar():
         st.plotly_chart(fig)
 
 
-
-
-
-
-
-
-
 @st.cache_data
 def load_dados():
     df = pd.read_excel('Historico Impurezas.xlsx')
@@ -242,11 +232,6 @@ def atr():
         """, unsafe_allow_html=True)
 
 
-
-
-
-
-
 def calcular_var(data, n_days, current_price, z_score):
     data['Returns'] = data['Adj Close'].pct_change()
     lambda_ = 0.94
@@ -303,11 +288,6 @@ def VaR():
         fig.add_trace(go.Scatter(x=bin_centers, y=pdf, mode='lines', name='Distribuição Normal', line=dict(color='red')))
 
         st.plotly_chart(fig)
-
-import streamlit as st
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
 
 
 # Função para realizar a simulação Monte Carlo
@@ -480,22 +460,7 @@ def risco():
         # Mostrar DataFrame
         st.subheader("Influência Média sobre o Faturamento")
         st.write(df_influencia_media)
-
-
-
-
-
-
-
-
-
-import yfinance as yf
-import pandas as pd
-import numpy as np
-import streamlit as st
-import plotly.graph_objects as go
-import smtplib
-from email.mime.text import MIMEText
+        
 
 def calcular_MACD(data, short_window=12, long_window=26, signal_window=9):
     short_ema = data['Close'].ewm(span=short_window, min_periods=1, adjust=False).mean()
@@ -1031,10 +996,6 @@ def calcular_mtm(meta):
 
     return mtm_df
 
-import streamlit as st
-import numpy as np
-import plotly.graph_objs as go
-
 def simulacao_opcoes():
     st.title("Simulador de Opções")
 
@@ -1084,11 +1045,6 @@ def calcular_receita(tipo_opcao, tipo_posicao, strike, lotes, preco_acucar):
         elif tipo_opcao == "Put":
             return np.where(preco_acucar > strike, 0, lotes * 1120 * (strike - preco_acucar))
 
-
-
-import streamlit as st
-import numpy as np
-import plotly.graph_objs as go
 
 def faturamento(variavel_parametro, valor_parametro, outras_variaveis):
     if variavel_parametro in ["Prod VHP", "NY", "Câmbio", "Prod Etanol", "Preço Etanol"]:
@@ -1185,13 +1141,6 @@ def breakeven():
         st.plotly_chart(fig)
 
 
-
-
-
-
-
-
-
 def calcular_ebtida_ajustado(Moagem, Cambio, Preco_Etanol, NY):
     VHP = (89.45 * 0.8346 * Moagem) / 1000
     Etanol = (0.1654 * 80.18 * Moagem + 327.19 * 60075) / 1000
@@ -1280,7 +1229,6 @@ def plotar_grafico_distribuicao(break_even, media, desvio_padrao):
 
     # Exibindo o gráfico
     st.pyplot(plt)
-
 
 
 def cenarios():
@@ -1491,12 +1439,6 @@ def blackscholes():
 
 
 
-
-
-
-import requests
-from bs4 import BeautifulSoup
-
 # Função para obter notícias
 def get_news(ativo, data):
     # Aqui vai a lógica de scraping das notícias. Isso é apenas um exemplo fictício.
@@ -1552,17 +1494,6 @@ def noticias():
             st.write(f"Volatilidade: {mostrar_estrelas(noticia['volatilidade'])}")  # Exibe estrelas de volatilidade
 
 
-
-
-
-
-
-
-import streamlit as st
-import yfinance as yf
-import pandas as pd
-import plotly.express as px
-
 # Função para obter dados históricos de acordo com o símbolo selecionado
 def get_historical_data(symbol, start_date):
     data = yf.download(symbol, start=start_date, end="2099-01-01")
@@ -1617,19 +1548,6 @@ def volatilidade():
             st.error("Não há dados disponíveis para a data selecionada. Por favor, tente outra data.")
 
 
-
-
-
-
-
-
-
-
-
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-
 @st.cache_data
 def load_data():
     # Carregar apenas as colunas necessárias
@@ -1656,14 +1574,7 @@ def lessloss():
         # Gráfico
         fig = px.line(df_filtrado, x='data_hora_leitura', y='Cluster', title='Cluster do Medidor ao Longo do Dia')
         st.plotly_chart(fig)
-
-
-
-
-
-
-
-
+        
 
 def login():
 
