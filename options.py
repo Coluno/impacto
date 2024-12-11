@@ -980,12 +980,12 @@ def plot_heatmap(meta):
 
 # Função para calcular o MTM
 def calcular_mtm(meta):
-    start_date = datetime(2024, 7, 8)
-    end_date = datetime(2024, 7, 31)
+    start_date = datetime(2013-01-01)
+    end_date = today.strftime('%Y-%m-%d')
 
     # Obtendo os dados históricos do contrato futuro de açúcar e do par de moedas USD/BRL
-    sugar_data = yf.download('SB=F', start=start_date, end=end_date)['Close'].squeeze()
-    forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)['Close'].squeeze()
+    sugar_data = yf.download('SB=F', start=start_date, end=end_date)['Adj Close'].squeeze()
+    forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)['Adj Close'].squeeze()
 
     # Calculando o MTM para cada data
     mtm = 22.0462 * 1.04 * sugar_data * forex_data
