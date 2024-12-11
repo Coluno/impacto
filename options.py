@@ -1711,7 +1711,8 @@ def main():
         elif page == "Black Scholes":
             st.image("./ibea.png", width=500)
             blackscholes()
-
+        elif page == "Regressão Açúcar":
+            st.image("./ibea.png", width=500)
         elif page == "Notícias":
             noticias()
         if page == "Less Loss":
