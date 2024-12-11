@@ -99,9 +99,19 @@ def regressaoDolar():
         p_values = model_sm.pvalues
         feature_importance = np.abs(coefficients)
 
-
         taxa_cambio_prevista = prever_taxa_cambio(model, juros_br_proj, juros_eua_proj, prod_ind_br_proj, prod_ind_eua_proj, oferta_moeda_br_proj, oferta_moeda_eua_proj)
         st.write(f'Taxa de câmbio prevista: {taxa_cambio_prevista:.4f}')
+        st.write(f"Erro Quadrático Médio (MSE): {mse:.4f}")
+        st.write(f"Coeficiente de Determinação (R²): {r2:.4f}")
+      
+        st.write("""
+        **MSE (Erro Quadrático Médio)**: 
+        O MSE é uma métrica de avaliação que mede o erro médio entre os valores reais e os preditos. Ele é calculado elevando as diferenças ao quadrado e, em seguida, tirando a média desses erros. 
+        Quanto menor o MSE, melhor é o desempenho do modelo, pois isso significa que as previsões estão mais próximas dos valores reais.
+
+        **Coeficiente de Determinação (R²)**:
+        O R² é uma medida de quão bem o modelo consegue explicar a variabilidade dos dados. Ele varia de 0 a 1, sendo que 1 indica que o modelo explicou toda a variabilidade dos dados, enquanto 0 indica que o modelo não explica nada da variabilidade. Um valor de R² mais alto indica um modelo melhor.
+        """)
 
         # Visualizando a matriz de correlação
         df_with_target = X.copy()
