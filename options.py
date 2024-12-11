@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup
 from pandas.tseries.offsets import BDay
 from datetime import datetime
 from datetime import datetime, timedelta
+from datetime import date 
 from matplotlib.ticker import FuncFormatter
 from scipy.stats import norm
 from plotly.subplots import make_subplots
