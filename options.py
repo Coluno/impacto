@@ -1022,6 +1022,22 @@ def calcular_mtm(meta):
     mtm_df['Date'] = pd.to_datetime(mtm_df['Date']).dt.strftime('%d/%b/%Y')
 
     return mtm_df
+    
+#grafico de linha meta
+def plot_mtm(meta):
+    mtm_df = calcular_mtm(meta)
+    fig = go.Figure()
+    # Linha do MTM
+    fig.add_trace(go.Scatter(x=mtm_df['Date'], y=mtm_df['MTM'], mode='lines', name='MTM'))
+    # Linha da Meta (constante)
+    fig.add_trace(go.Scatter(x=mtm_df['Date'], y=[meta]*len(mtm_df), mode='lines', name='Meta', line=dict(dash='dash', color='red')))
+    fig.update_layout(
+        title=f'MTM ao Longo do Tempo - Meta: {meta}',
+        xaxis_title='Data',
+        yaxis_title='MTM',
+        xaxis=dict(tickformat='%d/%b/%Y'),  # Formatando a data no eixo X
+    )
+    st.plotly_chart(fig)
 
 def simulacao_opcoes():
     st.title("Simulador de Opções")
