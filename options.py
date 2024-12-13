@@ -1133,6 +1133,27 @@ def backtest_sma(data, short_window=10, long_window=50):
     
     return portfolio, sma_short, sma_long
 
+def plot_preco_acucar_historico(data):
+    # Criando um gráfico interativo com Plotly
+    fig = go.Figure()
+
+    # Adicionando a linha do preço
+    fig.add_trace(go.Scatter(x=data.index, y=data['Preco'], mode='lines', name='Preço do Açúcar', line=dict(color='blue', width=2)))
+
+    # Adicionando título e labels
+    fig.update_layout(
+        title='Histórico de Preço do Açúcar',
+        xaxis_title='Data',
+        yaxis_title='Preço (USD)',
+        template='plotly_dark',  # Pode mudar o tema para 'plotly_white' ou outros
+        xaxis_rangeslider_visible=True,  # Habilita o range slider para navegação no gráfico
+        plot_bgcolor='rgba(0, 0, 0, 0)',  # Fundo transparente
+        showlegend=True
+    )
+
+    # Exibindo o gráfico no Streamlit
+    st.plotly_chart(fig)
+
 # Função principal de Streamlit para exibir o backtest
 def backtesting():
     st.title("Simulação de Backtesting:")
@@ -1142,7 +1163,7 @@ def backtesting():
 
     # Exibir dados históricos
     st.subheader("Dados Históricos do Preço do Açúcar")
-    st.line_chart(data['Preco'])
+    plot_preco_acucar_historico(data)
 
     # Parâmetros da estratégia - Média Móvel
     short_window = st.slider('Janela Curta (SMA)', 5, 50, 10)
