@@ -1133,7 +1133,7 @@ def backtest_sma(data, short_window=10, long_window=50):
 
 # Função principal de Streamlit para exibir o backtest
 def backtesting():
-    st.title("Simulação de Backtesting: Melhor Hora de Vender Açúcar")
+    st.title("Simulação de Backtesting:")
 
     # Carregar os dados históricos do açúcar
     data = preco_acucar_atual()
