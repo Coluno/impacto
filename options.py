@@ -1640,6 +1640,9 @@ def login():
 
 # Função principal
 def main():
+    
+    st.set_page_config(page_title="Gestão de Risco na Usina de Açúcar", page_icon="📈", layout="wide")
+    
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
 
