@@ -19,6 +19,7 @@ import plotly.subplots as sp
 import requests
 
 from bs4 import BeautifulSoup
+
 from pandas.tseries.offsets import BDay
 from datetime import datetime
 from datetime import datetime, timedelta
@@ -1107,6 +1108,9 @@ def custo(variavel_parametro, valor_parametro, outras_variaveis):
     elif variavel_parametro == "Moagem":
         custo = (0.6* (380767714 * valor_parametro / 1300000)) + 88704735 + 43732035 +  20286465
     return custo
+    
+def backtesting():
+    st.title("Em andamento")
 
 def breakeven():
     st.title("Break-even Analysis")
@@ -1270,6 +1274,7 @@ def plotar_grafico_distribuicao(break_even, media, desvio_padrao):
 
     # Exibindo o gráfico
     st.pyplot(plt)
+
 
 def cenarios():
     st.title("Cenários")
@@ -1476,6 +1481,8 @@ def blackscholes():
                           template="plotly_dark")
 
         st.plotly_chart(fig_volatility)
+
+
 
 # Função para obter notícias
 def get_news(ativo, data):
