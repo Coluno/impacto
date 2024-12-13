@@ -1712,7 +1712,7 @@ def main():
         st.set_page_config(page_title="Gestão de Risco na Usina de Açúcar", page_icon="📈", layout="wide")
         
         st.sidebar.title("Menu")
-        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar", "Volatilidade","Simulação de Opções", "Monte Carlo", "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR","Notícias","Less Loss", "Backtesting"])
+        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar", "Volatilidade","Simulação de Opções", "Monte Carlo", "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR","Notícias","Less Loss", "Backtesting", "Série temporal"])
 
         if page == "Introdução":
             st.image("./ibea.png", width=500)
