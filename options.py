@@ -1108,7 +1108,9 @@ def custo(variavel_parametro, valor_parametro, outras_variaveis):
     elif variavel_parametro == "Moagem":
         custo = (0.6* (380767714 * valor_parametro / 1300000)) + 88704735 + 43732035 +  20286465
     return custo
-
+    
+def backtesting():
+    st.title("Em andamento")
 
 def breakeven():
     st.title("Break-even Analysis")
@@ -1711,8 +1713,9 @@ def main():
         elif page == "Black Scholes":
             st.image("./ibea.png", width=500)
             blackscholes()
-        elif page == "Regressão Açúcar":
+        elif page == "Backtesting":
             st.image("./ibea.png", width=500)
+            backtesting()
         elif page == "Notícias":
             noticias()
         if page == "Less Loss":
