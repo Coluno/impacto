@@ -1,5 +1,5 @@
 import streamlit as st
-import vectorbt as vbt
+#import vectorbt as vbt
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
