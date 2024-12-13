@@ -1108,9 +1108,7 @@ def custo(variavel_parametro, valor_parametro, outras_variaveis):
     elif variavel_parametro == "Moagem":
         custo = (0.6* (380767714 * valor_parametro / 1300000)) + 88704735 + 43732035 +  20286465
     return custo
-    
-def backtesting():
-    st.title("Em andamento")
+
 
 def breakeven():
     st.title("Break-even Analysis")
@@ -1640,9 +1638,6 @@ def login():
 
 # Função principal
 def main():
-    # **Primeira linha de execução Streamlit**
-    st.set_page_config(page_title="Gestão de Risco na Usina de Açúcar", page_icon="📈", layout="wide")
-
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
 
@@ -1716,9 +1711,8 @@ def main():
         elif page == "Black Scholes":
             st.image("./ibea.png", width=500)
             blackscholes()
-        elif page == "Backtesting":
+        elif page == "Regressão Açúcar":
             st.image("./ibea.png", width=500)
-            backtesting()
         elif page == "Notícias":
             noticias()
         if page == "Less Loss":
