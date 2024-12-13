@@ -1622,7 +1622,7 @@ def lessloss():
 def login():
 
     # Exibindo a imagem da IBEA
-    st.image("ibea.png", use_column_width=True)
+    st.image("ibea.png", use_container_width=True)
     st.title("Login")
     
     # Campos de login e senha
