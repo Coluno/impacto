@@ -34,7 +34,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
 
 # Função para carregar e transformar os dados
-@st.cache
+@st.cache_data
 def load_and_transform_data(file_path):
     df = pd.read_excel(file_path)
     
