@@ -1113,15 +1113,13 @@ def preco_acucar_atual():
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
     data.set_index('Date', inplace=True)
-    
-    # Usar a coluna de preço ajustado (Adj Close)
     return data[['Adj Close']]
 
 # Função de backtest com base nas médias móveis (SMA)
 def backtest_sma(data, short_window=10, long_window=50):
     # Calcular as médias móveis
-    sma_short = data['Preco'].rolling(window=short_window).mean()
-    sma_long = data['Preco'].rolling(window=long_window).mean()
+    sma_short = data['Adj Close'].rolling(window=short_window).mean()
+    sma_long = data['Adj Close'].rolling(window=long_window).mean()
  
     # Sinais de compra (quando a SMA curta é maior que a SMA longa)
     entries = sma_short > sma_long
@@ -1129,7 +1127,7 @@ def backtest_sma(data, short_window=10, long_window=50):
     exits = sma_short < sma_long
  
     # Criar o portfólio usando o VectorBT
-    portfolio = vbt.Portfolio.from_signals(data['Preco'], entries, exits, freq='1D')
+    portfolio = vbt.Portfolio.from_signals(data['Adj Close'], entries, exits, freq='1D')
     
     return portfolio, sma_short, sma_long
 
@@ -1188,7 +1186,7 @@ def backtesting():
     
     # Exibir o gráfico de sinais de compra e venda
     fig, ax = plt.subplots(figsize=(10, 6))
-    data['Preco'].plot(ax=ax, label='Preço do Açúcar')
+    data['Adj Close'].plot(ax=ax, label='Preço do Açúcar')
     sma_short.plot(ax=ax, label=f'SMA Curta ({short_window} dias)', linestyle='--')
     sma_long.plot(ax=ax, label=f'SMA Longa ({long_window} dias)', linestyle='--')
 
