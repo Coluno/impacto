@@ -1115,7 +1115,7 @@ def preco_acucar_atual():
     data.set_index('Date', inplace=True)
     
     # Usar a coluna de preço ajustado (Adj Close)
-    return data[['Adj Close']].rename(columns={'Adj Close': 'Preco'})
+    return data[['Adj Close']]
 
 # Função de backtest com base nas médias móveis (SMA)
 def backtest_sma(data, short_window=10, long_window=50):
@@ -1138,7 +1138,7 @@ def plot_preco_acucar_historico(data):
     fig = go.Figure()
 
     # Adicionando a linha do preço
-    fig.add_trace(go.Scatter(x=data.index, y=data['Preco'], mode='lines', name='Preço do Açúcar', line=dict(color='blue', width=2)))
+    fig.add_trace(go.Scatter(x=data.index, y=data['Adj Close'], mode='lines', name='Preço do Açúcar', line=dict(color='blue', width=2)))
 
     # Adicionando título e labels
     fig.update_layout(
