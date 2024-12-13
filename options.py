@@ -1102,7 +1102,7 @@ def custo(variavel_parametro, valor_parametro, outras_variaveis):
     return custo
 
 def preco_acucar_atual():
-    start_date = date(2024, 9, 17)
+    start_date = date(2013, 1, 1)
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
     data = yf.download('SB=F', start=start_date, end=end_date, interval='1d')
@@ -1113,7 +1113,7 @@ def preco_acucar_atual():
     data.set_index('Date', inplace=True)
     
     # Usar a coluna de preço ajustado (Adj Close)
-    return data[['Date', 'Adj Close']].rename(columns={'Adj Close': 'Preco'}).set_index('Date')
+    return data[['Adj Close']].rename(columns={'Adj Close': 'Preco'})
 
 # Função de backtest com base nas médias móveis (SMA)
 def backtest_sma(data, short_window=10, long_window=50):
