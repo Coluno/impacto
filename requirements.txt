@@ -14,4 +14,3 @@ openpyxl
 statsmodels
 xlrd
 xlsxwriter
-vectorbt
