@@ -1125,27 +1125,27 @@ def preco_acucar_atual():
     return data[['Date', 'Adj Close']].rename(columns={'Adj Close': 'Preco'}).set_index('Date')
 
 # Função de backtest com base nas médias móveis (SMA)
-def backtest_sma(data, short_window=10, long_window=50):
+# def backtest_sma(data, short_window=10, long_window=50):
     # Calcular as médias móveis
-    sma_short = data['Preco'].rolling(window=short_window).mean()
-    sma_long = data['Preco'].rolling(window=long_window).mean()
-
-    # Sinais de compra (quando a SMA curta é maior que a SMA longa)
-    entries = sma_short > sma_long
-    # Sinais de venda (quando a SMA curta é menor que a SMA longa)
-    exits = sma_short < sma_long
-
-    # Criar o portfólio usando o VectorBT
-    portfolio = vbt.Portfolio.from_signals(data['Preco'], entries, exits, freq='1D')
+ #    sma_short = data['Preco'].rolling(window=short_window).mean()
+#     sma_long = data['Preco'].rolling(window=long_window).mean()
+# 
+ #    # Sinais de compra (quando a SMA curta é maior que a SMA longa)
+#     entries = sma_short > sma_long
+#     # Sinais de venda (quando a SMA curta é menor que a SMA longa)
+#     exits = sma_short < sma_long
+# 
+ #    # Criar o portfólio usando o VectorBT
+ #    portfolio = vbt.Portfolio.from_signals(data['Preco'], entries, exits, freq='1D')
     
-    return portfolio, sma_short, sma_long
+ #    return portfolio, sma_short, sma_long
 
 # Função principal de Streamlit para exibir o backtest
 def backtesting():
     st.title("Simulação de Backtesting: Melhor Hora de Vender Açúcar")
 
     # Carregar os dados históricos do açúcar
-    data = gerar_dados_atuais()
+    data = preco_acucar_atual()
 
     # Exibir dados históricos
     st.subheader("Dados Históricos do Preço do Açúcar")
