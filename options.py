@@ -1,4 +1,5 @@
 import streamlit as st
+import vectorbt as vbt
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,7 +20,6 @@ import plotly.subplots as sp
 import requests
 
 from bs4 import BeautifulSoup
-
 from pandas.tseries.offsets import BDay
 from datetime import datetime
 from datetime import datetime, timedelta
@@ -1108,10 +1108,82 @@ def custo(variavel_parametro, valor_parametro, outras_variaveis):
     elif variavel_parametro == "Moagem":
         custo = (0.6* (380767714 * valor_parametro / 1300000)) + 88704735 + 43732035 +  20286465
     return custo
-    
-def backtesting():
-    st.title("Em andamento")
 
+# Função para obter os dados do açúcar usando yfinance
+def preco_acucar_atual():
+    start_date = date(2024, 9, 17)
+    today = date.today()
+    end_date = today.strftime('%Y-%m-%d')
+    data = yf.download('SB=F', start=start_date, end=end_date, interval='1d')
+
+    # Resetar o índice e renomear as colunas
+    data.reset_index(inplace=True)
+    data.columns = data.columns.droplevel(1)
+    data.set_index('Date', inplace=True)
+    
+    # Usar a coluna de preço ajustado (Adj Close)
+    return data[['Date', 'Adj Close']].rename(columns={'Adj Close': 'Preco'}).set_index('Date')
+
+# Função de backtest com base nas médias móveis (SMA)
+def backtest_sma(data, short_window=10, long_window=50):
+    # Calcular as médias móveis
+    sma_short = data['Preco'].rolling(window=short_window).mean()
+    sma_long = data['Preco'].rolling(window=long_window).mean()
+
+    # Sinais de compra (quando a SMA curta é maior que a SMA longa)
+    entries = sma_short > sma_long
+    # Sinais de venda (quando a SMA curta é menor que a SMA longa)
+    exits = sma_short < sma_long
+
+    # Criar o portfólio usando o VectorBT
+    portfolio = vbt.Portfolio.from_signals(data['Preco'], entries, exits, freq='1D')
+    
+    return portfolio, sma_short, sma_long
+
+# Função principal de Streamlit para exibir o backtest
+def backtesting():
+    st.title("Simulação de Backtesting: Melhor Hora de Vender Açúcar")
+
+    # Carregar os dados históricos do açúcar
+    data = gerar_dados_atuais()
+
+    # Exibir dados históricos
+    st.subheader("Dados Históricos do Preço do Açúcar")
+    st.line_chart(data['Preco'])
+
+    # Parâmetros da estratégia - Média Móvel
+    short_window = st.slider('Janela Curta (SMA)', 5, 50, 10)
+    long_window = st.slider('Janela Longa (SMA)', 50, 200, 50)
+
+    # Rodar o backtest
+    portfolio, sma_short, sma_long = backtest_sma(data, short_window, long_window)
+
+    # Exibir o retorno acumulado
+    st.subheader("Desempenho do Backtest (SMA)")
+    st.write(f"Retorno Acumulado: {portfolio.total_return()}")
+
+    # Plotar o gráfico de performance do portfólio
+    st.subheader("Gráfico de Performance")
+    portfolio.total_return().vbt.plot()
+
+    # Detalhes dos sinais de compra e venda
+    st.subheader("Sinais de Compra e Venda")
+    st.write("Sinal de compra: Quando a média móvel curta ultrapassa a média longa.")
+    st.write("Sinal de venda: Quando a média móvel curta fica abaixo da média longa.")
+    st.write("Verifique os pontos no gráfico onde a linha de preço cruza as médias móveis.")
+    
+    # Exibir o gráfico de sinais de compra e venda
+    fig, ax = plt.subplots(figsize=(10, 6))
+    data['Preco'].plot(ax=ax, label='Preço do Açúcar')
+    sma_short.plot(ax=ax, label=f'SMA Curta ({short_window} dias)', linestyle='--')
+    sma_long.plot(ax=ax, label=f'SMA Longa ({long_window} dias)', linestyle='--')
+
+    ax.set_title('Preço do Açúcar e Sinais de Compra/Venda')
+    ax.set_xlabel('Data')
+    ax.set_ylabel('Preço')
+    ax.legend()
+    st.pyplot(fig)
+    
 def breakeven():
     st.title("Break-even Analysis")
     st.write("Selecione a variável a ser usada como parâmetro:")
@@ -1274,7 +1346,6 @@ def plotar_grafico_distribuicao(break_even, media, desvio_padrao):
 
     # Exibindo o gráfico
     st.pyplot(plt)
-
 
 def cenarios():
     st.title("Cenários")
@@ -1481,8 +1552,6 @@ def blackscholes():
                           template="plotly_dark")
 
         st.plotly_chart(fig_volatility)
-
-
 
 # Função para obter notícias
 def get_news(ativo, data):
