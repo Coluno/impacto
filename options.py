@@ -1107,21 +1107,20 @@ def preco_acucar_atual():
     start_date = date(2013, 1, 1)
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
-    data = yf.download('SB=F', start=start_date, end=end_date, interval='1d')["Adj Close"]
+    data = yf.download('SB=F', start=start_date, end=end_date, interval='1d')
 
     # Resetar o índice e renomear as colunas
-    data = data['SB=F']
-    #data.reset_index(inplace=True)
-    #data.columns = data.columns.droplevel(1)
-    #data.set_index('Date', inplace=True)
+    data.reset_index(inplace=True)
+    data.columns = data.columns.droplevel(1)
+    data.set_index('Date', inplace=True)
     
     return data
 
 # Função de backtest com base nas médias móveis (SMA)
 def backtest_sma(data, short_window=10, long_window=50):
     # Calcular as médias móveis
-    sma_short = data['SB=F'].rolling(window=short_window).mean()
-    sma_long = data['SB=F'].rolling(window=long_window).mean()
+    sma_short = data['Adj Close'].rolling(window=short_window).mean()
+    sma_long = data['Adj Close'].rolling(window=long_window).mean()
  
     # Sinais de compra (quando a SMA curta é maior que a SMA longa)
     entries = sma_short > sma_long
@@ -1129,7 +1128,7 @@ def backtest_sma(data, short_window=10, long_window=50):
     exits = sma_short < sma_long
  
     # Criar o portfólio usando o VectorBT
-    portfolio = vbt.Portfolio.from_signals(data['SB=F'], entries, exits, freq='1D')
+    portfolio = vbt.Portfolio.from_signals(data['Adj Close'], entries, exits, freq='1D')
     
     return portfolio, sma_short, sma_long
 
@@ -1138,7 +1137,7 @@ def plot_preco_acucar_historico(data):
     fig = go.Figure()
 
     # Adicionando a linha do preço
-    fig.add_trace(go.Scatter(x=data.index, y=data['SB=F'], mode='lines', name='Preço do Açúcar', line=dict(color='blue', width=2)))
+    fig.add_trace(go.Scatter(x=data.index, y=data['Adj Close'], mode='lines', name='Preço do Açúcar', line=dict(color='blue', width=2)))
 
     # Adicionando título e labels
     fig.update_layout(
