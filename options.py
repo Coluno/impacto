@@ -283,9 +283,16 @@ def VaR():
     st.title("Análise de Risco")
 
     escolha = st.selectbox('Selecione o ativo:', ['USDBRL=X', 'SB=F'])
-
-    data = yf.download(escolha, start='2013-01-01', end='2025-01-01')
     
+    start_date = date(2013, 1, 1)
+    today = date.today()
+    end_date = today.strftime('%Y-%m-%d')
+    
+    data = yf.download(escolha, start=start_date, end=end_date)
+    data.reset_index(inplace=True)
+    data.columns = data.columns.droplevel(1)
+    data.set_index('Date', inplace=True)
+
     current_price = data['Adj Close'].iloc[-1]
 
     data_fim = st.date_input('Selecione a data final:', datetime.now())
