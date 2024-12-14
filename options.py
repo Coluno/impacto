@@ -1110,7 +1110,7 @@ def preco_acucar_atual():
     data = yf.download('SB=F', start=start_date, end=end_date, interval='1d')["Adj Close"]
 
     # Resetar o índice e renomear as colunas
-    data = data[['SB=F']
+    data = data['SB=F']
     #data.reset_index(inplace=True)
     #data.columns = data.columns.droplevel(1)
     #data.set_index('Date', inplace=True)
