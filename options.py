@@ -586,7 +586,7 @@ def mercado():
     data = yf.download(ativo, start=start_date, end=end_date)
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
-    data.set_index('Date', inplace=True)
+    #data.set_index('Date', inplace=True) , o index não é data e por causa disso os valores nos graficos estão estranhos
 
     filtro_datas = st.sidebar.date_input("Selecione um intervalo de datas:", value=[pd.to_datetime('2023-01-01'), pd.to_datetime('2025-01-01')])
     filtro_datas = [pd.Timestamp(date) for date in filtro_datas]
