@@ -1174,7 +1174,7 @@ def plot_preco_acucar_historico(data):
 # Função principal de Streamlit para exibir o backtest
 def backtesting():
     st.title("Simulação de Backtesting:")
-
+    selecao_indicador = st.selectbox("Selecione o indicador", ["SMA"])
     # Carregar os dados históricos do açúcar
     data = preco_acucar_atual()
 
