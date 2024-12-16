@@ -580,10 +580,13 @@ def mercado():
     st.title("Mercado")
 
     ativo = st.selectbox("Selecione o ativo", ["SBV24.NYB", "SBH25.NYB", "USDBRL=X", "SB=F"])
-
-    data = yf.download(ativo, start="2014-01-01", end="2024-12-12")
+    start_date = date(2014, 1, 1)
+    today = date.today()
+    end_date = today.strftime('%Y-%m-%d')
+    data = yf.download(ativo, start=start_date, end=end_date)
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
+    data.set_index('Date', inplace=True)
 
     filtro_datas = st.sidebar.date_input("Selecione um intervalo de datas:", value=[pd.to_datetime('2023-01-01'), pd.to_datetime('2025-01-01')])
     filtro_datas = [pd.Timestamp(date) for date in filtro_datas]
