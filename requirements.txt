@@ -15,4 +15,3 @@ statsmodels
 xlrd
 xlsxwriter
 vectorbt
-TA-Lib
