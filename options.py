@@ -1813,7 +1813,10 @@ def main():
             blackscholes()
         elif page == "Analise Temporal":
             st.image("./ibea.png", width=500)
-            
+
+        elif page == "Regressão Açúcar"
+            st.image("./ibea.png", width=500)
+            regressao_sugar()
         elif page == "Notícias":
             noticias()
         if page == "Less Loss":
