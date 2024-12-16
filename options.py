@@ -1137,87 +1137,6 @@ def preco_acucar_atual():
     
     return data
 
-# Função de backtest com base nas médias móveis (SMA)
-def backtest_sma(data, short_window=10, long_window=50):
-    # Calcular as médias móveis
-    sma_short = data['Adj Close'].rolling(window=short_window).mean()
-    sma_long = data['Adj Close'].rolling(window=long_window).mean()
- 
-    # Sinais de compra (quando a SMA curta é maior que a SMA longa)
-    entries = sma_short > sma_long
-    # Sinais de venda (quando a SMA curta é menor que a SMA longa)
-    exits = sma_short < sma_long
- 
-    # Criar o portfólio usando o VectorBT
-    portfolio = vbt.Portfolio.from_signals(data['Adj Close'], entries, exits, freq='1D')
-    
-    return portfolio, sma_short, sma_long
-
-def plot_preco_acucar_historico(data):
-    # Criando um gráfico interativo com Plotly
-    fig = go.Figure()
-
-    # Adicionando a linha do preço
-    fig.add_trace(go.Scatter(x=data.index, y=data['Adj Close'], mode='lines', name='Preço do Açúcar', line=dict(color='blue', width=2)))
-
-    # Adicionando título e labels
-    fig.update_layout(
-        title='Histórico de Preço do Açúcar',
-        xaxis_title='Data',
-        yaxis_title='Preço (USD)',
-        template='plotly_dark',  # Pode mudar o tema para 'plotly_white' ou outros
-        xaxis_rangeslider_visible=True,  # Habilita o range slider para navegação no gráfico
-        plot_bgcolor='rgba(0, 0, 0, 0)',  # Fundo transparente
-        showlegend=True
-    )
-
-    # Exibindo o gráfico no Streamlit
-    st.plotly_chart(fig)
-
-# Função principal de Streamlit para exibir o backtest
-def backtesting():
-    st.title("Simulação de Backtesting:")
-    selecao_indicador = st.selectbox("Selecione o indicador", ["SMA"])
-    # Carregar os dados históricos do açúcar
-    data = preco_acucar_atual()
-
-    # Exibir dados históricos
-    st.subheader("Dados Históricos do Preço do Açúcar")
-    plot_preco_acucar_historico(data)
-
-    # Parâmetros da estratégia - Média Móvel
-    short_window = st.slider('Janela Curta (SMA)', 5, 50, 10)
-    long_window = st.slider('Janela Longa (SMA)', 50, 200, 50)
-
-    # Rodar o backtest
-    portfolio, sma_short, sma_long = backtest_sma(data, short_window, long_window)
-
-    # Exibir o retorno acumulado
-    st.subheader("Desempenho do Backtest (SMA)")
-    st.write(f"Retorno Acumulado: {portfolio.total_return()}")
-
-    # Plotar o gráfico de performance do portfólio
-    st.subheader("Gráfico de Performance")
-    portfolio.total_return().vbt.plot()
-
-    # Detalhes dos sinais de compra e venda
-    st.subheader("Sinais de Compra e Venda")
-    st.write("Sinal de compra: Quando a média móvel curta ultrapassa a média longa.")
-    st.write("Sinal de venda: Quando a média móvel curta fica abaixo da média longa.")
-    st.write("Verifique os pontos no gráfico onde a linha de preço cruza as médias móveis.")
-    
-    # Exibir o gráfico de sinais de compra e venda
-    fig, ax = plt.subplots(figsize=(10, 6))
-    data['Adj Close'].plot(ax=ax, label='Preço do Açúcar')
-    sma_short.plot(ax=ax, label=f'SMA Curta ({short_window} dias)', linestyle='--')
-    sma_long.plot(ax=ax, label=f'SMA Longa ({long_window} dias)', linestyle='--')
-
-    ax.set_title('Preço do Açúcar e Sinais de Compra/Venda')
-    ax.set_xlabel('Data')
-    ax.set_ylabel('Preço')
-    ax.legend()
-    st.pyplot(fig)
-
 def breakeven():
     st.title("Break-even Analysis")
     st.write("Selecione a variável a ser usada como parâmetro:")
@@ -1698,7 +1617,6 @@ def volatilidade():
         else:
             st.error("Não há dados disponíveis para a data selecionada. Por favor, tente outra data.")
 
-
 @st.cache_data
 def load_data():
     # Carregar apenas as colunas necessárias
@@ -1726,7 +1644,6 @@ def lessloss():
         fig = px.line(df_filtrado, x='data_hora_leitura', y='Cluster', title='Cluster do Medidor ao Longo do Dia')
         st.plotly_chart(fig)
         
-
 def login():
 
     # Exibindo a imagem da IBEA
@@ -1756,7 +1673,7 @@ def main():
         
         st.sidebar.title("Menu")
         #add Série temporal futuramente...
-        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade","Simulação de Opções", "Monte Carlo", "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR","Notícias","Less Loss", "Backtesting"])
+        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade","Simulação de Opções", "Monte Carlo", "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR","Notícias","Less Loss"])
 
         if page == "Introdução":
             st.image("./ibea.png", width=500)
@@ -1820,9 +1737,9 @@ def main():
         elif page == "Black Scholes":
             st.image("./ibea.png", width=500)
             blackscholes()
-        elif page == "Backtesting":
+        elif page == "Analise Temporal":
             st.image("./ibea.png", width=500)
-            backtesting()
+            
         elif page == "Notícias":
             noticias()
         if page == "Less Loss":
