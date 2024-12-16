@@ -2,7 +2,7 @@ altair
 numpy
 pandas
 pydeck
-streamlit
+streamlit==1.40.0
 matplotlib
 seaborn
 yfinance
