@@ -586,7 +586,8 @@ def mercado():
     data = yf.download(ativo, start=start_date, end=end_date)
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
-    
+    data.set_index('Date', inplace=True)
+
     filtro_datas = st.sidebar.date_input("Selecione um intervalo de datas:", value=[pd.to_datetime('2023-01-01'), pd.to_datetime('2025-01-01')])
     filtro_datas = [pd.Timestamp(date) for date in filtro_datas]
 
@@ -629,7 +630,7 @@ def mercado():
                                                  increasing_line_color='green',
                                                  decreasing_line_color='red')])
             entry_points = data_filtrado[data_filtrado['Entry Points']]
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
+            fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
             fig.update_layout(title='Preço de Fechamento com Pontos de Entrada', xaxis_title='Data', yaxis_title='Preço de Fechamento')
             st.plotly_chart(fig)
 
@@ -663,7 +664,7 @@ def mercado():
             if quantidade_entradas > 0:
                 soma_fechamentos_entradas = data_filtrado[data_filtrado['Entry Points']]['Close'].mean()
 
-            fig = go.Figure(data=[go.Candlestick(x=entry_points['Date'],
+            fig = go.Figure(data=[go.Candlestick(x=data_filtrado.index,
                                                  open=data_filtrado['Open'],
                                                  high=data_filtrado['High'],
                                                  low=data_filtrado['Low'],
@@ -676,9 +677,9 @@ def mercado():
             st.plotly_chart(fig)
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=data_filtrado['CCI'], mode='lines', name='CCI'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['CCI'], mode='lines', name='CCI'))
             entry_points = data_filtrado[data_filtrado['Entry Points']]
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=entry_points['CCI'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
+            fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['CCI'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
             fig.update_layout(title='CCI', xaxis_title='Data', yaxis_title='Valor do CCI')
             st.plotly_chart(fig)
 
@@ -692,7 +693,7 @@ def mercado():
             if quantidade_entradas > 0:
                 soma_fechamentos_entradas = data_filtrado[data_filtrado['Entry Points']]['Close'].mean()
 
-            fig = go.Figure(data=[go.Candlestick(x=entry_points['Date'],
+            fig = go.Figure(data=[go.Candlestick(x=data_filtrado.index,
                                                  open=data_filtrado['Open'],
                                                  high=data_filtrado['High'],
                                                  low=data_filtrado['Low'],
@@ -700,12 +701,12 @@ def mercado():
                                                  increasing_line_color='green',
                                                  decreasing_line_color='red')])
             entry_points = data_filtrado[data_filtrado['Entry Points']]
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
+            fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
             fig.update_layout(title='Preço de Fechamento com Pontos de Entrada', xaxis_title='Data', yaxis_title='Preço de Fechamento')
             st.plotly_chart(fig)
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=data_filtrado['Estocástico'], mode='lines', name='Estocástico'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Estocástico'], mode='lines', name='Estocástico'))
             entry_points = data_filtrado[data_filtrado['Entry Points']]
             fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['Estocástico'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
             fig.update_layout(title='Estocástico', xaxis_title='Data', yaxis_title='Valor do Estocástico')
@@ -719,7 +720,7 @@ def mercado():
             if quantidade_entradas > 0:
                 soma_fechamentos_entradas = data_filtrado[data_filtrado['Entry Points']]['Close'].mean()
 
-            fig = go.Figure(data=[go.Candlestick(x=entry_points['Date'],
+            fig = go.Figure(data=[go.Candlestick(x=data_filtrado.index,
                                                  open=data_filtrado['Open'],
                                                  high=data_filtrado['High'],
                                                  low=data_filtrado['Low'],
@@ -728,14 +729,14 @@ def mercado():
                                                  decreasing_line_color='red')])
             
             # Adiciona a linha da média móvel
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=data_filtrado['Close'].rolling(window=20).mean(), mode='lines', name='Média Móvel', line=dict(color='orange')))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Close'].rolling(window=20).mean(), mode='lines', name='Média Móvel', line=dict(color='orange')))
 
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=data_filtrado['Bollinger High'], mode='lines', name='Bollinger High'))
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=data_filtrado['Bollinger Low'], mode='lines', name='Bollinger Low'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Bollinger High'], mode='lines', name='Bollinger High'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Bollinger Low'], mode='lines', name='Bollinger Low'))
 
             # Adiciona uma área azul translúcida entre as bandas superior e inferior
             fig.add_trace(go.Scatter(
-                x=entry_points['Date'].tolist() + data_filtrado.index[::-1].tolist(),
+                x=data_filtrado.index.tolist() + data_filtrado.index[::-1].tolist(),
                 y=data_filtrado['Bollinger High'].tolist() + data_filtrado['Bollinger Low'][::-1].tolist(),
                 fill='toself',
                 fillcolor='rgba(173, 216, 230, 0.3)',  # cor azul translúcida
@@ -744,7 +745,7 @@ def mercado():
             ))
 
             entry_points = data_filtrado[data_filtrado['Entry Points']]
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
+            fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
             fig.update_layout(title='Bandas de Bollinger', xaxis_title='Data', yaxis_title='Preço de Fechamento')
             st.plotly_chart(fig)
 
@@ -758,17 +759,17 @@ def mercado():
             if quantidade_entradas > 0:
                 soma_fechamentos_entradas = data_filtrado[data_filtrado['Entry Points']]['Close'].mean()
 
-            fig = go.Figure(data=[go.Candlestick(x=entry_points['Date'],
+            fig = go.Figure(data=[go.Candlestick(x=data_filtrado.index,
                                                  open=data_filtrado['Open'],
                                                  high=data_filtrado['High'],
                                                  low=data_filtrado['Low'],
                                                  close=data_filtrado['Close'],
                                                  increasing_line_color='green',
                                                  decreasing_line_color='red')])
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=data_filtrado['MACD'], mode='lines', name='MACD'))
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=data_filtrado['Signal Line'], mode='lines', name='Signal Line'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['MACD'], mode='lines', name='MACD'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Signal Line'], mode='lines', name='Signal Line'))
             entry_points = data_filtrado[data_filtrado['Entry Points']]
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=entry_points['MACD'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
+            fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['MACD'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
             fig.update_layout(title='MACD', xaxis_title='Data', yaxis_title='Valor')
             st.plotly_chart(fig)
 
@@ -780,7 +781,7 @@ def mercado():
             if quantidade_entradas > 0:
                 soma_fechamentos_entradas = data_filtrado[data_filtrado['Entry Points']]['Close'].mean()
 
-            fig = go.Figure(data=[go.Candlestick(x=entry_points['Date'],
+            fig = go.Figure(data=[go.Candlestick(x=data_filtrado.index,
                                                  open=data_filtrado['Open'],
                                                  high=data_filtrado['High'],
                                                  low=data_filtrado['Low'],
@@ -788,12 +789,12 @@ def mercado():
                                                  increasing_line_color='green',
                                                  decreasing_line_color='red')])
             entry_points = data_filtrado[data_filtrado['Entry Points']]
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
+            fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
             fig.update_layout(title='Preço de Fechamento com Pontos de Entrada', xaxis_title='Data', yaxis_title='Preço de Fechamento')
             st.plotly_chart(fig)
 
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=entry_points['Date'], y=data_filtrado['RSI'], mode='lines', name='RSI'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['RSI'], mode='lines', name='RSI'))
             entry_points = data_filtrado[data_filtrado['Entry Points']]
             fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['RSI'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
             fig.update_layout(title='RSI', xaxis_title='Data', yaxis_title='Valor do RSI')
