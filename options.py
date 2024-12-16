@@ -992,21 +992,29 @@ def plot_heatmap(meta):
             produto[i, j] = 22.0462 * 1.04 * acucar * dolar - meta
 
     # Plotando o gráfico de calor
-    plt.figure(figsize=(20, 16))  # Definindo um tamanho maior para o gráfico
-    plt.imshow(produto, cmap='RdYlGn', aspect='auto')
+    fig, ax = plt.subplots(figsize=(20, 16))
+
+    # Plotando o gráfico de calor
+    cax = ax.imshow(produto, cmap='RdYlGn', aspect='auto')
 
     # Adicionando os rótulos com os valores do produto dentro dos quadrados
     for i in range(len(precos_acucar)):
         for j in range(len(precos_dolar)):
-            plt.text(j, i, f'\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200bR$ {produto[i, j]:.0f}/Ton\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b\u200b', ha='center', va='center', color='white', fontsize=11.5, fontweight='bold')
+            ax.text(j, i, f'R$ {produto[i, j]:.0f}/Ton', 
+                    ha='center', va='center', color='white', fontsize=11.5, fontweight='bold')
 
-    plt.colorbar(label='Produto')
-    plt.xticks(np.arange(len(precos_dolar)), [f'{d:.2f}' for d in precos_dolar])
-    plt.yticks(np.arange(len(precos_acucar)), [f'{a:.2f}' for a in precos_acucar])
-    plt.xlabel('Preço do Dólar')
-    plt.ylabel('Preço do Açúcar')
-    plt.title(f'Produto = 22.0462 * 1.04 * Preço do Açúcar * Preço do Dólar - Meta: {meta}')
-    st.pyplot()
+    # Configurando a barra de cores
+    cbar = fig.colorbar(cax, ax=ax, label='Produto')
+
+    # Configurando os rótulos dos eixos
+    ax.set_xticks(np.arange(len(precos_dolar)))
+    ax.set_xticklabels([f'{d:.2f}' for d in precos_dolar])
+    ax.set_yticks(np.arange(len(precos_acucar)))
+    ax.set_yticklabels([f'{a:.2f}' for a in precos_acucar])
+    ax.set_xlabel('Preço do Dólar', fontsize=14)
+    ax.set_ylabel('Preço do Açúcar', fontsize=14)
+    ax.set_title(f'Produto = 22.0462 * 1.04 * Preço do Açúcar * Preço do Dólar - Meta: {meta}', fontsize=16)
+    st.pyplot(fig)
 
 # Função para calcular o MTM
 def calcular_mtm(meta):
