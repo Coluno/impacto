@@ -749,6 +749,7 @@ def mercado():
 
         elif indicador_selecionado == "MACD":
             data_filtrado = calcular_MACD(data_filtrado)
+            data_filtrado = data_filtrado.copy()
             data_filtrado['Entry Points'] = (data_filtrado['MACD'] > data_filtrado['Signal Line']) & (data_filtrado['MACD'].shift(-1) < data_filtrado['Signal Line'].shift(-1))
 
             quantidade_entradas = data_filtrado['Entry Points'].sum()
