@@ -386,9 +386,8 @@ def plot_histograma(resultados, titulo, cor):
 
 #Função principal para regressao açucar
 def load_data(tickers, start, end):
-    data = yf.download(tickers, start=start, end=end).squeeze()
-    data = data.to_frame()
-    data.columns = ['Adj Close']
+    data = yf.download(tickers, start=start, end=end)['Adj Close']
+    data = data.dropna()
     return data
 
 # Função para calcular as diferenças log-transformadas
