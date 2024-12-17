@@ -36,7 +36,6 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
 
 # Função para carregar e transformar os dados
-@st.cache_data
 def load_and_transform_data(file_path):
     df = pd.read_excel(file_path)
     
@@ -385,8 +384,7 @@ def plot_histograma(resultados, titulo, cor):
     st.pyplot(fig)
 
 # Função para carregar os dados do Yahoo Finance
-@st.cache_data()
-def load_data(tickers, start, end):
+def load_tickers(tickers, start, end):
     data = yf.download(tickers, start=start, end=end)['Adj Close']
     data.reset_index(inplace=True)  # garantir que os tickets e data sejam colunas
     data.dropna(inplace=True)  # Remover valores nulos
@@ -416,7 +414,7 @@ def regressao_sugar():
         start_date = "2010-01-01"
         end_date = "2024-12-31"
         tickers = ["SB=F", "CL=F", "USDBRL=X"]
-        data = load_data(tickers, start_date, end_date)
+        data = load_tickers(tickers, start_date, end_date)
 
         # Cálculo das diferenças log-transformadas
         log_diff_data = data[['CL=F', 'SB=F', 'USDBRL=X']].apply(calculate_log_diff).dropna()
