@@ -655,7 +655,7 @@ def enviar_alerta(email, ativo, cci_status, rsi_status, estocastico_status, bb_s
 def mercado():
     st.title("Mercado")
 
-    ativo = st.selectbox("Selecione o ativo", ["SBV24.NYB", "SBH25.NYB", "USDBRL=X", "SB=F"])
+    ativo = st.selectbox("Selecione o ativo", ["SBH25.NYB", "USDBRL=X", "SB=F", "CL=F"])
     start_date = date(2014, 1, 1)
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
