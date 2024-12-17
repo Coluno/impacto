@@ -451,8 +451,8 @@ def regressao_sugar():
 
         # Gráfico comparando valores reais e previstos
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=log_diff_data.index, y=y, mode='lines', name='Diferença Log Real'))
-        fig.add_trace(go.Scatter(x=log_diff_data.index, y=y_pred, mode='lines', name='Diferença Log Prevista'))
+        fig.add_trace(go.Scatter(x=data['Date'], y=y, mode='lines', name='Diferença Log Real'))
+        fig.add_trace(go.Scatter(x=data['Date'], y=y_pred, mode='lines', name='Diferença Log Prevista'))
 
         fig.update_layout(title="Comparação de Diferença Log: Valores Reais vs Previstos",
                           xaxis_title="Data",
