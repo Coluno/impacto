@@ -600,7 +600,10 @@ def calcular_MACD(data, short_window=12, long_window=26, signal_window=9):
     macd = short_ema - long_ema
     signal_line = macd.ewm(span=signal_window, min_periods=1, adjust=False).mean()
     histograma = macd - signal_line
-    return macd, signal_line, histograma
+    data['MACD'] = macd
+    data['Signal Line'] = signal_line
+    data['Histograma'] = histograma
+    return data
 
 def calcular_CCI(data, window=20):
     typical_price = (data['High'] + data['Low'] + data['Close']) / 3
@@ -849,16 +852,14 @@ def mercado():
             fig.update_layout(title='Bandas de Bollinger', xaxis_title='Data', yaxis_title='Preço de Fechamento')
             st.plotly_chart(fig)
 
-
         elif indicador_selecionado == "MACD":
             data_filtrado = calcular_MACD(data_filtrado)
-            data_filtrado = data_filtrado.copy()
             data_filtrado['Entry Points'] = (data_filtrado['MACD'] > data_filtrado['Signal Line']) & (data_filtrado['MACD'].shift(-1) < data_filtrado['Signal Line'].shift(-1))
-
             quantidade_entradas = data_filtrado['Entry Points'].sum()
             if quantidade_entradas > 0:
                 soma_fechamentos_entradas = data_filtrado[data_filtrado['Entry Points']]['Close'].mean()
-
+        
+            # Criar gráfico com Plotly
             fig = go.Figure(data=[go.Candlestick(x=data_filtrado.index,
                                                  open=data_filtrado['Open'],
                                                  high=data_filtrado['High'],
@@ -866,13 +867,17 @@ def mercado():
                                                  close=data_filtrado['Close'],
                                                  increasing_line_color='green',
                                                  decreasing_line_color='red')])
+            # Adicionar MACD e Signal Line
             fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['MACD'], mode='lines', name='MACD'))
             fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Signal Line'], mode='lines', name='Signal Line'))
+            # Adicionar pontos de entrada
             entry_points = data_filtrado[data_filtrado['Entry Points']]
             fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['MACD'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
+            # Atualizar layout do gráfico
             fig.update_layout(title='MACD', xaxis_title='Data', yaxis_title='Valor')
+            # Exibir gráfico no Streamlit
             st.plotly_chart(fig)
-
+        
         elif indicador_selecionado == "RSI":
             data_filtrado['RSI'] = calcular_RSI(data_filtrado)
             data_filtrado['Entry Points'] = (data_filtrado['RSI'] > 70) & (data_filtrado['RSI'].shift(-1) < data_filtrado['RSI'])
