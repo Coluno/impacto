@@ -263,6 +263,7 @@ def atr():
         <span style='color: yellow'>Explicabilidade de 'Preciptação': moderada</span>
         """, unsafe_allow_html=True)
 
+#Função para calcular o VaR
 def calcular_var(data, n_days, current_price, z_score):
     data['Returns'] = data['Adj Close'].pct_change()
     lambda_ = 0.94
@@ -277,7 +278,8 @@ def calcular_var(data, n_days, current_price, z_score):
 def calcular_dias_uteis(data_inicio, data_fim):
     dias_uteis = np.busday_count(data_inicio.date(), data_fim.date())
     return dias_uteis
-
+    
+#Função principal que vai no streamlit
 def VaR():
     st.title("Análise de Risco")
 
