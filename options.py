@@ -664,7 +664,7 @@ def mercado():
     data.columns = data.columns.droplevel(1)
     #data.set_index('Date', inplace=True) , o index não é data e por causa disso os valores nos graficos estão estranhos
 
-    filtro_datas = st.sidebar.date_input("Selecione um intervalo de datas:", value=[pd.to_datetime('2023-01-01'), pd.to_datetime('2025-01-01')])
+    filtro_datas = st.date_input("Selecione um intervalo de datas:", value=[pd.to_datetime('2023-01-01'), pd.to_datetime('2025-01-01')])
     filtro_datas = [pd.Timestamp(date) for date in filtro_datas]
 
     indicador_selecionado = st.selectbox("Selecione o indicador", ["EWMA", "CCI", "Estocástico", "Bandas de Bollinger", "MACD", "RSI"])
