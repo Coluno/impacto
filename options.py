@@ -371,17 +371,17 @@ def calcular_custo(faturamento, moagem_total, atr, preco_cbios):
 
 # Função para plotar o histograma
 def plot_histograma(resultados, titulo, cor):
-    plt.figure(figsize=(10, 6))
-    sns.histplot(resultados, bins=50, kde=True, color=cor)
-    plt.xlabel('Valor (R$)')
-    plt.ylabel('Frequência')
-    plt.title(titulo)
-    plt.grid(True)
-    plt.xticks(np.arange(200_000_000, 600_000_001, 100_000_000))
-    plt.gca().xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: 'R$ {:,.0f}M'.format(x/1_000_000)))
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.histplot(resultados, bins=50, kde=True, color=cor, ax=ax)
+    ax.set_xlabel('Valor (R$)')
+    ax.set_ylabel('Frequência')
+    ax.set_title(titulo)
+    ax.grid(True)
+    ax.set_xticks(np.arange(200_000_000, 600_000_001, 100_000_000))
+    ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: 'R$ {:,.0f}M'.format(x/1_000_000)))
     plt.tight_layout()
-    st.pyplot()
-    
+    st.pyplot(fig)
+
 #Função principal para regressao açucar
 def load_data(tickers, start, end):
     data = yf.download(tickers, start=start, end=end).squeeze()
