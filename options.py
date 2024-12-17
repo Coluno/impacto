@@ -384,10 +384,13 @@ def plot_histograma(resultados, titulo, cor):
     plt.tight_layout()
     st.pyplot(fig)
 
-#Função principal para regressao açucar
+# Função para carregar os dados do Yahoo Finance
 def load_data(tickers, start, end):
-    data = yf.download(tickers, start=start, end=end)['Adj Close']
-    data = data.dropna()
+    data = yf.download(tickers, start=start, end=end)['Adj Close'] 
+    data.reset_index(inplace=True)  # Garantir que o 'Date' seja uma coluna
+    data['Date'] = pd.to_datetime(data['Date'])  # Garantir que a coluna 'Date' seja de tipo datetime
+    data.set_index('Date', inplace=True)  # Definindo 'Date' como índice
+    data.dropna()  # Remover valores nulos
     return data
 
 # Função para calcular as diferenças log-transformadas
