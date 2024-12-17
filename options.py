@@ -385,6 +385,7 @@ def plot_histograma(resultados, titulo, cor):
     st.pyplot(fig)
 
 # Função para carregar os dados do Yahoo Finance
+@st.cache_data()
 def load_data(tickers, start, end):
     data = yf.download(tickers, start=start, end=end)['Adj Close']
     data.reset_index(inplace=True)  # garantir que os tickets e data sejam colunas
