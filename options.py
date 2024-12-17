@@ -463,45 +463,61 @@ def regressao_sugar():
 def risco():
     st.title("IBEA - Simulações de Desempenho SF 2024/2025")
 
+    # Seção de Premissas Assumidas
     st.subheader("Premissas Assumidas")
     premissas = [
-        "Moagem",
-        "ATR",
-        "Prod VHP (Inclui CJM)",
-        "Prod Etanol",
-        "Dólar",
-        "Preço Açúcar",
-        "Preço Etanol",
-        "Gastos Fixos",
-        "Gastos Cana (Variável)"
+        "Moagem", "ATR", "Prod VHP (Inclui CJM)", "Prod Etanol", "Dólar",
+        "Preço Açúcar", "Preço Etanol", "Gastos Fixos", "Gastos Cana (Variável)"
     ]
     st.write(premissas)
 
+    # Seção de Orçamento Base
     st.subheader("Orçamento Base")
     orcamento_base = [
-        "Faturamento",
-        "Custos Cana",
-        "Custo Fixo",
-        "Ebtida",
-        "Margem Cana %"
+        "Faturamento", "Custos Cana", "Custo Fixo", "Ebtida", "Margem Cana %"
     ]
     st.write(orcamento_base)
 
+    # Inputs - Movidos para o corpo principal com layout em colunas
     st.subheader("Inputs")
     st.write("Por favor, insira os seguintes valores médios, percentil 15 e percentil 85:")
 
+    # Criando as colunas para melhor organização
+    col1, col2, col3 = st.columns(3)
+
     inputs = {
-        'Moagem Total': {'Valor Médio': st.sidebar.number_input('Moagem Total - Valor Médio', value=1300000), 'Percentil 15': st.sidebar.number_input('Moagem Total - Percentil 15', value=1100000), 'Percentil 85': st.sidebar.number_input('Moagem Total - Percentil 85', value=1500000)},
-        'ATR': {'Valor Médio': st.sidebar.number_input('ATR - Valor Médio', value=125), 'Percentil 15': st.sidebar.number_input('ATR - Percentil 15', value=120), 'Percentil 85': st.sidebar.number_input('ATR - Percentil 85', value=130)},
-        'VHP Total': {'Valor Médio': st.sidebar.number_input('VHP Total - Valor Médio', value=97000), 'Percentil 15': st.sidebar.number_input('VHP Total - Percentil 15', value=94000), 'Percentil 85': st.sidebar.number_input('VHP Total - Percentil 85', value=100000)},
-        'NY': {'Valor Médio': st.sidebar.number_input('NY - Valor Médio', value=21), 'Percentil 15': st.sidebar.number_input('NY - Percentil 15', value=18), 'Percentil 85': st.sidebar.number_input('NY - Percentil 85', value=24)},
-        'Câmbio': {'Valor Médio': st.sidebar.number_input('Câmbio - Valor Médio', value=5.1), 'Percentil 15': st.sidebar.number_input('Câmbio - Percentil 15', value=4.9), 'Percentil 85': st.sidebar.number_input('Câmbio - Percentil 85', value=5.3)},
-        'Preço CBIOS': {'Valor Médio': st.sidebar.number_input('Preço CBIOS - Valor Médio', value=90), 'Percentil 15': st.sidebar.number_input('Preço CBIOS - Percentil 15', value=75), 'Percentil 85': st.sidebar.number_input('Preço CBIOS - Percentil 85', value=105)},
-        'Preço Etanol': {'Valor Médio': st.sidebar.number_input('Preço Etanol - Valor Médio', value=3000), 'Percentil 15': st.sidebar.number_input('Preço Etanol - Percentil 15', value=2500), 'Percentil 85': st.sidebar.number_input('Preço Etanol - Percentil 85', value=3500)}
+        'Moagem Total': {'Valor Médio': col1.number_input('Moagem Total - Valor Médio', value=1300000),
+                         'Percentil 15': col2.number_input('Moagem Total - Percentil 15', value=1100000),
+                         'Percentil 85': col3.number_input('Moagem Total - Percentil 85', value=1500000)},
+        
+        'ATR': {'Valor Médio': col1.number_input('ATR - Valor Médio', value=125),
+                'Percentil 15': col2.number_input('ATR - Percentil 15', value=120),
+                'Percentil 85': col3.number_input('ATR - Percentil 85', value=130)},
+        
+        'VHP Total': {'Valor Médio': col1.number_input('VHP Total - Valor Médio', value=97000),
+                      'Percentil 15': col2.number_input('VHP Total - Percentil 15', value=94000),
+                      'Percentil 85': col3.number_input('VHP Total - Percentil 85', value=100000)},
+        
+        'NY': {'Valor Médio': col1.number_input('NY - Valor Médio', value=21),
+               'Percentil 15': col2.number_input('NY - Percentil 15', value=18),
+               'Percentil 85': col3.number_input('NY - Percentil 85', value=24)},
+        
+        'Câmbio': {'Valor Médio': col1.number_input('Câmbio - Valor Médio', value=5.1),
+                   'Percentil 15': col2.number_input('Câmbio - Percentil 15', value=4.9),
+                   'Percentil 85': col3.number_input('Câmbio - Percentil 85', value=5.3)},
+        
+        'Preço CBIOS': {'Valor Médio': col1.number_input('Preço CBIOS - Valor Médio', value=90),
+                        'Percentil 15': col2.number_input('Preço CBIOS - Percentil 15', value=75),
+                        'Percentil 85': col3.number_input('Preço CBIOS - Percentil 85', value=105)},
+        
+        'Preço Etanol': {'Valor Médio': col1.number_input('Preço Etanol - Valor Médio', value=3000),
+                         'Percentil 15': col2.number_input('Preço Etanol - Percentil 15', value=2500),
+                         'Percentil 85': col3.number_input('Preço Etanol - Percentil 85', value=3500)}
     }
 
+    # Mostrar os valores inseridos
     for variavel, valores in inputs.items():
-        st.write(f"{variavel} - Valor Médio:", valores['Valor Médio'], "\t", f"{variavel} - Percentil 15:", valores['Percentil 15'], "\t", f"{variavel} - Percentil 85:", valores['Percentil 85'])
+        st.write(f"{variavel}: Valor Médio = {valores['Valor Médio']}, Percentil 15 = {valores['Percentil 15']}, Percentil 85 = {valores['Percentil 85']}")
 
     # Botão para simular
     if st.button("Simular"):
@@ -575,7 +591,6 @@ def risco():
         # Mostrar DataFrame
         st.subheader("Influência Média sobre o Faturamento")
         st.write(df_influencia_media)
-        
 
 def calcular_MACD(data, short_window=12, long_window=26, signal_window=9):
     short_ema = data['Close'].ewm(span=short_window, min_periods=1, adjust=False).mean()
