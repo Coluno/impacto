@@ -385,13 +385,10 @@ def plot_histograma(resultados, titulo, cor):
     st.pyplot(fig)
 
 # Função para carregar os dados do Yahoo Finance
-@st.cache_data
 def load_data(tickers, start, end):
-    data = yf.download(tickers, start=start, end=end)['Adj Close'] 
-    data.reset_index(inplace=True)  # Garantir que o 'Date' seja uma coluna
-    data['Date'] = pd.to_datetime(data['Date'])  # Garantir que a coluna 'Date' seja de tipo datetime
-    data.set_index('Date', inplace=True)  # Definindo 'Date' como índice
-    data.dropna()  # Remover valores nulos
+    data = yf.download(tickers, start=start, end=end)['Adj Close']
+    data.reset_index(inplace=True)  # garantir que os tickets e data sejam colunas
+    data.dropna(inplace=True)  # Remover valores nulos
     return data
 
 # Função para calcular as diferenças log-transformadas
@@ -421,7 +418,7 @@ def regressao_sugar():
         data = load_data(tickers, start_date, end_date)
 
         # Cálculo das diferenças log-transformadas
-        log_diff_data = data.apply(calculate_log_diff).dropna()
+        log_diff_data = data[['CL=F', 'SB=F', 'USDBRL=X']].apply(calculate_log_diff).dropna()
 
         # Variáveis independentes e dependente
         X = log_diff_data[['CL=F', 'USDBRL=X']]  # Petróleo e Dólar como preditores
