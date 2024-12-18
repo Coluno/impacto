@@ -330,7 +330,7 @@ def VaR():
 
         st.plotly_chart(fig)
 
-#Funções que fazem parte do ARIMA
+#Funções que fazem parte do 
 def baixar_dados_acucar():
     start_date = date(2014, 1, 1)
     today = date.today()
@@ -361,7 +361,7 @@ def plot_acf(df):
     ax.set_ylabel('Autocorrelação')
     st.pyplot(fig)
     
-# Função para ajustar o modelo ARIMA e fazer previsões
+# Função para ajustar o modelo  e fazer previsões
 def arima_previsao(df, p=5, d=1, q=0):
     # Ajustando o modelo ARIMA
     model = ARIMA(df['Adj Close'], order=(p, d, q))
@@ -1931,7 +1931,7 @@ def main():
         
         st.sidebar.title("Menu")
         #add Série temporal futuramente...
-        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade","Simulação de Opções", "Monte Carlo", "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR","Notícias","Less Loss", "ARIMA"])
+        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade","Simulação de Opções", "Monte Carlo", "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR","Notícias","Less Loss", "ARIMA ver.1.0"])
 
         if page == "Introdução":
             st.image("./ibea.png", width=500)
