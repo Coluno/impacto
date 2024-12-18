@@ -390,8 +390,8 @@ def load_tickers(tickers, start, end):
     return data
     
 # Função para reverter a transformação log-diferença para valor bruto
-def revert_log_diff(last_value, log_diff):
-    return last_value * np.exp(log_diff)
+def revert_log_diff(base_value, log_diff_value):
+    return base_value * np.exp(log_diff_value)
 
 # Função para carregar e transformar os dados
 @st.cache_data
@@ -491,6 +491,39 @@ def regressao_sugar():
         fig.update_layout(title="Comparação de Diferença Log: Valores Reais vs Previstos",
                           xaxis_title="Ano Safra",
                           yaxis_title="Diferença Log (SB=F)")
+        st.plotly_chart(fig)
+
+        # Função para adicionar a linha de tendência aos gráficos de dispersão
+        def add_trendline(x, y, fig, row, col, title, xlabel, ylabel):
+            model = LinearRegression()
+            model.fit(x.reshape(-1, 1), y)  # Ajuste da linha de regressão
+            y_pred = model.predict(x.reshape(-1, 1))  # Predição com o modelo ajustado
+            
+            # Adicionar pontos de dispersão
+            fig.add_trace(go.Scatter(x=x, y=y, mode='markers', name="Pontos de Dados", marker=dict(color='blue', opacity=0.6)), row=row, col=col)
+            # Adicionar linha de regressão
+            fig.add_trace(go.Scatter(x=x, y=y_pred, mode='lines', name="Linha de Tendência", line=dict(color='red', dash='dash', width=2)), row=row, col=col)
+            
+            # Títulos e rótulos
+            fig.update_xaxes(title_text=xlabel, row=row, col=col)
+            fig.update_yaxes(title_text=ylabel, row=row, col=col)
+            fig.update_layout(title_text=title)
+        
+        # Gráficos de dispersão
+        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=["Log_Diferencial_Estoque vs Dif_Log_SB_F", 
+                                                              "Log_Diferencial_Oferta_Demanda vs Dif_Log_SB_F", 
+                                                              "Log_Estoque_Uso vs Dif_Log_SB_F"])
+
+        add_trendline(df['Log_Diferencial_Estoque'].values, y.values, fig, row=1, col=1, 
+                      title="Log_Diferencial_Estoque vs Dif_Log_SB_F", xlabel="Log(Diferencial Estoque)", ylabel="Dif_Log_SB_F")
+
+        add_trendline(df['Log_Diferencial_Oferta_Demanda'].values, y.values, fig, row=1, col=2, 
+                      title="Log_Diferencial_Oferta_Demanda vs Dif_Log_SB_F", xlabel="Log(Diferencial Oferta/Demanda)", ylabel="Dif_Log_SB_F")
+
+        add_trendline(df['Log_Estoque_Uso'].values, y.values, fig, row=1, col=3, 
+                      title="Log_Estoque_Uso vs Dif_Log_SB_F", xlabel="Log(Estoque/Uso)", ylabel="Dif_Log_SB_F")
+
+        fig.update_layout(height=400, width=1200, title_text="Gráficos de Dispersão com Linhas de Tendência")
         st.plotly_chart(fig)
 
 # Função principal para a página "Risco"
