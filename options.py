@@ -350,7 +350,6 @@ def decompor_serie(df):
     st.pyplot(fig)
 
 # Função para calcular e plotar a autocorrelação (ACF)
-# Função para calcular e plotar a autocorrelação (ACF)
 def plot_acf(df):
     df_clean = df['Adj Close'].dropna()  # Remover qualquer valor NaN
     lags = 50  # Definir o número de lags para a autocorrelação
@@ -1996,7 +1995,7 @@ def main():
         elif page == "Black Scholes":
             st.image("./ibea.png", width=500)
             blackscholes()
-        elif page == "ARIMA":
+        elif page == "ARIMA ver.1.0":
             st.image("./ibea.png", width=500)
             previsao_acucar_arima()
         elif page == "Regressão Açúcar":
