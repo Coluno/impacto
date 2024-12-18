@@ -342,18 +342,27 @@ def baixar_dados_acucar():
 def decompor_serie(df):
     # Decomposição da série temporal
     decomposition = seasonal_decompose(df['Adj Close'], model='additive', period=365)
-    fig = decomposition.plot()
-    plt.tight_layout()
-    st.pyplot(fig)
+
+    trend = decomposition.trend.dropna()
+    seasonal = decomposition.seasonal.dropna()
+    residual = decomposition.resid.dropna()
+    
+    # Criar gráficos interativos com Plotly
+    trace_trend = go.Scatter(x=trend.index,y=trend,mode='lines',name='Tendência',line=dict(color='blue'))
+    trace_seasonal = go.Scatter(x=seasonal.index,y=seasonal,mode='lines', name='Sazonalidade',line=dict(color='orange'))
+    trace_residual = go.Scatter(x=residual.index,y=residual,mode='lines',name='Resíduos',line=dict(color='green'))
+    # Layout do gráfico
+    layout = go.Layout(title="Decomposição da Série Temporal - Preço do Açúcar",xaxis=dict(title='Data'),yaxis=dict(title='Valor'),hovermode='closest')
+    fig = go.Figure(data=[trace_trend, trace_seasonal, trace_residual], layout=layout)
+    st.plotly_chart(fig)
 
 # Função para calcular e plotar a autocorrelação (ACF)
-
 def plot_acf_custom(df):
-    df_clean = df['Adj Close']
+    df_clean = df['Adj Close'].dropna()  # Remover qualquer valor NaN
     lags = 50  # Definir o número de lags para a autocorrelação
     fig, ax = plt.subplots(figsize=(10, 6))
-    # Usar sm_plot_acf para plotar ACF
-    sm_plot_acf(df_clean, lags=lags, ax=ax)
+    # Usar plot_acf do statsmodels, que é especializado para plotar ACF
+    plot_acf(df_clean, lags=lags, ax=ax)
     ax.set_title('Autocorrelação (ACF) do Preço do Açúcar')
     ax.set_xlabel('Lags')
     ax.set_ylabel('Autocorrelação')
