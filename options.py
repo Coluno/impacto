@@ -19,6 +19,7 @@ import plotly.subplots as sp
 import requests
 
 from bs4 import BeautifulSoup
+from statsmodels.tsa.stattools import acf
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima.model import ARIMA
