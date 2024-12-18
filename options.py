@@ -393,11 +393,11 @@ def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
 def previsao_acucar_arima():
     st.title("Previsão do Preço do Açúcar com ARIMA")
     st.write("Este modelo utiliza o ARIMA para prever os preços futuros do açúcar com base nos valores históricos.")
-
+    
     st.write(""" 
     O **ARIMA** (AutoRegressive Integrated Moving Average) combina três componentes para entender o comportamento passado e prever o futuro:
     1. **AR (AutoRegressivo)**: Utiliza as observações passadas para prever o futuro. O parâmetro **p** define quantas observações passadas são usadas.
-    2. **I (Integrado)**: Torna a série estacionária, removendo tendências e suavizando os dados. O parâmetro **d** indica quantas diferenciações são necessárias.
+    2. **I (Integrado)**: Tornando a série estacionária, removendo tendências e suavizando os dados. O parâmetro **d** indica quantas diferenciações são necessárias.
     3. **MA (Média Móvel)**: Ajusta a previsão levando em consideração os erros passados. O parâmetro **q** define quantos erros passados são usados.
     """)
 
@@ -414,13 +414,18 @@ def previsao_acucar_arima():
     - **Sazonalidade**: Exibe padrões sazonais nos preços, como variações regulares.
     - **Resíduos**: Representa os erros ou ruído após remover a tendência e a sazonalidade.
     """)
-    decompor_serie_go(df)
+    decompor_serie_go(df)  # Usando a função melhorada com Plotly
 
-    # Calcular e plotar a autocorrelação (ACF)
-    st.write("### Autocorrelação (ACF) do Preço do Açúcar")
-    plot_acf_custom(df)
+    st.write("""
+    ### Autocorrelação (ACF) do Preço do Açúcar
+    A **autocorrelação (ACF)** mede a correlação de uma série temporal com suas versões defasadas (lags). 
+    - Valores altos indicam que os preços são fortemente influenciados por valores passados.
+    - Valores próximos de zero sugerem pouca influência dos valores passados.
+    """)
+    plot_acf_custom(df)  # Usando a função ACF melhorada
 
-    # Entrada do usuário para previsão
+    # Input para o número de dias e botão "Simular"
+    st.write("### Previsões com ARIMA")
     dias_futuro = st.number_input("Quantos dias no futuro você deseja prever?", min_value=1, max_value=365, value=30, step=1)
     simular = st.button("Simular")
 
