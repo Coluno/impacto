@@ -401,7 +401,7 @@ def load_and_transform_data_sugar(file_path):
 
     # Tratamento da coluna 'Ano safra' - extrair o primeiro ano
     if 'Ano safra' in df.columns:
-        df['Ano safra'] = df['Ano safra'].astype(str).str[:4]  # Pega os primeiros 4 dígitos (ex: 2009)
+        df['Ano safra'] = df['Ano safra'].astype(str).str[-4:] # Pega os últimos 4 dígitos
         df['Ano safra'] = pd.to_datetime(df['Ano safra'], format='%Y', errors='coerce')
 
         # Verificar valores nulos após a conversão
