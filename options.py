@@ -414,7 +414,7 @@ def previsao_acucar_arima():
     - **Sazonalidade**: Exibe padrões sazonais nos preços, como variações regulares.
     - **Resíduos**: Representa os erros ou ruído após remover a tendência e a sazonalidade.
     """)
-    decompor_serie_go(df)  # Usando a função melhorada com Plotly
+    decompor_serie(df) 
 
     st.write("""
     ### Autocorrelação (ACF) do Preço do Açúcar
@@ -422,8 +422,7 @@ def previsao_acucar_arima():
     - Valores altos indicam que os preços são fortemente influenciados por valores passados.
     - Valores próximos de zero sugerem pouca influência dos valores passados.
     """)
-    plot_acf_custom(df)  # Usando a função ACF melhorada
-
+    plot_acf_custom(df) 
     # Input para o número de dias e botão "Simular"
     st.write("### Previsões com ARIMA")
     dias_futuro = st.number_input("Quantos dias no futuro você deseja prever?", min_value=1, max_value=365, value=30, step=1)
