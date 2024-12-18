@@ -384,7 +384,6 @@ def plot_histograma(resultados, titulo, cor):
     st.pyplot(fig)
 
 # Função para carregar tickers do Yahoo Finance
-@st.cache_data
 def load_tickers(tickers, start, end):
     data = yf.download(tickers, start=start, end=end)
     data = data['Adj Close']
@@ -395,28 +394,33 @@ def load_tickers(tickers, start, end):
 def load_and_transform_data_sugar(file_path):
     # Carregar dados do Excel
     df = pd.read_excel(file_path)
-    
-    # Converter o ano safra para datetime se necessário
+
+    # Tratamento da coluna 'Ano safra' - extrair o primeiro ano
     if 'Ano safra' in df.columns:
-        df['Ano safra'] = pd.to_datetime(df['Ano safra'], format='%Y')
-    
-    # Garantir que as colunas necessárias existam
+        df['Ano safra'] = df['Ano safra'].astype(str).str[:4]  # Pega os primeiros 4 dígitos (ex: 2009)
+        df['Ano safra'] = pd.to_datetime(df['Ano safra'], format='%Y', errors='coerce')
+
+        # Verificar valores nulos após a conversão
+        if df['Ano safra'].isna().any():
+            st.warning("Alguns valores na coluna 'Ano safra' não puderam ser convertidos para datas. Verifique os dados de entrada.")
+            df = df.dropna(subset=['Ano safra'])  # Remover linhas inválidas
+
+    # Adicionar dados do Yahoo Finance se faltarem colunas
     if 'USDBRL=X' not in df.columns or 'SB=F' not in df.columns or 'CL=F' not in df.columns:
-        # Carregar tickers adicionais do Yahoo Finance
         tickers = ["USDBRL=X", "SB=F", "CL=F"]
         start_date = "2010-01-01"
         end_date = "2024-12-31"
         tickers_data = load_tickers(tickers, start_date, end_date)
 
-        # Trazer para a granularidade anual do Excel (média anual)
+        # Resample para média anual
         tickers_data = tickers_data.resample('Y').mean()
         tickers_data.index = tickers_data.index.year  # Usar ano como índice
 
         # Mesclar os dados financeiros com os dados do Excel
-        df = df.merge(tickers_data, left_on='Ano safra', right_index=True, how='left')
+        df = df.merge(tickers_data, left_on=df['Ano safra'].dt.year, right_index=True, how='left')
 
-    # Aplicar transformações
-    df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] - df['Estoque Inicial (mi)'])
+    # Transformações e cálculos
+    df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] - df['Estoque Inicial(mi)'])
     df['Log_Diferencial_Oferta_Demanda'] = np.log(df['Produção (mi)'] - df['Demanda(mi)'])
     df['Log_Estoque_Uso'] = np.log(df['Estoque Uso(%)'])
     df['Dif_Log_USDBRL'] = np.log(df['USDBRL=X']).diff()
