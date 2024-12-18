@@ -360,13 +360,13 @@ def decompor_serie(df):
 def plot_acf_custom(df):
     df_clean = df['Adj Close'].dropna()  # Remover qualquer valor NaN
     lags = 50  # Definir o número de lags para a autocorrelação
-    fig, ax = plt.subplots(figsize=(10, 6))
-    # Usar plot_acf do statsmodels, que é especializado para plotar ACF
-    plot_acf(df_clean, lags=lags, ax=ax)
-    ax.set_title('Autocorrelação (ACF) do Preço do Açúcar')
-    ax.set_xlabel('Lags')
-    ax.set_ylabel('Autocorrelação')
-    st.pyplot(fig)
+    # Calcular ACF
+    acf_vals = acf(df_clean, nlags=lags)
+    trace_acf = go.Scatter(x=list(range(lags+1)),y=acf_vals,mode='markers+lines',name='Autocorrelação',marker=dict(color='blue', size=6),line=dict(color='blue'))
+    # Layout do gráfico
+    layout = go.Layout(title='Autocorrelação (ACF) do Preço do Açúcar',xaxis=dict(title='Lags'),yaxis=dict(title='Autocorrelação'),hovermode='closest')
+    fig = go.Figure(data=[trace_acf], layout=layout)
+    st.plotly_chart(fig)
     
 # Função para ajustar o modelo ARIMA e fazer previsões
 def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
@@ -416,6 +416,10 @@ def previsao_acucar_arima():
     """)
     decompor_serie(df)
 
+    st.write("""
+    **Autocorrelação (ACF)** mede a correlação de uma série temporal com suas versões defasadas (lags). 
+    Quando o valor da autocorrelação é alto, isso indica que o valor de uma variável é fortemente influenciado por seus valores passados. Caso contrário, valores próximos de zero sugerem que a variável é menos influenciada pelos valores passados.
+    """)
     # Calcular e plotar a autocorrelação (ACF)
     st.write("### Autocorrelação (ACF) do Preço do Açúcar")
     plot_acf_custom(df)
