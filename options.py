@@ -350,19 +350,18 @@ def decompor_serie(df):
     st.pyplot(fig)
 
 # Função para calcular e plotar a autocorrelação (ACF)
+# Função para calcular e plotar a autocorrelação (ACF)
 def plot_acf(df):
-    # Calcular a autocorrelação
+    df_clean = df['Adj Close'].dropna()  # Remover qualquer valor NaN
     lags = 50  # Definir o número de lags para a autocorrelação
-    acf_vals = acf(df['Adj Close'], nlags=lags)
-    
-    # Plotando a autocorrelação
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.stem(range(lags+1), acf_vals, use_line_collection=True)
+    # Usar plot_acf que é uma função especializada para plotar ACF
+    plot_acf(df_clean, lags=lags, ax=ax)
     ax.set_title('Autocorrelação (ACF) do Preço do Açúcar')
     ax.set_xlabel('Lags')
     ax.set_ylabel('Autocorrelação')
     st.pyplot(fig)
-
+    
 # Função para ajustar o modelo ARIMA e fazer previsões
 def arima_previsao(df, p=5, d=1, q=0):
     # Ajustando o modelo ARIMA
