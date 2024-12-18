@@ -388,11 +388,11 @@ def load_tickers(tickers, start, end):
     data = yf.download(tickers, start=start, end=end)
     data = data['Adj Close']
     return data
-
-# Função para reverter a transformação log-diferença para valor bruto
-def revert_log_diff(base_value, log_diff_value):
-    return base_value * np.exp(log_diff_value)
     
+# Função para reverter a transformação log-diferença para valor bruto
+def revert_log_diff(last_value, log_diff):
+    return last_value * np.exp(log_diff)
+
 # Função para carregar e transformar os dados
 @st.cache_data
 def load_and_transform_data_sugar(file_path):
