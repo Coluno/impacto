@@ -385,15 +385,26 @@ def arima_previsao(df, p=5, d=1, q=0):
 def previsao_acucar_arima():
     st.title("Previsão do Preço do Açúcar com ARIMA")
     st.write("Este modelo utiliza o ARIMA para prever os preços futuros do açúcar com base nos valores históricos. Ver 1.0")
+    st.write("""
+    O **ARIMA** (AutoRegressive Integrated Moving Average) combina três componentes para entender o comportamento passado e prever o futuro:
+    1. **AR (AutoRegressivo)**: Utiliza as observações passadas para prever o futuro. O parâmetro **p** define quantas observações passadas são usadas.
+    2. **I (Integrado)**: Tornando a série estacionária, removendo tendências e suavizando os dados. O parâmetro **d** indica quantas diferenciações são necessárias.
+    3. **MA (Média Móvel)**: Ajusta a previsão levando em consideração os erros passados. O parâmetro **q** define quantos erros passados são usados.
+    O resultado é uma previsão de como o preço do açúcar pode evoluir nos próximos dias.
+    """)
 
     # Baixar os dados do açúcar
     df = baixar_dados_acucar()
-    
-    # Exibir os dados históricos
     st.write(df.tail())
 
     # Decompor a série temporal
     st.write("### Decomposição da Série Temporal")
+    st.write("""
+    A decomposição da série temporal divide o preço do açúcar em três componentes principais:
+    - **Tendência**: Mostra a direção geral do preço ao longo do tempo.
+    - **Sazonalidade**: Exibe padrões sazonais nos preços, como variações regulares.
+    - **Resíduos**: Representa os erros ou ruído após remover a tendência e a sazonalidade.
+    """)
     decompor_serie(df)
 
     # Calcular e plotar a autocorrelação (ACF)
@@ -402,6 +413,11 @@ def previsao_acucar_arima():
 
     # Ajustar o modelo ARIMA e fazer previsões
     st.write("### Previsões com ARIMA")
+    st.write("""
+    O modelo ARIMA foi ajustado aos dados históricos para prever o preço futuro do açúcar. O gráfico abaixo compara os valores reais com as previsões feitas pelo modelo para os próximos 30 dias.
+    - **Linha Azul**: Preços reais históricos.
+    - **Linha Vermelha**: Previsões do modelo ARIMA para os próximos 30 dias.
+    """)
     arima_previsao(df)
     
 # Função para realizar a simulação Monte Carlo
