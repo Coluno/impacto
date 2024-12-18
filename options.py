@@ -1919,7 +1919,6 @@ def lessloss():
         st.plotly_chart(fig)
         
 def login():
-
     # Exibindo a imagem da IBEA
     st.image("ibea.png", use_container_width=True)
     st.title("Login")
