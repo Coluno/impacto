@@ -429,10 +429,9 @@ def previsao_acucar_arima():
     # Ajustar o modelo ARIMA e fazer previsões
     st.write(f"### Previsões para os próximos {dias_futuro} dias")
     st.write(f"""
-    **Previsão de {dias_futuro} Dias com ARIMA ({p}, {d}, {q})**
+    **Previsão de {dias_futuro} Dias**
     - A **linha azul** representa os valores históricos reais do preço do açúcar.
     - A **linha vermelha tracejada** mostra as previsões do modelo ARIMA para os próximos {dias_futuro} dias.
-    - O modelo foi ajustado utilizando os parâmetros escolhidos pelo usuário: **p={p}**, **d={d}**, **q={q}**.
     """)
     arima_previsao(df, dias_futuro)
     
