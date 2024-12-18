@@ -373,22 +373,21 @@ def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
     # Ajustando o modelo ARIMA
     model = ARIMA(df['Adj Close'], order=(p, d, q))
     model_fit = model.fit()
-
     # Fazendo previsões
     forecast = model_fit.forecast(steps=dias_futuro)  # Previsões para os próximos dias
-
     # Gerar as datas para a previsão futura
     previsao_datas = pd.date_range(df.index[-1], periods=dias_futuro + 1, freq='D')[1:]
-
-    # Plotando as previsões
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(df.index, df['Adj Close'], label='Valor Real', color='blue')
-    ax.plot(previsao_datas, forecast, label=f'Previsão de {dias_futuro} dias', color='red', linestyle='--')
-    ax.set_title(f'Previsão ARIMA ({p}, {d}, {q}) - {dias_futuro} Dias')
-    ax.set_xlabel('Data')
-    ax.set_ylabel('Preço do Açúcar (SB=F)')
-    ax.legend()
-    st.pyplot(fig)
+    # Criar um DataFrame para unir os valores reais e as previsões
+    df_forecast = pd.DataFrame({
+        'Data': previsao_datas,
+        'Previsão': forecast
+    })
+    # Plotando os dados reais e as previsões
+    trace_real = go.Scatter(x=df.index,y=df['Adj Close'],mode='lines',name='Valor Real',line=dict(color='blue'))
+    trace_previsao = go.Scatter(x=df_forecast['Data'],y=df_forecast['Previsão'],mode='lines+markers',name=f'Previsão de {dias_futuro} dias',line=dict(color='red', dash='dash'),marker=dict(size=5, color='red'))
+    layout = go.Layout(title=f'Previsão ARIMA ({p}, {d}, {q}) - {dias_futuro} Dias',xaxis=dict(title='Data'),yaxis=dict(title='Preço do Açúcar (SB=F)'),hovermode='x unified')
+    fig = go.Figure(data=[trace_real, trace_previsao], layout=layout)
+    st.plotly_chart(fig)
 
 # Função principal do Streamlit
 def previsao_acucar_arima():
@@ -429,10 +428,11 @@ def previsao_acucar_arima():
 
     # Ajustar o modelo ARIMA e fazer previsões
     st.write(f"### Previsões para os próximos {dias_futuro} dias")
-    st.write("""
-    O modelo ARIMA foi ajustado aos dados históricos para prever o preço futuro do açúcar. O gráfico abaixo compara os valores reais com as previsões feitas pelo modelo para os próximos dias.
-    - **Linha Azul**: Preços reais históricos.
-    - **Linha Vermelha**: Previsões do modelo ARIMA para os próximos dias.
+    st.write(f"""
+    **Previsão de {dias_futuro} Dias com ARIMA ({p}, {d}, {q})**
+    - A **linha azul** representa os valores históricos reais do preço do açúcar.
+    - A **linha vermelha tracejada** mostra as previsões do modelo ARIMA para os próximos {dias_futuro} dias.
+    - O modelo foi ajustado utilizando os parâmetros escolhidos pelo usuário: **p={p}**, **d={d}**, **q={q}**.
     """)
     arima_previsao(df, dias_futuro)
     
