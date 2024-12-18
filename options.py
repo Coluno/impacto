@@ -330,7 +330,7 @@ def VaR():
 
         st.plotly_chart(fig)
 
-#Funções que fazem parte do 
+#Funções que fazem parte do ARIMA
 def baixar_dados_acucar():
     start_date = date(2014, 1, 1)
     today = date.today()
@@ -361,20 +361,23 @@ def plot_acf(df):
     ax.set_ylabel('Autocorrelação')
     st.pyplot(fig)
     
-# Função para ajustar o modelo  e fazer previsões
-def arima_previsao(df, p=5, d=1, q=0):
+# Função para ajustar o modelo ARIMA e fazer previsões
+def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
     # Ajustando o modelo ARIMA
     model = ARIMA(df['Adj Close'], order=(p, d, q))
     model_fit = model.fit()
 
     # Fazendo previsões
-    forecast = model_fit.forecast(steps=30)  # Previsões para os próximos 30 dias
+    forecast = model_fit.forecast(steps=dias_futuro)  # Previsões para os próximos dias
+
+    # Gerar as datas para a previsão futura
+    previsao_datas = pd.date_range(df.index[-1], periods=dias_futuro + 1, freq='D')[1:]
 
     # Plotando as previsões
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(df.index, df['Adj Close'], label='Valor Real')
-    ax.plot(pd.date_range(df.index[-1], periods=31, freq='D')[1:], forecast, label='Previsão', color='red')
-    ax.set_title(f'Previsão ARIMA ({p}, {d}, {q}) - 30 Dias')
+    ax.plot(df.index, df['Adj Close'], label='Valor Real', color='blue')
+    ax.plot(previsao_datas, forecast, label=f'Previsão de {dias_futuro} dias', color='red', linestyle='--')
+    ax.set_title(f'Previsão ARIMA ({p}, {d}, {q}) - {dias_futuro} Dias')
     ax.set_xlabel('Data')
     ax.set_ylabel('Preço do Açúcar (SB=F)')
     ax.legend()
@@ -383,8 +386,8 @@ def arima_previsao(df, p=5, d=1, q=0):
 # Função principal do Streamlit
 def previsao_acucar_arima():
     st.title("Previsão do Preço do Açúcar com ARIMA")
-    st.write("Este modelo utiliza o ARIMA para prever os preços futuros do açúcar com base nos valores históricos. Ver 1.0")
-    st.write("""
+    st.write("Este modelo utiliza o ARIMA para prever os preços futuros do açúcar com base nos valores históricos.")
+    st.write(""" 
     O **ARIMA** (AutoRegressive Integrated Moving Average) combina três componentes para entender o comportamento passado e prever o futuro:
     1. **AR (AutoRegressivo)**: Utiliza as observações passadas para prever o futuro. O parâmetro **p** define quantas observações passadas são usadas.
     2. **I (Integrado)**: Tornando a série estacionária, removendo tendências e suavizando os dados. O parâmetro **d** indica quantas diferenciações são necessárias.
@@ -410,14 +413,17 @@ def previsao_acucar_arima():
     st.write("### Autocorrelação (ACF) do Preço do Açúcar")
     plot_acf(df)
 
+    # Input para o número de dias de previsão
+    dias_futuro = st.number_input("Quantos dias no futuro você deseja prever?", min_value=1, value=30)
+
     # Ajustar o modelo ARIMA e fazer previsões
-    st.write("### Previsões com ARIMA")
+    st.write(f"### Previsões para os próximos {dias_futuro} dias")
     st.write("""
-    O modelo ARIMA foi ajustado aos dados históricos para prever o preço futuro do açúcar. O gráfico abaixo compara os valores reais com as previsões feitas pelo modelo para os próximos 30 dias.
+    O modelo ARIMA foi ajustado aos dados históricos para prever o preço futuro do açúcar. O gráfico abaixo compara os valores reais com as previsões feitas pelo modelo para os próximos dias.
     - **Linha Azul**: Preços reais históricos.
-    - **Linha Vermelha**: Previsões do modelo ARIMA para os próximos 30 dias.
+    - **Linha Vermelha**: Previsões do modelo ARIMA para os próximos dias.
     """)
-    arima_previsao(df)
+    arima_previsao(df, dias_futuro)
     
 # Função para realizar a simulação Monte Carlo
 def simulacao_monte_carlo_alternativa(valores_medios, perc_15, perc_85, num_simulacoes):    
