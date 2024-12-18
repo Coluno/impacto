@@ -393,16 +393,17 @@ def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
 def previsao_acucar_arima():
     st.title("Previsão do Preço do Açúcar com ARIMA")
     st.write("Este modelo utiliza o ARIMA para prever os preços futuros do açúcar com base nos valores históricos.")
+
     st.write(""" 
     O **ARIMA** (AutoRegressive Integrated Moving Average) combina três componentes para entender o comportamento passado e prever o futuro:
     1. **AR (AutoRegressivo)**: Utiliza as observações passadas para prever o futuro. O parâmetro **p** define quantas observações passadas são usadas.
-    2. **I (Integrado)**: Tornando a série estacionária, removendo tendências e suavizando os dados. O parâmetro **d** indica quantas diferenciações são necessárias.
+    2. **I (Integrado)**: Torna a série estacionária, removendo tendências e suavizando os dados. O parâmetro **d** indica quantas diferenciações são necessárias.
     3. **MA (Média Móvel)**: Ajusta a previsão levando em consideração os erros passados. O parâmetro **q** define quantos erros passados são usados.
-    O resultado é uma previsão de como o preço do açúcar pode evoluir nos próximos dias.
     """)
 
     # Baixar os dados do açúcar
     df = baixar_dados_acucar()
+    st.write("### Dados Históricos do Preço do Açúcar")
     st.write(df.tail())
 
     # Decompor a série temporal
@@ -413,27 +414,24 @@ def previsao_acucar_arima():
     - **Sazonalidade**: Exibe padrões sazonais nos preços, como variações regulares.
     - **Resíduos**: Representa os erros ou ruído após remover a tendência e a sazonalidade.
     """)
-    decompor_serie(df)
+    decompor_serie_go(df)
 
-    st.write("""
-    **Autocorrelação (ACF)** mede a correlação de uma série temporal com suas versões defasadas (lags). 
-    Quando o valor da autocorrelação é alto, isso indica que o valor de uma variável é fortemente influenciado por seus valores passados. Caso contrário, valores próximos de zero sugerem que a variável é menos influenciada pelos valores passados.
-    """)
     # Calcular e plotar a autocorrelação (ACF)
     st.write("### Autocorrelação (ACF) do Preço do Açúcar")
     plot_acf_custom(df)
 
-    # Input para o número de dias de previsão
-    dias_futuro = st.number_input("Quantos dias no futuro você deseja prever?", min_value=1, value=30)
+    # Entrada do usuário para previsão
+    dias_futuro = st.number_input("Quantos dias no futuro você deseja prever?", min_value=1, max_value=365, value=30, step=1)
+    simular = st.button("Simular")
 
-    # Ajustar o modelo ARIMA e fazer previsões
-    st.write(f"### Previsões para os próximos {dias_futuro} dias")
-    st.write(f"""
-    **Previsão de {dias_futuro} Dias**
-    - A **linha azul** representa os valores históricos reais do preço do açúcar.
-    - A **linha vermelha tracejada** mostra as previsões do modelo ARIMA para os próximos {dias_futuro} dias.
-    """)
-    arima_previsao(df, dias_futuro)
+    if simular:
+        st.write(f"### Previsões para os próximos {dias_futuro} dias")
+        st.write(f"""
+        **Previsão de {dias_futuro} Dias**
+        - A **linha azul** representa os valores históricos reais do preço do açúcar.
+        - A **linha vermelha tracejada** mostra as previsões do modelo ARIMA para os próximos {dias_futuro} dias.
+        """)
+        arima_previsao(df, dias_futuro)
     
 # Função para realizar a simulação Monte Carlo
 def simulacao_monte_carlo_alternativa(valores_medios, perc_15, perc_85, num_simulacoes):    
