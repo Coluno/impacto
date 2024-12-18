@@ -328,7 +328,81 @@ def VaR():
 
         st.plotly_chart(fig)
 
+#Funções que fazem parte do ARIMA
+def baixar_dados_acucar():
+    start_date = date(2014, 1, 1)
+    today = date.today()
+    end_date = today.strftime('%Y-%m-%d')
+    df = yf.download('SB=F', start=start_date, end=end_date)['Adj Close'].squeeze()
+    df.to_frame()
+    df.dropna()
+    df.columns = ['Adj Close']
+    return df
 
+# Função para decompor a série temporal
+def decompor_serie(df):
+    # Decomposição da série temporal
+    decomposition = seasonal_decompose(df['Adj Close'], model='additive', period=365)
+    fig = decomposition.plot()
+    plt.tight_layout()
+    st.pyplot(fig)
+
+# Função para calcular e plotar a autocorrelação (ACF)
+def plot_acf(df):
+    # Calcular a autocorrelação
+    lags = 50  # Definir o número de lags para a autocorrelação
+    acf_vals = acf(df['Adj Close'], nlags=lags)
+    
+    # Plotando a autocorrelação
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.stem(range(lags+1), acf_vals, use_line_collection=True)
+    ax.set_title('Autocorrelação (ACF) do Preço do Açúcar')
+    ax.set_xlabel('Lags')
+    ax.set_ylabel('Autocorrelação')
+    st.pyplot(fig)
+
+# Função para ajustar o modelo ARIMA e fazer previsões
+def arima_previsao(df, p=5, d=1, q=0):
+    # Ajustando o modelo ARIMA
+    model = ARIMA(df['Adj Close'], order=(p, d, q))
+    model_fit = model.fit()
+
+    # Fazendo previsões
+    forecast = model_fit.forecast(steps=30)  # Previsões para os próximos 30 dias
+
+    # Plotando as previsões
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(df.index, df['Adj Close'], label='Valor Real')
+    ax.plot(pd.date_range(df.index[-1], periods=31, freq='D')[1:], forecast, label='Previsão', color='red')
+    ax.set_title(f'Previsão ARIMA ({p}, {d}, {q}) - 30 Dias')
+    ax.set_xlabel('Data')
+    ax.set_ylabel('Preço do Açúcar (SB=F)')
+    ax.legend()
+    st.pyplot(fig)
+
+# Função principal do Streamlit
+def previsao_acucar_arima():
+    st.title("Previsão do Preço do Açúcar com ARIMA")
+    st.write("Este modelo utiliza o ARIMA para prever os preços futuros do açúcar com base nos valores históricos. Ver 1.0")
+
+    # Baixar os dados do açúcar
+    df = baixar_dados_acucar()
+    
+    # Exibir os dados históricos
+    st.write(df.tail())
+
+    # Decompor a série temporal
+    st.write("### Decomposição da Série Temporal")
+    decompor_serie(df)
+
+    # Calcular e plotar a autocorrelação (ACF)
+    st.write("### Autocorrelação (ACF) do Preço do Açúcar")
+    plot_acf(df)
+
+    # Ajustar o modelo ARIMA e fazer previsões
+    st.write("### Previsões com ARIMA")
+    arima_previsao(df)
+    
 # Função para realizar a simulação Monte Carlo
 def simulacao_monte_carlo_alternativa(valores_medios, perc_15, perc_85, num_simulacoes):    
     faturamentos = []
@@ -1907,7 +1981,7 @@ def main():
             blackscholes()
         elif page == "ARIMA":
             st.image("./ibea.png", width=500)
-
+            previsao_acucar_arima()
         elif page == "Regressão Açúcar":
             st.image("./ibea.png", width=500)
             regressao_sugar()
