@@ -389,6 +389,10 @@ def load_tickers(tickers, start, end):
     data = data['Adj Close']
     return data
 
+# Função para reverter a transformação log-diferença para valor bruto
+def revert_log_diff(base_value, log_diff_value):
+    return base_value * np.exp(log_diff_value)
+    
 # Função para carregar e transformar os dados
 @st.cache_data
 def load_and_transform_data_sugar(file_path):
