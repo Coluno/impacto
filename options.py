@@ -383,81 +383,106 @@ def plot_histograma(resultados, titulo, cor):
     plt.tight_layout()
     st.pyplot(fig)
 
-# Função para carregar os dados do Yahoo Finance
+# Função para carregar tickers do Yahoo Finance
+@st.cache_data
 def load_tickers(tickers, start, end):
-    data = yf.download(tickers, start=start, end=end)['Adj Close']
-    data.reset_index(inplace=True)  # garantir que os tickets e data sejam colunas
-    data.dropna(inplace=True)  # Remover valores nulos
+    data = yf.download(tickers, start=start, end=end)
+    data = data['Adj Close']
     return data
 
-# Função para calcular as diferenças log-transformadas
-def calculate_log_diff(data):
-    return np.log(data / data.shift(1))
+# Função para carregar e transformar os dados
+@st.cache_data
+def load_and_transform_data_sugar(file_path):
+    # Carregar dados do Excel
+    df = pd.read_excel(file_path)
+    
+    # Converter o ano safra para datetime se necessário
+    if 'Ano safra' in df.columns:
+        df['Ano safra'] = pd.to_datetime(df['Ano safra'], format='%Y')
+    
+    # Garantir que as colunas necessárias existam
+    if 'USDBRL=X' not in df.columns or 'SB=F' not in df.columns or 'CL=F' not in df.columns:
+        # Carregar tickers adicionais do Yahoo Finance
+        tickers = ["USDBRL=X", "SB=F", "CL=F"]
+        start_date = "2010-01-01"
+        end_date = "2024-12-31"
+        tickers_data = load_tickers(tickers, start_date, end_date)
 
-# Função para reverter a transformação log-diferença para valor bruto
-def revert_log_diff(base_value, log_diff_value):
-    return base_value * np.exp(log_diff_value)
+        # Trazer para a granularidade anual do Excel (média anual)
+        tickers_data = tickers_data.resample('Y').mean()
+        tickers_data.index = tickers_data.index.year  # Usar ano como índice
+
+        # Mesclar os dados financeiros com os dados do Excel
+        df = df.merge(tickers_data, left_on='Ano safra', right_index=True, how='left')
+
+    # Aplicar transformações
+    df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] - df['Estoque Inicial (mi)'])
+    df['Log_Diferencial_Oferta_Demanda'] = np.log(df['Produção (mi)'] - df['Demanda(mi)'])
+    df['Log_Estoque_Uso'] = np.log(df['Estoque Uso(%)'])
+    df['Dif_Log_USDBRL'] = np.log(df['USDBRL=X']).diff()
+    df['Dif_Log_SB_F'] = np.log(df['SB=F']).diff()
+    df['Dif_Log_CL_F'] = np.log(df['CL=F']).diff()
+
+    # Remover valores nulos
+    df = df.dropna()
+    return df
 
 # Função principal do Streamlit
 def regressao_sugar():
     st.title("Previsão do Preço do Açúcar")
-    st.write("Regressão teste (Ver 1.0).")
+    st.write("Modelo de regressão para prever o preço futuro do açúcar (SB=F).")
 
-    # Inputs do usuário para previsão
-    usd_brl_proj = st.number_input("Preço do Dólar (USDBRL=X)", value=5.0)
-    sb_f_proj = st.number_input("Preço do Açúcar (SB=F)", value=24.0)
-    cl_f_proj = st.number_input("Preço do Petróleo (CL=F)", value=80.0)
+    # Inputs do usuário
+    estoque_inicial_proj = st.number_input("Estoque Inicial (mi)", value=1000.0)
+    estoque_final_proj = st.number_input("Estoque Final (mi)", value=1200.0)
+    oferta_proj = st.number_input("Oferta (mi)", value=5000.0)
+    demanda_proj = st.number_input("Demanda (mi)", value=4800.0)
+    estoque_uso_proj = st.number_input("Estoque/Uso (%)", value=20.0)
+    usd_brl_proj = st.number_input("USDBRL=X", value=5.0)
+    cl_f_proj = st.number_input("CL=F", value=80.0)
 
-    # Botão para gerar a regressão
     if st.button("Gerar Regressão"):
-        # Carregar dados históricos do yfinance
-        start_date = "2010-01-01"
-        end_date = "2024-12-31"
-        tickers = ["SB=F", "CL=F", "USDBRL=X"]
-        data = load_tickers(tickers, start_date, end_date)
+        # Carregar dados
+        df = load_and_transform_data_sugar('dadosRegSugar.xlsx')
 
-        # Cálculo das diferenças log-transformadas
-        log_diff_data = data[['CL=F', 'SB=F', 'USDBRL=X']].apply(calculate_log_diff).dropna()
+        # Separar variáveis independentes e dependente
+        X = df[['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F']]
+        y = df['Dif_Log_SB_F']
 
-        # Variáveis independentes e dependente
-        X = log_diff_data[['CL=F', 'USDBRL=X']]  # Petróleo e Dólar como preditores
-        y = log_diff_data['SB=F']  # Açúcar como variável dependente
-
-        # Treinamento do modelo de regressão
+        # Treinar o modelo
         model = LinearRegression()
         model.fit(X, y)
 
-        # Previsões no dataset completo
+        # Calcular previsões
         y_pred = model.predict(X)
         mse = mean_squared_error(y, y_pred)
         r2 = r2_score(y, y_pred)
 
-        # Exibir métricas do modelo
         st.write(f"**Erro Quadrático Médio (MSE):** {mse:.6f}")
         st.write(f"**Coeficiente de Determinação (R²):** {r2:.2f}")
 
-        # Transformação dos inputs do usuário
-        dif_log_usd_brl = np.log(usd_brl_proj) - np.log(data['USDBRL=X'].iloc[-1])
-        dif_log_cl_f = np.log(cl_f_proj) - np.log(data['CL=F'].iloc[-1])
+        # Preparar inputs para previsão
+        log_dif_estoque = np.log(estoque_final_proj - estoque_inicial_proj)
+        log_dif_oferta_demanda = np.log(oferta_proj - demanda_proj)
+        log_estoque_uso = np.log(estoque_uso_proj)
+        dif_log_usd_brl = np.log(usd_brl_proj) - np.log(df['USDBRL=X'].iloc[-1])
+        dif_log_cl_f = np.log(cl_f_proj) - np.log(df['CL=F'].iloc[-1])
 
-        # Previsão para Dif_Log_SB_F
-        X_novo = np.array([[dif_log_cl_f, dif_log_usd_brl]])
+        X_novo = np.array([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]])
         dif_log_sb_f_previsto = model.predict(X_novo)[0]
 
-        # Reverter transformação log-diferença para valor bruto
-        sb_f_previsto = revert_log_diff(data['SB=F'].iloc[-1], dif_log_sb_f_previsto)
-
+        # Reverter log para previsão final
+        sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
         st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
 
-        # Gráfico comparando valores reais e previstos
+        # Visualização com Plotly
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=data['Date'], y=y, mode='lines', name='Diferença Log Real'))
-        fig.add_trace(go.Scatter(x=data['Date'], y=y_pred, mode='lines', name='Diferença Log Prevista'))
+        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y, mode='lines', name='Diferença Log Real'))
+        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y_pred, mode='lines', name='Diferença Log Prevista'))
 
         fig.update_layout(title="Comparação de Diferença Log: Valores Reais vs Previstos",
-                          xaxis_title="Data",
-                          yaxis_title="Diferença Log(SB=F)")
-
+                          xaxis_title="Ano Safra",
+                          yaxis_title="Diferença Log (SB=F)")
         st.plotly_chart(fig)
 
 # Função principal para a página "Risco"
