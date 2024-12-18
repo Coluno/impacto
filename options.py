@@ -347,12 +347,13 @@ def decompor_serie(df):
     st.pyplot(fig)
 
 # Função para calcular e plotar a autocorrelação (ACF)
-def plot_acf(df):
-    df_clean = df['Adj Close'].dropna()  # Remover qualquer valor NaN
+
+def plot_acf_custom(df):
+    df_clean = df['Adj Close']
     lags = 50  # Definir o número de lags para a autocorrelação
     fig, ax = plt.subplots(figsize=(10, 6))
-    # Usar plot_acf que é uma função especializada para plotar ACF
-    plot_acf(df_clean, lags=lags, ax=ax)
+    # Usar sm_plot_acf para plotar ACF
+    sm_plot_acf(df_clean, lags=lags, ax=ax)
     ax.set_title('Autocorrelação (ACF) do Preço do Açúcar')
     ax.set_xlabel('Lags')
     ax.set_ylabel('Autocorrelação')
@@ -408,7 +409,7 @@ def previsao_acucar_arima():
 
     # Calcular e plotar a autocorrelação (ACF)
     st.write("### Autocorrelação (ACF) do Preço do Açúcar")
-    plot_acf(df)
+    plot_acf_custom(df)
 
     # Input para o número de dias de previsão
     dias_futuro = st.number_input("Quantos dias no futuro você deseja prever?", min_value=1, value=30)
