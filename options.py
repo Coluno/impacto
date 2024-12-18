@@ -7,7 +7,6 @@ import time
 import seaborn as sns
 import math
 import scipy.stats as stats
-import yfinance as yf
 import io  
 import plotly.express as px
 import plotly.graph_objs as go
@@ -25,9 +24,7 @@ from statsmodels.tsa.stattools import adfuller
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.arima.model import ARIMA
 from pandas.tseries.offsets import BDay
-from datetime import datetime
-from datetime import datetime, timedelta
-from datetime import date 
+from datetime import datetime, timedelta, date
 from matplotlib.ticker import FuncFormatter
 from scipy.stats import norm
 from plotly.subplots import make_subplots
