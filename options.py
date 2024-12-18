@@ -334,8 +334,8 @@ def baixar_dados_acucar():
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
     df = yf.download('SB=F', start=start_date, end=end_date)['Adj Close'].squeeze()
-    df.to_frame()
-    df.dropna()
+    df = df.to_frame()
+    df = df.dropna()
     df.columns = ['Adj Close']
     return df
 
