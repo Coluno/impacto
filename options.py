@@ -349,8 +349,8 @@ def decompor_serie(df):
     original = df['Adj Close']
 
     # Criar gráficos interativos com Plotly
-    trace_original = go.Scatter(x=original.index,y=original, mode='lines',name='Valor Real',line=dict(color='black', dash='solid'))
-    trace_trend = go.Scatter(x=trend.index,y=trend,mode='lines',name='Tendência',line=dict(color='blue'))
+    trace_original = go.Scatter(x=original.index,y=original, mode='lines',name='Valor Real',line=dict(color='blue'))
+    trace_trend = go.Scatter(x=trend.index,y=trend,mode='lines',name='Tendência',line=dict(color='red'))
     trace_seasonal = go.Scatter(x=seasonal.index,y=seasonal,mode='lines', name='Sazonalidade',line=dict(color='orange'))
     trace_residual = go.Scatter(x=residual.index,y=residual,mode='lines',name='Resíduos',line=dict(color='green'))
     # Layout do gráfico
