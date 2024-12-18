@@ -346,14 +346,16 @@ def decompor_serie(df):
     trend = decomposition.trend.dropna()
     seasonal = decomposition.seasonal.dropna()
     residual = decomposition.resid.dropna()
-    
+    original = df['Adj Close']
+
     # Criar gráficos interativos com Plotly
+    trace_original = go.Scatter(x=original.index,y=original, mode='lines',name='Valor Real',line=dict(color='black', dash='solid'))
     trace_trend = go.Scatter(x=trend.index,y=trend,mode='lines',name='Tendência',line=dict(color='blue'))
     trace_seasonal = go.Scatter(x=seasonal.index,y=seasonal,mode='lines', name='Sazonalidade',line=dict(color='orange'))
     trace_residual = go.Scatter(x=residual.index,y=residual,mode='lines',name='Resíduos',line=dict(color='green'))
     # Layout do gráfico
     layout = go.Layout(title="Decomposição da Série Temporal - Preço do Açúcar",xaxis=dict(title='Data'),yaxis=dict(title='Valor'),hovermode='closest')
-    fig = go.Figure(data=[trace_trend, trace_seasonal, trace_residual], layout=layout)
+    fig = go.Figure(data=[trace_trend, trace_seasonal, trace_residual, trace_original], layout=layout)
     st.plotly_chart(fig)
 
 # Função para calcular e plotar a autocorrelação (ACF)
