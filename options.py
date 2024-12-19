@@ -1156,7 +1156,7 @@ def monte_carlo():
     elif tipo_ativo == "Dólar":
         ativo = "USDBRL=X"
 
-    data = yf.download(ativo, start="2013-01-01", end="2025-01-01")
+    data = yf.download(ativo, start="2013-01-01", end="2026-01-01")
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
     data.set_index('Date', inplace=True)
