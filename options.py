@@ -371,7 +371,7 @@ def plot_acf_custom(df):
     st.plotly_chart(fig)
     
 # Função para ajustar o modelo ARIMA e fazer previsões
-def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
+def previsao_acucar_arima(df, dias_futuro, p=5, d=1, q=0):
     # Ajustando o modelo ARIMA
     model = ARIMA(df['Adj Close'], order=(p, d, q))
     model_fit = model.fit()
