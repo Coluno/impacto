@@ -1174,8 +1174,8 @@ def monte_carlo():
     dias_simulados = calcular_dias_uteis(hoje, data_simulacao)
 
     # Input para o valor desejado para a simulação
-    valor_simulado = st.number_input("Qual valor deseja simular?", min_value=float(data['Close'].min()), max_value=float(data['Close'].max()), step=0.01)
-
+    #valor_simulado = st.number_input("Qual valor deseja simular?", min_value=float(data['Close'].min()), max_value=float(data['Close'].max()), step=0.01)
+    valor_simulado = st.number_input("Qual valor deseja simular?", value=float(data['Close'].iloc[-1]),step=0.01)
     # Definir limites inferior e superior
     limite_inferior = data['Close'].iloc[-1] - 10
     limite_superior = data['Close'].iloc[-1] + 10
