@@ -371,7 +371,7 @@ def plot_acf_custom(df):
     st.plotly_chart(fig)
     
 # Função para ajustar o modelo ARIMA e fazer previsões
-def previsao_acucar_arima(df, dias_futuro, p=5, d=1, q=0):
+def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
     # Ajustando o modelo ARIMA
     model = ARIMA(df['Adj Close'], order=(p, d, q))
     model_fit = model.fit()
@@ -570,7 +570,7 @@ def load_and_transform_data_sugar(file_path):
     return df
 
 # Função principal do Streamlit
-def regressao_sugar():
+def previsao_acucar_arima():
     st.title("Previsão do Preço do Açúcar")
     st.write("Modelo de regressão para prever o preço futuro do açúcar (SB=F).")
 
