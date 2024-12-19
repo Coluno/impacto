@@ -591,7 +591,7 @@ def regressao_sugar():
         dif_log_sb_f_previsto = model.predict(X_novo)[0]
 
         # Reverter log para previsão final
-        sb_f_previsto = revert_log_diff(df['SB=F'].iloc[0], dif_log_sb_f_previsto)
+        sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
         st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
 
         # Visualização com Plotly
