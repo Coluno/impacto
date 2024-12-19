@@ -493,6 +493,7 @@ def plot_histograma(resultados, titulo, cor):
     plt.tight_layout()
     st.pyplot(fig)
 
+# Funções que fazem parte da regressão do açucar
 # Função para carregar tickers do Yahoo Finance
 def load_tickers(tickers, start, end):
     data = yf.download(tickers, start=start, end=end)
@@ -769,6 +770,7 @@ def risco():
         st.subheader("Influência Média sobre o Faturamento")
         st.write(df_influencia_media)
 
+#Funções que fazem parte do Mercado
 def calcular_MACD(data, short_window=12, long_window=26, signal_window=9):
     short_ema = data['Close'].ewm(span=short_window, min_periods=1, adjust=False).mean()
     long_ema = data['Close'].ewm(span=long_window, min_periods=1, adjust=False).mean()
@@ -814,7 +816,6 @@ def calcular_RSI(data, window=14):
     rs = ganho / perda
     rsi = 100 - (100 / (1 + rs))
     return rsi
-
 
 def enviar_alerta(email, ativo, cci_status, rsi_status, estocastico_status, bb_status):
     # Configurar servidor SMTP
@@ -1008,7 +1009,6 @@ def mercado():
             
             # Adiciona a linha da média móvel
             fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Close'].rolling(window=20).mean(), mode='lines', name='Média Móvel', line=dict(color='orange')))
-
             fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Bollinger High'], mode='lines', name='Bollinger High'))
             fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Bollinger Low'], mode='lines', name='Bollinger Low'))
 
