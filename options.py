@@ -392,72 +392,49 @@ def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
     st.plotly_chart(fig)
 
 # Função principal do Streamlit
-def previsao_arima():
-    st.title("Previsão de Preços com ARIMA")
-    st.write("Este modelo utiliza o ARIMA para prever os preços futuros com base nos valores históricos.")
+def previsao_acucar_arima():
+    st.title("Previsão do Preço do Açúcar com ARIMA")
+    st.write("Este modelo utiliza o ARIMA para prever os preços futuros do açúcar com base nos valores históricos.")
     
     st.write(""" 
-    O **ARIMA** (AutoRegressive Integrated Moving Average) é um modelo que combina três componentes para entender o comportamento passado e prever o futuro:
+    O **ARIMA** (AutoRegressive Integrated Moving Average) combina três componentes para entender o comportamento passado e prever o futuro:
     1. **AR (AutoRegressivo)**: Utiliza as observações passadas para prever o futuro. O parâmetro **p** define quantas observações passadas são usadas.
     2. **I (Integrado)**: Tornando a série estacionária, removendo tendências e suavizando os dados. O parâmetro **d** indica quantas diferenciações são necessárias.
     3. **MA (Média Móvel)**: Ajusta a previsão levando em consideração os erros passados. O parâmetro **q** define quantos erros passados são usados.
-    
-    O modelo ARIMA é uma ferramenta poderosa para prever séries temporais e pode ser aplicado a diversos ativos, como o preço do açúcar e do dólar, por exemplo.
     """)
 
-    # Seleção do ativo
-    ativo = st.selectbox(
-        "Selecione o ativo que você deseja analisar:",
-        options=["Preço do Açúcar (SB=F)", "Preço do Dólar (USDBRL=X)"]
-    )
-    # Determinar o código do ativo
-    if ativo == "Preço do Açúcar (SB=F)":
-        codigo_ativo = "SB=F"
-        titulo = "Preço do Açúcar"
-    else:
-        codigo_ativo = "USDBRL=X"
-        titulo = "Preço do Dólar"
-
-    # Baixar os dados do ativo
-    df = baixar_dados_ativo(codigo_ativo)
-    st.write(f"### Dados Históricos do {titulo}")
+    # Baixar os dados do açúcar
+    df = baixar_dados_acucar()
+    st.write("### Dados Históricos do Preço do Açúcar")
     st.write(df.tail())
 
-    # Decomposição da série temporal
-    st.write(f"### Decomposição da Série Temporal - {titulo}")
+    # Decompor a série temporal
+    st.write("### Decomposição da Série Temporal")
     st.write("""
-    A decomposição da série temporal divide o preço do ativo em três componentes principais:
+    A decomposição da série temporal divide o preço do açúcar em três componentes principais:
     - **Tendência**: Mostra a direção geral do preço ao longo do tempo.
     - **Sazonalidade**: Exibe padrões sazonais nos preços, como variações regulares.
     - **Resíduos**: Representa os erros ou ruído após remover a tendência e a sazonalidade.
     """)
-    decompor_serie(df)
+    decompor_serie(df) 
 
-    # Plotar Autocorrelação (ACF)
-    st.write(f"### Autocorrelação (ACF) do {titulo}")
     st.write("""
+    ### Autocorrelação (ACF) do Preço do Açúcar
     A **autocorrelação (ACF)** mede a correlação de uma série temporal com suas versões defasadas (lags). 
     - Valores altos indicam que os preços são fortemente influenciados por valores passados.
     - Valores próximos de zero sugerem pouca influência dos valores passados.
     """)
-    plot_acf_custom(df)
-
+    plot_acf_custom(df) 
     # Input para o número de dias e botão "Simular"
-    st.write(f"### Previsões com ARIMA - {titulo}")
-    st.write("""
-    Nesta seção, você pode usar o modelo ARIMA para prever o preço do ativo selecionado para os próximos dias.
-    - **Entrada**: Número de dias futuros para a previsão.
-    - **Saída**: A linha azul representa os preços reais históricos, enquanto a linha vermelha tracejada mostra as previsões do modelo ARIMA.
-    """)
-
+    st.write("### Previsões com ARIMA")
     dias_futuro = st.number_input("Quantos dias no futuro você deseja prever?", min_value=1, max_value=365, value=30, step=1)
     simular = st.button("Simular")
 
     if simular:
-        st.write(f"### Previsões para os próximos {dias_futuro} dias - {titulo}")
+        st.write(f"### Previsões para os próximos {dias_futuro} dias")
         st.write(f"""
         **Previsão de {dias_futuro} Dias**
-        - A **linha azul** representa os valores históricos reais do preço do {titulo}.
+        - A **linha azul** representa os valores históricos reais do preço do açúcar.
         - A **linha vermelha tracejada** mostra as previsões do modelo ARIMA para os próximos {dias_futuro} dias.
         """)
         arima_previsao(df, dias_futuro)
@@ -570,7 +547,7 @@ def load_and_transform_data_sugar(file_path):
     return df
 
 # Função principal do Streamlit
-def previsao_acucar_arima():
+def regressao_sugar():
     st.title("Previsão do Preço do Açúcar")
     st.write("Modelo de regressão para prever o preço futuro do açúcar (SB=F).")
 
