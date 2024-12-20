@@ -601,8 +601,8 @@ def load_and_transform_data_sugar(file_path):
             df = df.dropna(subset=['Ano safra'])  
 
     # Transformações e cálculos
-    df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] - df['Estoque Inicial(mi)'])
-    df['Log_Diferencial_Oferta_Demanda'] = np.log(df['Produção (mi)'] - df['Demanda(mi)'])
+    df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] / df['Estoque Inicial(mi)'])
+    df['Log_Diferencial_Oferta_Demanda'] = np.log(df['Produção (mi)'] / df['Demanda(mi)'])
     df['Log_Estoque_Uso'] = np.log(df['Estoque Uso(%)'])
     df['Dif_Log_USDBRL'] = np.log(df['USDBRL=X']).diff()
     df['Dif_Log_SB_F'] = np.log(df['SB=F']).diff()
