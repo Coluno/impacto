@@ -1379,6 +1379,8 @@ def calcular_mtm(meta):
     forex_data.rename(columns={'USDBRL=X': 'Adj Close'}, inplace=True)
     sugar_data = sugar_data['Adj Close'].squeeze()
     forex_data = forex_data['Adj Close'].squeeze()
+    sugar_data = sugar_data.to_frame()
+    forex_data = forex_data.to_frame()
     
     # Calculando o MTM para cada data
     mtm = 22.0462 * 1.04 * sugar_data * forex_data
