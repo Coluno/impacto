@@ -354,7 +354,7 @@ def decompor_serie(df):
     trace_seasonal = go.Scatter(x=seasonal.index,y=seasonal,mode='lines', name='Sazonalidade',line=dict(color='orange'))
     trace_residual = go.Scatter(x=residual.index,y=residual,mode='lines',name='Resíduos',line=dict(color='green'))
     # Layout do gráfico
-    layout = go.Layout(title="Decomposição da Série Temporal - Preço do Açúcar",xaxis=dict(title='Data'),yaxis=dict(title='Valor'),hovermode='closest')
+    layout = go.Layout(title="Decomposição da Série Temporal: ",xaxis=dict(title='Data'),yaxis=dict(title='Valor'),hovermode='closest')
     fig = go.Figure(data=[trace_trend, trace_seasonal, trace_residual, trace_original], layout=layout)
     st.plotly_chart(fig)
 
@@ -438,7 +438,94 @@ def previsao_acucar_arima():
         - A **linha vermelha tracejada** mostra as previsões do modelo ARIMA para os próximos {dias_futuro} dias.
         """)
         arima_previsao(df, dias_futuro)
+
+# Funções para ARIMA dolar
+# Função para baixar dados do Dólar
+def baixar_dados_dolar():
+    start_date = date(2014, 1, 1)
+    today = date.today()
+    end_date = today.strftime('%Y-%m-%d')
+    df = yf.download('USDBRL=X', start=start_date, end=end_date)['Adj Close'].squeeze()
+    df = df.to_frame()
+    df = df.dropna()
+    df.columns = ['Adj Close']
+    return df
+
+# Função para decompor a série temporal do dólar usando o modelo multiplicativo
+def decompor_serie_dolar(df):
+    # Decomposição da série temporal
+    decomposition = seasonal_decompose(df['Adj Close'], model='multiplicative', period=365)
+
+    trend = decomposition.trend.dropna()
+    seasonal = decomposition.seasonal.dropna()
+    residual = decomposition.resid.dropna()
+    original = df['Adj Close']
+
+    # Criar gráficos interativos com Plotly
+    trace_original = go.Scatter(x=original.index, y=original, mode='lines', name='Valor Real', line=dict(color='blue'))
+    trace_trend = go.Scatter(x=trend.index, y=trend, mode='lines', name='Tendência', line=dict(color='red'))
+    trace_seasonal = go.Scatter(x=seasonal.index, y=seasonal, mode='lines', name='Sazonalidade', line=dict(color='orange'))
+    trace_residual = go.Scatter(x=residual.index, y=residual, mode='lines', name='Resíduos', line=dict(color='green'))
+
+    # Layout do gráfico
+    layout = go.Layout(
+        title="Decomposição da Série Temporal - Preço do Dólar (Modelo Multiplicativo)",
+        xaxis=dict(title='Data'),
+        yaxis=dict(title='Valor'),
+        hovermode='closest'
+    )
+
+    fig = go.Figure(data=[trace_original, trace_trend, trace_seasonal, trace_residual], layout=layout)
+    st.plotly_chart(fig)
+
+# Função principal do Streamlit para previsão do Dólar
+def previsao_dolar_arima():
+    st.title("Previsão do Preço do Dólar com ARIMA")
+    st.write("Este modelo utiliza o ARIMA para prever os preços futuros do dólar com base nos valores históricos.")
     
+    st.write(""" 
+    O **ARIMA** (AutoRegressive Integrated Moving Average) combina três componentes para entender o comportamento passado e prever o futuro:
+    1. **AR (AutoRegressivo)**: Utiliza as observações passadas para prever o futuro. O parâmetro **p** define quantas observações passadas são usadas.
+    2. **I (Integrado)**: Tornando a série estacionária, removendo tendências e suavizando os dados. O parâmetro **d** indica quantas diferenciações são necessárias.
+    3. **MA (Média Móvel)**: Ajusta a previsão levando em consideração os erros passados. O parâmetro **q** define quantos erros passados são usados.
+    """)
+
+    # Baixar os dados do dólar
+    df = baixar_dados_dolar()
+    st.write("### Dados Históricos do Preço do Dólar")
+    st.write(df.tail())
+
+    # Decompor a série temporal
+    st.write("### Decomposição da Série Temporal")
+    st.write("""
+    A decomposição da série temporal divide o preço do dólar em três componentes principais:
+    - **Tendência**: Mostra a direção geral do preço ao longo do tempo.
+    - **Sazonalidade**: Exibe padrões sazonais nos preços, como variações regulares.
+    - **Resíduos**: Representa os erros ou ruído após remover a tendência e a sazonalidade.
+    """)
+    decompor_serie_dolar(df) 
+
+    st.write("""
+    ### Autocorrelação (ACF) do Preço do Dólar
+    A **autocorrelação (ACF)** mede a correlação de uma série temporal com suas versões defasadas (lags). 
+    - Valores altos indicam que os preços são fortemente influenciados por valores passados.
+    - Valores próximos de zero sugerem pouca influência dos valores passados.
+    """)
+    plot_acf_custom(df) 
+    # Input para o número de dias e botão "Simular"
+    st.write("### Previsões com ARIMA")
+    dias_futuro = st.number_input("Quantos dias no futuro você deseja prever?", min_value=1, max_value=365, value=30, step=1)
+    simular = st.button("Simular")
+
+    if simular:
+        st.write(f"### Previsões para os próximos {dias_futuro} dias")
+        st.write(f"""
+        **Previsão de {dias_futuro} Dias**
+        - A **linha azul** representa os valores históricos reais do preço do dólar.
+        - A **linha vermelha tracejada** mostra as previsões do modelo ARIMA para os próximos {dias_futuro} dias.
+        """)
+        arima_previsao(df, dias_futuro)
+
 # Função para realizar a simulação Monte Carlo
 def simulacao_monte_carlo_alternativa(valores_medios, perc_15, perc_85, num_simulacoes):    
     faturamentos = []
