@@ -494,17 +494,10 @@ def plot_histograma(resultados, titulo, cor):
     st.pyplot(fig)
 
 # Funções que fazem parte da regressão do açucar
-# Função para carregar tickers do Yahoo Finance
-def load_tickers(tickers, start, end):
-    data = yf.download(tickers, start=start, end=end)
-    data = data['Adj Close']
-    return data
-    
 # Função para reverter a transformação log-diferença para valor bruto
 def revert_log_diff(base_value, log_diff_value):
     return base_value * np.exp(log_diff_value)
 
-# Função para carregar e transformar os dados
 @st.cache_data
 def load_and_transform_data_sugar(file_path):
     # Carregar dados do Excel
@@ -512,27 +505,13 @@ def load_and_transform_data_sugar(file_path):
 
     # Tratamento da coluna 'Ano safra' - extrair o primeiro ano
     if 'Ano safra' in df.columns:
-        df['Ano safra'] = df['Ano safra'].astype(str).str[-4:] # Pega os últimos 4 dígitos
+        df['Ano safra'] = df['Ano safra'].astype(str).str[-4:]  # Pega os últimos 4 dígitos do formato 1990/1991
         df['Ano safra'] = pd.to_datetime(df['Ano safra'], format='%Y', errors='coerce')
 
         # Verificar valores nulos após a conversão
         if df['Ano safra'].isna().any():
             st.warning("Alguns valores na coluna 'Ano safra' não puderam ser convertidos para datas. Verifique os dados de entrada.")
-            df = df.dropna(subset=['Ano safra'])  # Remover linhas inválidas
-
-    # Adicionar dados do Yahoo Finance se faltarem colunas
-    if 'USDBRL=X' not in df.columns or 'SB=F' not in df.columns or 'CL=F' not in df.columns:
-        tickers = ["USDBRL=X", "SB=F", "CL=F"]
-        start_date = "2010-01-01"
-        end_date = "2024-12-31"
-        tickers_data = load_tickers(tickers, start_date, end_date)
-
-        # Resample para média anual
-        tickers_data = tickers_data.resample('Y').mean()
-        tickers_data.index = tickers_data.index.year  # Usar ano como índice
-
-        # Mesclar os dados financeiros com os dados do Excel
-        df = df.merge(tickers_data, left_on=df['Ano safra'].dt.year, right_index=True, how='left')
+            df = df.dropna(subset=['Ano safra'])  
 
     # Transformações e cálculos
     df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] - df['Estoque Inicial(mi)'])
@@ -603,7 +582,6 @@ def regressao_sugar():
                           xaxis_title="Ano Safra",
                           yaxis_title="Diferença Log (SB=F)")
         st.plotly_chart(fig)
-
         # Função para adicionar a linha de tendência aos gráficos de dispersão
         def add_trendline(x, y, fig, row, col, title, xlabel, ylabel):
             model = LinearRegression()
@@ -621,8 +599,8 @@ def regressao_sugar():
             fig.update_layout(title_text=title)
         
         # Gráficos de dispersão
-        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=["Log_Diferencial_Estoque vs Dif_Log_SB_F", 
-                                                              "Log_Diferencial_Oferta_Demanda vs Dif_Log_SB_F", 
+        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=["Log_Dif_Estoque vs Dif_Log_SB_F", 
+                                                              "Log_Dif_Oferta_Demanda vs Dif_Log_SB_F", 
                                                               "Log_Estoque_Uso vs Dif_Log_SB_F"])
 
         add_trendline(df['Log_Diferencial_Estoque'].values, y.values, fig, row=1, col=1, 
