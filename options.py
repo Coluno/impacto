@@ -1378,7 +1378,7 @@ def calcular_mtm(meta):
     # Usando a coluna 'Close' no lugar de 'Adj Close'
     if 'Close' in sugar_data.columns:
         sugar_data = sugar_data['Close']
-        sugar_data = sugar_data.rename('Sugar_Close')
+        sugar_data = sugar_data.rename(columns={'Close': 'Sugar_Close'})
     else:
         print("A coluna 'Close' não foi encontrada em sugar_data.")
         return None
@@ -1389,7 +1389,7 @@ def calcular_mtm(meta):
     # Usando a coluna 'Close' para o Forex
     if 'Close' in forex_data.columns:
         forex_data = forex_data['Close']
-        forex_data = forex_data.rename('Forex_Close')
+        forex_data = forex_data.rename(columns={'Close': 'Forex_Close'})
     else:
         print("A coluna 'Close' não foi encontrada em forex_data.")
         return None
