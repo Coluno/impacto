@@ -1365,7 +1365,7 @@ def plot_heatmap(meta):
     ax.set_title(f'Produto = 22.0462 * 1.04 * Preço do Açúcar * Preço do Dólar - Meta: {meta}', fontsize=16)
     st.pyplot(fig)
 
-# Função para calcular o MTM
+#função mtm
 def calcular_mtm(meta):
     start_date = date(2013, 1, 1)
     today = date.today()
@@ -1373,15 +1373,27 @@ def calcular_mtm(meta):
 
     # Obtendo os dados históricos do contrato futuro de açúcar e do par de moedas USD/BRL
     sugar_data = yf.download('SB=F', start=start_date, end=end_date)
-    sugar_data.columns = sugar_data.columns.droplevel(1)
-    sugar_data = sugar_data['Adj Close']
-    sugar_data = sugar_data.to_frame()
+    print(sugar_data.head())  # Verifique a estrutura e as colunas
+
+    # Verificando se 'Adj Close' está presente
+    if 'Adj Close' in sugar_data.columns:
+        sugar_data = sugar_data['Adj Close']
+        sugar_data = sugar_data.rename('Sugar_Adj_Close')
+    else:
+        print("A coluna 'Adj Close' não foi encontrada em sugar_data.")
+        return None
     
     forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)
-    forex_data.columns = forex_data.columns.droplevel(1)
-    forex_data = forex_data['Adj Close']
-    forex_data = forex_data.to_frame()
-    
+    print(forex_data.head())  # Verifique a estrutura e as colunas
+
+    # Verificando se 'Adj Close' está presente para o Forex
+    if 'Adj Close' in forex_data.columns:
+        forex_data = forex_data['Adj Close']
+        forex_data = forex_data.rename('Forex_Adj_Close')
+    else:
+        print("A coluna 'Adj Close' não foi encontrada em forex_data.")
+        return None
+
     # Calculando o MTM para cada data
     mtm = 22.0462 * 1.04 * sugar_data * forex_data
 
