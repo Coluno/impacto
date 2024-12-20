@@ -1375,10 +1375,12 @@ def calcular_mtm(meta):
     sugar_data = yf.download('SB=F', start=start_date, end=end_date)
     sugar_data.columns = sugar_data.columns.droplevel(1)
     sugar_data = sugar_data['Adj Close']
+    sugar_data = sugar_data.to_frame()
     
     forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)
     forex_data.columns = forex_data.columns.droplevel(1)
     forex_data = forex_data['Adj Close']
+    forex_data = forex_data.to_frame()
     
     # Calculando o MTM para cada data
     mtm = 22.0462 * 1.04 * sugar_data * forex_data
