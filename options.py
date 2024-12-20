@@ -647,8 +647,8 @@ def regressao_sugar():
         st.write(f"**Coeficiente de Determinação (R²):** {r2:.2f}")
 
         # Preparar inputs para previsão
-        log_dif_estoque = np.log(estoque_final_proj - estoque_inicial_proj)
-        log_dif_oferta_demanda = np.log(oferta_proj - demanda_proj)
+        log_dif_estoque = np.log(estoque_final_proj / estoque_inicial_proj)
+        log_dif_oferta_demanda = np.log(oferta_proj / demanda_proj)
         log_estoque_uso = np.log(estoque_uso_proj)
         dif_log_usd_brl = np.log(usd_brl_proj) - np.log(df['USDBRL=X'].iloc[-1])
         dif_log_cl_f = np.log(cl_f_proj) - np.log(df['CL=F'].iloc[-1])
