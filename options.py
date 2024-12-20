@@ -1375,23 +1375,23 @@ def calcular_mtm(meta):
     sugar_data = yf.download('SB=F', start=start_date, end=end_date)
     print(sugar_data.head())  # Verifique a estrutura e as colunas
 
-    # Verificando se 'Adj Close' está presente
-    if 'Adj Close' in sugar_data.columns:
-        sugar_data = sugar_data['Adj Close']
-        sugar_data = sugar_data.rename('Sugar_Adj_Close')
+    # Usando a coluna 'Close' no lugar de 'Adj Close'
+    if 'Close' in sugar_data.columns:
+        sugar_data = sugar_data['Close']
+        sugar_data = sugar_data.rename('Sugar_Close')
     else:
-        print("A coluna 'Adj Close' não foi encontrada em sugar_data.")
+        print("A coluna 'Close' não foi encontrada em sugar_data.")
         return None
     
     forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)
     print(forex_data.head())  # Verifique a estrutura e as colunas
 
-    # Verificando se 'Adj Close' está presente para o Forex
-    if 'Adj Close' in forex_data.columns:
-        forex_data = forex_data['Adj Close']
-        forex_data = forex_data.rename('Forex_Adj_Close')
+    # Usando a coluna 'Close' para o Forex
+    if 'Close' in forex_data.columns:
+        forex_data = forex_data['Close']
+        forex_data = forex_data.rename('Forex_Close')
     else:
-        print("A coluna 'Adj Close' não foi encontrada em forex_data.")
+        print("A coluna 'Close' não foi encontrada em forex_data.")
         return None
 
     # Calculando o MTM para cada data
