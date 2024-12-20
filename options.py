@@ -2079,6 +2079,9 @@ def main():
         elif page == "Black Scholes":
             st.image("./ibea.png", width=500)
             blackscholes()
+        elif page == "ARIMA Dolar":
+            st.image("./ibea.png", width=500)
+            previsao_dolar_arima()
         elif page == "ARIMA Açúcar":
             st.image("./ibea.png", width=500)
             previsao_acucar_arima()
