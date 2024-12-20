@@ -503,15 +503,18 @@ def load_and_transform_data_sugar(file_path):
     # Carregar dados do Excel
     df = pd.read_excel(file_path)
 
-    # Tratamento da coluna 'Ano safra' - extrair o primeiro ano
+    # Tratamento da coluna 'Ano safra'
     if 'Ano safra' in df.columns:
-        df['Ano safra'] = df['Ano safra'].astype(str).str[-4:]  # Pega os últimos 4 dígitos do formato 1990/1991
+        df['Ano safra'] = df['Ano safra'].astype(str).str[-4:]
         df['Ano safra'] = pd.to_datetime(df['Ano safra'], format='%Y', errors='coerce')
 
-        # Verificar valores nulos após a conversão
         if df['Ano safra'].isna().any():
             st.warning("Alguns valores na coluna 'Ano safra' não puderam ser convertidos para datas. Verifique os dados de entrada.")
-            df = df.dropna(subset=['Ano safra'])  
+            df = df.dropna(subset=['Ano safra'])
+
+    # Filtrar valores válidos para log
+    df = df[(df['Estoque Final (mi)'] > df['Estoque Inicial(mi)']) &
+            (df['Produção (mi)'] > df['Demanda(mi)'])]
 
     # Transformações e cálculos
     df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] - df['Estoque Inicial(mi)'])
@@ -521,8 +524,7 @@ def load_and_transform_data_sugar(file_path):
     df['Dif_Log_SB_F'] = np.log(df['SB=F']).diff()
     df['Dif_Log_CL_F'] = np.log(df['CL=F']).diff()
 
-    # Remover valores nulos
-    df = df.dropna()
+    df = df.dropna()  # Remover valores nulos gerados pelas transformações
     return df
 
 # Função principal do Streamlit
@@ -540,36 +542,22 @@ def regressao_sugar():
     cl_f_proj = st.number_input("CL=F", value=80.0)
 
     if st.button("Gerar Regressão"):
-        # Carregar dados
         df = load_and_transform_data_sugar('dadosRegSugar.xlsx')
-
-        # Separar variáveis independentes e dependente
+        # Separar variáveis
         X = df[['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F']]
         y = df['Dif_Log_SB_F']
-
-        # Treinar o modelo
+        # Modelo
         model = LinearRegression()
         model.fit(X, y)
-
-        # Calcular previsões
-        y_pred = model.predict(X)
-        mse = mean_squared_error(y, y_pred)
-        r2 = r2_score(y, y_pred)
-
-        st.write(f"**Erro Quadrático Médio (MSE):** {mse:.6f}")
-        st.write(f"**Coeficiente de Determinação (R²):** {r2:.2f}")
-
-        # Preparar inputs para previsão
+        # Previsão
         log_dif_estoque = np.log(estoque_final_proj - estoque_inicial_proj)
         log_dif_oferta_demanda = np.log(oferta_proj - demanda_proj)
         log_estoque_uso = np.log(estoque_uso_proj)
         dif_log_usd_brl = np.log(usd_brl_proj) - np.log(df['USDBRL=X'].iloc[-1])
         dif_log_cl_f = np.log(cl_f_proj) - np.log(df['CL=F'].iloc[-1])
-
-        X_novo = np.array([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]])
+        X_novo = pd.DataFrame([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]], 
+                                 columns=X.columns)
         dif_log_sb_f_previsto = model.predict(X_novo)[0]
-
-        # Reverter log para previsão final
         sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
         st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
 
