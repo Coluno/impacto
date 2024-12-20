@@ -1373,6 +1373,7 @@ def calcular_mtm(meta):
 
     # Obtendo os dados históricos do contrato futuro de açúcar e do par de moedas USD/BRL
     sugar_data = yf.download('SB=F', start=start_date, end=end_date)
+    sugar_data.columns = sugar_data.columns.droplevel(1)
     print(sugar_data.head())  # Verifique a estrutura e as colunas
 
     # Usando a coluna 'Close' no lugar de 'Adj Close'
@@ -1384,6 +1385,7 @@ def calcular_mtm(meta):
         return None
     
     forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)
+    forex_data.columns = forex_data.columns.droplevel(1)
     print(forex_data.head())  # Verifique a estrutura e as colunas
 
     # Usando a coluna 'Close' para o Forex
