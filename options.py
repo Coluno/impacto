@@ -292,7 +292,12 @@ def VaR():
     data.columns = data.columns.droplevel(1)
     data.set_index('Date', inplace=True)
 
-    current_price = data['Adj Close'].iloc[-1]
+    if "Adj Close" in data.columns:
+        current_price = data["Adj Close"].iloc[-1]
+    else:
+        current_price = data["Close"].iloc[-1]
+    
+    #current_price = data['Adj Close'].iloc[-1]
 
     data_fim = st.date_input('Selecione a data final:', datetime.now())
     data_fim = pd.to_datetime(data_fim)
