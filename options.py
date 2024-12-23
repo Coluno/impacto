@@ -457,21 +457,21 @@ def baixar_dados_dolar():
     start_date = date(2014, 1, 1)
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
-    df = yf.download('USDBRL=X', start=start_date, end=end_date)['Adj Close'].squeeze()
-    df = df.to_frame()
-    df = df.dropna()
-    df.columns = ['Adj Close']
+    df = yf.download('USDBRL=X', start=start_date, end=end_date)
+    df.reset_index(inplace=True)
+    df.columns = df.columns.droplevel(1)
+    df.set_index('Date', inplace=True)
     return df
 
 # Função para decompor a série temporal do dólar usando o modelo multiplicativo
 def decompor_serie_dolar(df):
     # Decomposição da série temporal
-    decomposition = seasonal_decompose(df['Adj Close'], model='multiplicative', period=365)
+    decomposition = seasonal_decompose(df['Close'], model='multiplicative', period=365)
 
     trend = decomposition.trend.dropna()
     seasonal = decomposition.seasonal.dropna()
     residual = decomposition.resid.dropna()
-    original = df['Adj Close']
+    original = df['Close']
 
     # Criar gráficos interativos com Plotly
     trace_original = go.Scatter(x=original.index, y=original, mode='lines', name='Valor Real', line=dict(color='blue'))
