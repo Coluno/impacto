@@ -263,9 +263,16 @@ def atr():
 
 #Função para calcular o VaR
 def calcular_var(data, n_days, current_price, z_score):
-    data['Returns'] = data['Adj Close'].pct_change()
+    # Verifica as colunas
+    if 'Adj Close' in data.columns:
+        data['Returns'] = data['Adj Close'].pct_change()
+    elif 'Close' in data.columns:
+        data['Returns'] = data['Close'].pct_change()
+    else:
+        raise KeyError("Nenhuma coluna válida para calcular os retornos ('Adj Close' ou 'Close') encontrada.")
+        
     lambda_ = 0.94
-    data['EWMA_Vol'] = data['Returns'].ewm(span=(2/(1-lambda_)-1)).std()
+    data['EWMA_Vol'] = data['Returns'].ewm(span=(2 / (1 - lambda_) - 1)).std()
     data['Annualized_EWMA_Vol'] = data['EWMA_Vol'] * np.sqrt(n_days)
     VaR_EWMA = z_score * data['Annualized_EWMA_Vol'].iloc[-1] * current_price
     price_at_risk = current_price + VaR_EWMA
