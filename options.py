@@ -665,7 +665,11 @@ def regressao_sugar():
         dif_log_usd_brl = np.log(usd_brl_proj) - np.log(df['USDBRL=X'].iloc[-1])
         dif_log_cl_f = np.log(cl_f_proj) - np.log(df['CL=F'].iloc[-1])
 
-        X_novo = np.array([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]])
+        #X_novo = np.array([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]])
+        #dif_log_sb_f_previsto = model.predict(X_novo)[0]
+
+        X_novo = pd.DataFrame([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]],
+                              columns=['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F'])
         dif_log_sb_f_previsto = model.predict(X_novo)[0]
 
         # Reverter log para previsão final
