@@ -397,7 +397,7 @@ def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
         'Previsão': forecast
     })
     # Plotando os dados reais e as previsões
-    trace_real = go.Scatter(x=df.index,y=df['Adj Close'],mode='lines',name='Valor Real',line=dict(color='blue'))
+    trace_real = go.Scatter(x=df.index,y=df['Close'],mode='lines',name='Valor Real',line=dict(color='blue'))
     trace_previsao = go.Scatter(x=df_forecast['Data'],y=df_forecast['Previsão'],mode='lines+markers',name=f'Previsão de {dias_futuro} dias',line=dict(color='red', dash='dash'),marker=dict(size=5, color='red'))
     layout = go.Layout(title=f'Previsão ARIMA ({p}, {d}, {q}) - {dias_futuro} Dias',xaxis=dict(title='Data'),yaxis=dict(title='Preço do Açúcar (SB=F)'),hovermode='x unified')
     fig = go.Figure(data=[trace_real, trace_previsao], layout=layout)
