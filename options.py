@@ -1240,7 +1240,7 @@ def monte_carlo():
 
     # Input para o valor desejado para a simulação
     if "valor_simulado" not in st.session_state:
-    st.session_state["valor_simulado"] = float(data['Close'].iloc[-1])
+        st.session_state["valor_simulado"] = float(data['Close'].iloc[-1])
     valor_simulado = st.number_input("Qual valor deseja simular?",value=st.session_state["valor_simulado"],step=0.01)
     limite_inferior = data['Close'].iloc[-1] - 10
     limite_superior = data['Close'].iloc[-1] + 10
