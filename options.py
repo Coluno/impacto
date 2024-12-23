@@ -344,21 +344,21 @@ def baixar_dados_acucar():
     start_date = date(2014, 1, 1)
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
-    df = yf.download('SB=F', start=start_date, end=end_date)['Adj Close'].squeeze()
-    df = df.to_frame()
-    df = df.dropna()
-    df.columns = ['Adj Close']
+    df = yf.download('SB=F', start=start_date, end=end_date)
+    df.reset_index(inplace=True)
+    df.columns = df.columns.droplevel(1)
+    df.set_index('Date', inplace=True)
     return df
 
 # Função para decompor a série temporal
 def decompor_serie(df):
     # Decomposição da série temporal
-    decomposition = seasonal_decompose(df['Adj Close'], model='additive', period=365)
+    decomposition = seasonal_decompose(df['Close'], model='additive', period=365)
 
     trend = decomposition.trend.dropna()
     seasonal = decomposition.seasonal.dropna()
     residual = decomposition.resid.dropna()
-    original = df['Adj Close']
+    original = df['Close']
 
     # Criar gráficos interativos com Plotly
     trace_original = go.Scatter(x=original.index,y=original, mode='lines',name='Valor Real',line=dict(color='blue'))
@@ -372,7 +372,7 @@ def decompor_serie(df):
 
 # Função para calcular e plotar a autocorrelação (ACF)
 def plot_acf_custom(df):
-    df_clean = df['Adj Close'].dropna()  # Remover qualquer valor NaN
+    df_clean = df['Close'].dropna()  # Remover qualquer valor NaN
     lags = 50  # Definir o número de lags para a autocorrelação
     # Calcular ACF
     acf_vals = acf(df_clean, nlags=lags)
@@ -385,7 +385,7 @@ def plot_acf_custom(df):
 # Função para ajustar o modelo ARIMA e fazer previsões
 def arima_previsao(df, dias_futuro, p=5, d=1, q=0):
     # Ajustando o modelo ARIMA
-    model = ARIMA(df['Adj Close'], order=(p, d, q))
+    model = ARIMA(df['Close'], order=(p, d, q))
     model_fit = model.fit()
     # Fazendo previsões
     forecast = model_fit.forecast(steps=dias_futuro)  # Previsões para os próximos dias
