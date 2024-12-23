@@ -1386,17 +1386,32 @@ def calcular_mtm(meta):
     # Obtendo os dados históricos do contrato futuro de açúcar e do par de moedas USD/BRL
     sugar_data = yf.download('SB=F', start=start_date, end=end_date)
     forex_data = yf.download('USDBRL=X', start=start_date, end=end_date)
+    #tratando df sugar_data
+    sugar_data.reset_index(inplace=True)
+    sugar_data.columns = sugar_data.columns.droplevel(1)
+    sugar_data.set_index('Date', inplace=True)
+    #tratando df_forex_data
+    forex_data.reset_index(inplace=True)
+    forex_data.columns = forex_data.columns.droplevel(1)
+    forex_data.set_index('Date', inplace=True)
     
-    # Renomeando as colunas para 'Adj Close'
-    sugar_data.rename(columns={'SB=F': 'Adj Close'}, inplace=True)
-    forex_data.rename(columns={'USDBRL=X': 'Adj Close'}, inplace=True)
-
-    sugar_data = sugar_data[['Adj Close']] 
-    forex_data = forex_data[['Adj Close']] 
+    # Verifica qual coluna usar ('Adj Close' ou 'Close')
+    if 'Adj Close' in sugar_data.columns:
+        sugar_prices = sugar_data['Adj Close']
+    elif 'Close' in sugar_data.columns:
+        sugar_prices = sugar_data['Close']
+    else:
+        raise KeyError("Erro: Nenhuma coluna válida encontrada nos dados de açúcar ('Adj Close' ou 'Close').")
     
-    # Calculando o MTM para cada data
-    mtm = 22.0462 * 1.04 * sugar_data * forex_data
+    if 'Adj Close' in forex_data.columns:
+        forex_prices = forex_data['Adj Close']
+    elif 'Close' in forex_data.columns:
+        forex_prices = forex_data['Close']
+    else:
+        raise KeyError("Erro: Nenhuma coluna válida encontrada nos dados de câmbio ('Adj Close' ou 'Close').")
 
+    # Calculando o MTM
+    mtm = 22.0462 * 1.04 * sugar_prices * forex_prices
     # Criando DataFrame pandas com o MTM
     mtm_df = pd.DataFrame({'Date': mtm.index, 'MTM': mtm.values, 'Meta': meta})
     mtm_df['Date'] = pd.to_datetime(mtm_df['Date']).dt.strftime('%d/%b/%Y')
