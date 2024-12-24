@@ -1949,7 +1949,20 @@ def noticias():
 # Função para obter dados históricos de acordo com o símbolo selecionado
 def get_historical_data(symbol, start_date):
     data = yf.download(symbol, start=start_date, end="2099-01-01")
-    data['Daily Returns'] = data['Adj Close'].pct_change()
+    data.reset_index(inplace=True)
+    data.columns = data.columns.droplevel(1)
+    data.set_index('Date', inplace=True)
+    
+    if 'Adj Close' in data.columns:
+        data['Price'] = data['Adj Close']
+    elif 'Close' in data.columns:
+        data['Price'] = data['Close']
+    else:
+        raise KeyError("Erro: Nenhuma coluna válida encontrada nos dados ('Adj Close' ou 'Close').")
+
+    #data.reset_index(inplace=True)
+    
+    data['Daily Returns'] = data['Price'].pct_change()
     data['EWMA Volatility'] = data['Daily Returns'].ewm(span=20).std()
     data['Abs Daily Returns'] = data['Daily Returns'].abs()
     data.dropna(inplace=True)
