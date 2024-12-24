@@ -538,6 +538,7 @@ def previsao_dolar_arima():
         """)
         arima_previsao(df, dias_futuro)
 
+# funçoes que fazem parte do risco
 # Função para realizar a simulação Monte Carlo
 def simulacao_monte_carlo_alternativa(valores_medios, perc_15, perc_85, num_simulacoes):    
     faturamentos = []
@@ -591,132 +592,6 @@ def plot_histograma(resultados, titulo, cor):
     ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: 'R$ {:,.0f}M'.format(x/1_000_000)))
     plt.tight_layout()
     st.pyplot(fig)
-
-# Funções que fazem parte da regressão do açucar
-# Função para reverter a transformação log-diferença para valor bruto
-def revert_log_diff(base_value, log_diff_value):
-    return base_value * np.exp(log_diff_value)
-
-@st.cache_data
-def load_and_transform_data_sugar(file_path):
-    # Carregar dados do Excel
-    df = pd.read_excel(file_path)
-
-    # Tratamento da coluna 'Ano safra' - extrair o primeiro ano
-    if 'Ano safra' in df.columns:
-        df['Ano safra'] = df['Ano safra'].astype(str).str[-4:]  # Pega os últimos 4 dígitos do formato 1990/1991
-        df['Ano safra'] = pd.to_datetime(df['Ano safra'], format='%Y', errors='coerce')
-
-        # Verificar valores nulos após a conversão
-        if df['Ano safra'].isna().any():
-            st.warning("Alguns valores na coluna 'Ano safra' não puderam ser convertidos para datas. Verifique os dados de entrada.")
-            df = df.dropna(subset=['Ano safra'])  
-
-    # Transformações e cálculos
-    df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] / df['Estoque Inicial(mi)'])
-    df['Log_Diferencial_Oferta_Demanda'] = np.log(df['Produção (mi)'] / df['Demanda(mi)'])
-    df['Log_Estoque_Uso'] = np.log(df['Estoque Uso(%)'])
-    df['Dif_Log_USDBRL'] = np.log(df['USDBRL=X']).diff()
-    df['Dif_Log_SB_F'] = np.log(df['SB=F']).diff()
-    df['Dif_Log_CL_F'] = np.log(df['CL=F']).diff()
-
-    # Remover valores nulos
-    df = df.dropna()
-    return df
-
-# Função principal do Streamlit
-def regressao_sugar():
-    st.title("Previsão do Preço do Açúcar")
-    st.write("Modelo de regressão para prever o preço futuro do açúcar (SB=F).")
-
-    # Inputs do usuário
-    estoque_inicial_proj = st.number_input("Estoque Inicial (mi)", value=1000.0)
-    estoque_final_proj = st.number_input("Estoque Final (mi)", value=1200.0)
-    oferta_proj = st.number_input("Oferta (mi)", value=5000.0)
-    demanda_proj = st.number_input("Demanda (mi)", value=4800.0)
-    estoque_uso_proj = st.number_input("Estoque/Uso (%)", value=20.0)
-    usd_brl_proj = st.number_input("USDBRL=X", value=5.0)
-    cl_f_proj = st.number_input("CL=F", value=80.0)
-
-    if st.button("Gerar Regressão"):
-        # Carregar dados
-        df = load_and_transform_data_sugar('dadosRegSugar.xlsx')
-
-        # Separar variáveis independentes e dependente
-        X = df[['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F']]
-        y = df['Dif_Log_SB_F']
-
-        # Treinar o modelo
-        model = LinearRegression()
-        model.fit(X, y)
-
-        # Calcular previsões
-        y_pred = model.predict(X)
-        mse = mean_squared_error(y, y_pred)
-        r2 = r2_score(y, y_pred)
-
-        st.write(f"**Erro Quadrático Médio (MSE):** {mse:.6f}")
-        st.write(f"**Coeficiente de Determinação (R²):** {r2:.2f}")
-
-        # Preparar inputs para previsão
-        log_dif_estoque = np.log(estoque_final_proj / estoque_inicial_proj)
-        log_dif_oferta_demanda = np.log(oferta_proj / demanda_proj)
-        log_estoque_uso = np.log(estoque_uso_proj)
-        dif_log_usd_brl = np.log(usd_brl_proj) - np.log(df['USDBRL=X'].iloc[-1])
-        dif_log_cl_f = np.log(cl_f_proj) - np.log(df['CL=F'].iloc[-1])
-
-        #X_novo = np.array([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]])
-        #dif_log_sb_f_previsto = model.predict(X_novo)[0]
-
-        X_novo = pd.DataFrame([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]],
-                              columns=['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F'])
-        dif_log_sb_f_previsto = model.predict(X_novo)[0]
-
-        # Reverter log para previsão final
-        sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
-        st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
-
-        # Visualização com Plotly
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y, mode='lines', name='Diferença Log Real'))
-        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y_pred, mode='lines', name='Diferença Log Prevista'))
-
-        fig.update_layout(title="Comparação de Diferença Log: Valores Reais vs Previstos",
-                          xaxis_title="Ano Safra",
-                          yaxis_title="Diferença Log (SB=F)")
-        st.plotly_chart(fig)
-        # Função para adicionar a linha de tendência aos gráficos de dispersão
-        def add_trendline(x, y, fig, row, col, title, xlabel, ylabel):
-            model = LinearRegression()
-            model.fit(x.reshape(-1, 1), y)  # Ajuste da linha de regressão
-            y_pred = model.predict(x.reshape(-1, 1))  # Predição com o modelo ajustado
-            
-            # Adicionar pontos de dispersão
-            fig.add_trace(go.Scatter(x=x, y=y, mode='markers', name="Pontos de Dados", marker=dict(color='blue', opacity=0.6)), row=row, col=col)
-            # Adicionar linha de regressão
-            fig.add_trace(go.Scatter(x=x, y=y_pred, mode='lines', name="Linha de Tendência", line=dict(color='red', dash='dash', width=2)), row=row, col=col)
-            
-            # Títulos e rótulos
-            fig.update_xaxes(title_text=xlabel, row=row, col=col)
-            fig.update_yaxes(title_text=ylabel, row=row, col=col)
-            fig.update_layout(title_text=title)
-        
-        # Gráficos de dispersão
-        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=["Log_Dif_Estoque vs Dif_Log_SB_F", 
-                                                              "Log_Dif_Oferta_Demanda vs Dif_Log_SB_F", 
-                                                              "Log_Estoque_Uso vs Dif_Log_SB_F"])
-
-        add_trendline(df['Log_Diferencial_Estoque'].values, y.values, fig, row=1, col=1, 
-                      title="Log_Diferencial_Estoque vs Dif_Log_SB_F", xlabel="Log(Diferencial Estoque)", ylabel="Dif_Log_SB_F")
-
-        add_trendline(df['Log_Diferencial_Oferta_Demanda'].values, y.values, fig, row=1, col=2, 
-                      title="Log_Diferencial_Oferta_Demanda vs Dif_Log_SB_F", xlabel="Log(Diferencial Oferta/Demanda)", ylabel="Dif_Log_SB_F")
-
-        add_trendline(df['Log_Estoque_Uso'].values, y.values, fig, row=1, col=3, 
-                      title="Log_Estoque_Uso vs Dif_Log_SB_F", xlabel="Log(Estoque/Uso)", ylabel="Dif_Log_SB_F")
-
-        fig.update_layout(height=400, width=1200, title_text="Gráficos de Dispersão com Linhas de Tendência")
-        st.plotly_chart(fig)
 
 # Função principal para a página "Risco"
 def risco():
@@ -850,6 +725,132 @@ def risco():
         # Mostrar DataFrame
         st.subheader("Influência Média sobre o Faturamento")
         st.write(df_influencia_media)
+
+# Funções que fazem parte da regressão do açucar
+# Função para reverter a transformação log-diferença para valor bruto
+def revert_log_diff(base_value, log_diff_value):
+    return base_value * np.exp(log_diff_value)
+
+@st.cache_data
+def load_and_transform_data_sugar(file_path):
+    # Carregar dados do Excel
+    df = pd.read_excel(file_path)
+
+    # Tratamento da coluna 'Ano safra' - extrair o primeiro ano
+    if 'Ano safra' in df.columns:
+        df['Ano safra'] = df['Ano safra'].astype(str).str[-4:]  # Pega os últimos 4 dígitos do formato 1990/1991
+        df['Ano safra'] = pd.to_datetime(df['Ano safra'], format='%Y', errors='coerce')
+
+        # Verificar valores nulos após a conversão
+        if df['Ano safra'].isna().any():
+            st.warning("Alguns valores na coluna 'Ano safra' não puderam ser convertidos para datas. Verifique os dados de entrada.")
+            df = df.dropna(subset=['Ano safra'])  
+
+    # Transformações e cálculos
+    df['Log_Diferencial_Estoque'] = np.log(df['Estoque Final (mi)'] / df['Estoque Inicial(mi)'])
+    df['Log_Diferencial_Oferta_Demanda'] = np.log(df['Produção (mi)'] / df['Demanda(mi)'])
+    df['Log_Estoque_Uso'] = np.log(df['Estoque Uso(%)'])
+    df['Dif_Log_USDBRL'] = np.log(df['USDBRL=X']).diff()
+    df['Dif_Log_SB_F'] = np.log(df['SB=F']).diff()
+    df['Dif_Log_CL_F'] = np.log(df['CL=F']).diff()
+
+    # Remover valores nulos
+    df = df.dropna()
+    return df
+
+# Função principal do Streamlit
+def regressao_sugar():
+    st.title("Previsão do Preço do Açúcar")
+    st.write("Modelo de regressão para prever o preço futuro do açúcar (SB=F).")
+
+    # Inputs do usuário
+    estoque_inicial_proj = st.number_input("Estoque Inicial (mi)", value=1000.0)
+    estoque_final_proj = st.number_input("Estoque Final (mi)", value=1200.0)
+    oferta_proj = st.number_input("Oferta (mi)", value=5000.0)
+    demanda_proj = st.number_input("Demanda (mi)", value=4800.0)
+    estoque_uso_proj = st.number_input("Estoque/Uso (%)", value=20.0)
+    usd_brl_proj = st.number_input("USDBRL=X", value=5.0)
+    cl_f_proj = st.number_input("CL=F", value=80.0)
+
+    if st.button("Gerar Regressão"):
+        # Carregar dados
+        df = load_and_transform_data_sugar('dadosRegSugar.xlsx')
+
+        # Separar variáveis independentes e dependente
+        X = df[['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F']]
+        y = df['Dif_Log_SB_F']
+
+        # Treinar o modelo
+        model = LinearRegression()
+        model.fit(X, y)
+
+        # Calcular previsões
+        y_pred = model.predict(X)
+        mse = mean_squared_error(y, y_pred)
+        r2 = r2_score(y, y_pred)
+
+        st.write(f"**Erro Quadrático Médio (MSE):** {mse:.6f}")
+        st.write(f"**Coeficiente de Determinação (R²):** {r2:.2f}")
+
+        # Preparar inputs para previsão
+        log_dif_estoque = np.log(estoque_final_proj / estoque_inicial_proj)
+        log_dif_oferta_demanda = np.log(oferta_proj / demanda_proj)
+        log_estoque_uso = np.log(estoque_uso_proj)
+        dif_log_usd_brl = np.log(usd_brl_proj) - np.log(df['USDBRL=X'].iloc[-1])
+        dif_log_cl_f = np.log(cl_f_proj) - np.log(df['CL=F'].iloc[-1])
+
+        #X_novo = np.array([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]])
+        #dif_log_sb_f_previsto = model.predict(X_novo)[0]
+
+        X_novo = pd.DataFrame([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]],
+                              columns=['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F'])
+        dif_log_sb_f_previsto = model.predict(X_novo)[0]
+
+        # Reverter log para previsão final
+        sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
+        st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
+
+        # Visualização com Plotly
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y, mode='lines', name='Diferença Log Real'))
+        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y_pred, mode='lines', name='Diferença Log Prevista'))
+
+        fig.update_layout(title="Comparação de Diferença Log: Valores Reais vs Previstos",
+                          xaxis_title="Ano Safra",
+                          yaxis_title="Diferença Log (SB=F)")
+        st.plotly_chart(fig)
+        # Função para adicionar a linha de tendência aos gráficos de dispersão
+        def add_trendline(x, y, fig, row, col, title, xlabel, ylabel):
+            model = LinearRegression()
+            model.fit(x.reshape(-1, 1), y)  # Ajuste da linha de regressão
+            y_pred = model.predict(x.reshape(-1, 1))  # Predição com o modelo ajustado
+            
+            # Adicionar pontos de dispersão
+            fig.add_trace(go.Scatter(x=x, y=y, mode='markers', name="Pontos de Dados", marker=dict(color='blue', opacity=0.6)), row=row, col=col)
+            # Adicionar linha de regressão
+            fig.add_trace(go.Scatter(x=x, y=y_pred, mode='lines', name="Linha de Tendência", line=dict(color='red', dash='dash', width=2)), row=row, col=col)
+            
+            # Títulos e rótulos
+            fig.update_xaxes(title_text=xlabel, row=row, col=col)
+            fig.update_yaxes(title_text=ylabel, row=row, col=col)
+            fig.update_layout(title_text=title)
+        
+        # Gráficos de dispersão
+        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=["Log_Dif_Estoque vs Dif_Log_SB_F", 
+                                                              "Log_Dif_Oferta_Demanda vs Dif_Log_SB_F", 
+                                                              "Log_Estoque_Uso vs Dif_Log_SB_F"])
+
+        add_trendline(df['Log_Diferencial_Estoque'].values, y.values, fig, row=1, col=1, 
+                      title="Log_Diferencial_Estoque vs Dif_Log_SB_F", xlabel="Log(Diferencial Estoque)", ylabel="Dif_Log_SB_F")
+
+        add_trendline(df['Log_Diferencial_Oferta_Demanda'].values, y.values, fig, row=1, col=2, 
+                      title="Log_Diferencial_Oferta_Demanda vs Dif_Log_SB_F", xlabel="Log(Diferencial Oferta/Demanda)", ylabel="Dif_Log_SB_F")
+
+        add_trendline(df['Log_Estoque_Uso'].values, y.values, fig, row=1, col=3, 
+                      title="Log_Estoque_Uso vs Dif_Log_SB_F", xlabel="Log(Estoque/Uso)", ylabel="Dif_Log_SB_F")
+
+        fig.update_layout(height=400, width=1200, title_text="Gráficos de Dispersão com Linhas de Tendência")
+        st.plotly_chart(fig)
 
 #Funções que fazem parte do Mercado
 def calcular_MACD(data, short_window=12, long_window=26, signal_window=9):
