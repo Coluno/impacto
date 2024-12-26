@@ -265,8 +265,10 @@ def atr():
 def calcular_var(data, n_days, current_price, z_score):
     # Verifica as colunas
     if 'Adj Close' in data.columns:
+        data = data.copy()
         data['Returns'] = data['Adj Close'].pct_change()
     elif 'Close' in data.columns:
+        data.copy()
         data['Returns'] = data['Close'].pct_change()
     else:
         raise KeyError("Nenhuma coluna válida para calcular os retornos ('Adj Close' ou 'Close') encontrada.")
