@@ -967,43 +967,43 @@ def mercado():
     if st.button("Calcular"):
         # Filtrar dados de acordo com intervalo de datas
         data_filtrado = data[(data.index >= filtro_datas[0]) & (data.index <= filtro_datas[1])].copy()
-
+        
         # Inicialização das variáveis para KPIs
         quantidade_entradas = 0
         soma_fechamentos_entradas = 0
-
+        
         # Lógica para EWMA
         if indicador_selecionado == "EWMA":
             # Calcular Retornos Diários e Volatilidade EWMA
-            data_filtrado.loc['Daily Returns'] = data_filtrado['Close'].pct_change()
-            data_filtrado.loc['EWMA Volatility'] = calcular_volatilidade_ewma_percentual(data_filtrado['Daily Returns'])
+            data_filtrado.loc[:, 'Daily Returns'] = data_filtrado['Close'].pct_change()
+            data_filtrado.loc[:, 'EWMA Volatility'] = calcular_volatilidade_ewma_percentual(data_filtrado['Daily Returns'])
             data_filtrado.dropna(subset=['Daily Returns', 'EWMA Volatility'], inplace=True)
-            data_filtrado.loc['Abs Daily Returns'] = data_filtrado['Daily Returns'].abs() * 100
-            data_filtrado.loc['Entry Points'] = data_filtrado['Daily Returns'] * 100 > data_filtrado['EWMA Volatility']
-
+            data_filtrado.loc[:, 'Abs Daily Returns'] = data_filtrado['Daily Returns'].abs() * 100
+            data_filtrado.loc[:, 'Entry Points'] = data_filtrado['Daily Returns'] * 100 > data_filtrado['EWMA Volatility']
+        
             quantidade_entradas = data_filtrado['Entry Points'].sum()
             if quantidade_entradas > 0:
                 soma_fechamentos_entradas = data_filtrado[data_filtrado['Entry Points']]['Close'].mean()
-
+        
             # Gráfico de Retornos e Volatilidade EWMA
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Abs Daily Returns'], mode='lines',name='Retornos Diários Absolutos'))
-            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['EWMA Volatility'],mode='lines',name='Volatilidade EWMA'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['Abs Daily Returns'], mode='lines', name='Retornos Diários Absolutos'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['EWMA Volatility'], mode='lines', name='Volatilidade EWMA'))
             entry_points = data_filtrado[data_filtrado['Entry Points']]
-            fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['Abs Daily Returns'],mode='markers',marker=dict(color='blue', symbol='x', size=10),name='Pontos de Entrada'))
-            fig.update_layout(title='Retornos Diários Absolutos & Volatilidade EWMA',xaxis_title='Data',yaxis_title='Valor')
+            fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['Abs Daily Returns'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
+            fig.update_layout(title='Retornos Diários Absolutos & Volatilidade EWMA', xaxis_title='Data', yaxis_title='Valor')
             st.plotly_chart(fig)
-
+        
             # Gráfico de Candlestick
-            fig = go.Figure(data=[go.Candlestick(x=data_filtrado.index,open=data_filtrado['Open'], high=data_filtrado['High'], low=data_filtrado['Low'], close=data_filtrado['Close'], increasing_line_color='green',decreasing_line_color='red')])
+            fig = go.Figure(data=[go.Candlestick(x=data_filtrado.index, open=data_filtrado['Open'], high=data_filtrado['High'], low=data_filtrado['Low'], close=data_filtrado['Close'], increasing_line_color='green', decreasing_line_color='red')])
             entry_points = data_filtrado[data_filtrado['Entry Points']]
             fig.add_trace(go.Scatter(x=entry_points.index, y=entry_points['Close'], mode='markers', marker=dict(color='blue', symbol='x', size=10), name='Pontos de Entrada'))
-            fig.update_layout(title='Preço de Fechamento com Pontos de Entrada', xaxis_title='Data',  yaxis_title='Preço de Fechamento')
+            fig.update_layout(title='Preço de Fechamento com Pontos de Entrada', xaxis_title='Data', yaxis_title='Preço de Fechamento')
             st.plotly_chart(fig)
-
+        
             # Gráfico apenas da Volatilidade EWMA
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=data_filtrado.index,  y=data_filtrado['EWMA Volatility'],  mode='lines', name='Volatilidade EWMA'))
+            fig.add_trace(go.Scatter(x=data_filtrado.index, y=data_filtrado['EWMA Volatility'], mode='lines', name='Volatilidade EWMA'))
             fig.update_layout(title='Volatilidade EWMA', xaxis_title='Data', yaxis_title='Volatilidade')
             st.plotly_chart(fig)
 
