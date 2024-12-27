@@ -975,11 +975,11 @@ def mercado():
         # Lógica para EWMA
         if indicador_selecionado == "EWMA":
             # Calcular Retornos Diários e Volatilidade EWMA
-            data_filtrado['Daily Returns'] = data_filtrado['Close'].pct_change()
-            data_filtrado['EWMA Volatility'] = calcular_volatilidade_ewma_percentual(data_filtrado['Daily Returns'])
+            data_filtrado.loc['Daily Returns'] = data_filtrado['Close'].pct_change()
+            data_filtrado.loc['EWMA Volatility'] = calcular_volatilidade_ewma_percentual(data_filtrado['Daily Returns'])
             data_filtrado.dropna(subset=['Daily Returns', 'EWMA Volatility'], inplace=True)
-            data_filtrado['Abs Daily Returns'] = data_filtrado['Daily Returns'].abs() * 100
-            data_filtrado['Entry Points'] = data_filtrado['Daily Returns'] * 100 > data_filtrado['EWMA Volatility']
+            data_filtrado.loc['Abs Daily Returns'] = data_filtrado['Daily Returns'].abs() * 100
+            data_filtrado.loc['Entry Points'] = data_filtrado['Daily Returns'] * 100 > data_filtrado['EWMA Volatility']
 
             quantidade_entradas = data_filtrado['Entry Points'].sum()
             if quantidade_entradas > 0:
