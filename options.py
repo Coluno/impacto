@@ -59,7 +59,14 @@ def prever_taxa_cambio(model, juros_br, juros_eua, prod_ind_br, prod_ind_eua, of
     log_razao_juros = np.log(razao_juros)
     dif_prod_industrial = prod_ind_eua - prod_ind_br
     dif_oferta_moeda = oferta_moeda_eua - (oferta_moeda_br / 1000)
-    X_novo = np.array([[log_razao_juros, dif_prod_industrial, dif_oferta_moeda]])
+
+    X_novo = pd.DataFrame({
+        'Log_Razao_Juros': [log_razao_juros],
+        'Dif_Prod_Industrial': [dif_prod_industrial],
+        'Dif_Oferta_Moeda': [dif_oferta_moeda]
+    })
+    
+    #X_novo = np.array([[log_razao_juros, dif_prod_industrial, dif_oferta_moeda]])
     taxa_cambio_prevista = model.predict(X_novo)
     return taxa_cambio_prevista[0]
 
