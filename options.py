@@ -966,7 +966,7 @@ def mercado():
     # Botão para cálculo
     if st.button("Calcular"):
         # Filtrar dados de acordo com intervalo de datas
-        data_filtrado = data[(data.index >= filtro_datas[0]) & (data.index <= filtro_datas[1])]
+        data_filtrado = data[(data.index >= filtro_datas[0]) & (data.index <= filtro_datas[1])].copy()
 
         # Inicialização das variáveis para KPIs
         quantidade_entradas = 0
