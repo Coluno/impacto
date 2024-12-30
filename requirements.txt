@@ -15,4 +15,4 @@ statsmodels
 xlrd
 xlsxwriter
 vectorbt
-pandas-ta
+arch
