@@ -2016,10 +2016,29 @@ def volatilidade():
             fig2 = px.line(data, x=data.index, y='GARCH Volatility', title=f'Volatilidade Condicional GARCH - {variable}')
             st.plotly_chart(fig2)
 
-            # Exibindo os parâmetros do modelo GARCH
-            st.subheader("Resumo do Modelo GARCH")
-            st.text(model_fit.summary())
+            # Descrição simples do modelo GARCH
+            st.subheader("O que é o modelo GARCH?")
+            st.markdown("""O modelo GARCH é usado para estimar e prever a volatilidade condicional,""")
+            # Exibindo os parâmetros do modelo GARCH de forma clara
+            st.subheader("Parâmetros do Modelo GARCH")
+            params = model_fit.params
+            table_data = {
+                "Parâmetro": ["ω (Omega)", "α1 (Alpha)", "β1 (Beta)"],
+                "Valor Estimado": [params['omega'], params['alpha[1]'], params['beta[1]']],
+                "Intervalo de Confiança (95%)": [
+                    f"[{model_fit.conf_int().loc['omega', 0]:.4f}, {model_fit.conf_int().loc['omega', 1]:.4f}]",
+                    f"[{model_fit.conf_int().loc['alpha[1]', 0]:.4f}, {model_fit.conf_int().loc['alpha[1]', 1]:.4f}]",
+                    f"[{model_fit.conf_int().loc['beta[1]', 0]:.4f}, {model_fit.conf_int().loc['beta[1]', 1]:.4f}]"
+                ]
+            }
+            st.table(table_data)
 
+            st.markdown("""
+            - **ω (Omega)**: Constante de variância incondicional.
+            - **α1 (Alpha)**: Impacto dos choques de volatilidade passados.
+            - **β1 (Beta)**: Persistência da volatilidade ao longo do tempo.
+            """)
+            
             # Botão para baixar o arquivo Excel
             excel_filename = f'{variable.lower()}_bi.xlsx'
             save_to_excel(data, excel_filename)
