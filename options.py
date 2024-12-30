@@ -2018,9 +2018,14 @@ def volatilidade():
 
             # Descrição simples do modelo GARCH
             st.subheader("O que é o modelo GARCH?")
-            st.markdown("""O modelo GARCH é usado para estimar e prever a volatilidade condicional,""")
+            st.markdown("""
+            O modelo GARCH é usado para estimar e prever a volatilidade condicional, considerando que a volatilidade atual depende de choques passados e de sua persistência ao longo do tempo.
+            """)
+
             # Exibindo os parâmetros do modelo GARCH de forma clara
             st.subheader("Parâmetros do Modelo GARCH")
+            
+            # Obtendo os parâmetros relevantes
             params = model_fit.params
             table_data = {
                 "Parâmetro": ["ω (Omega)", "α1 (Alpha)", "β1 (Beta)"],
@@ -2038,7 +2043,7 @@ def volatilidade():
             - **α1 (Alpha)**: Impacto dos choques de volatilidade passados.
             - **β1 (Beta)**: Persistência da volatilidade ao longo do tempo.
             """)
-            
+
             # Botão para baixar o arquivo Excel
             excel_filename = f'{variable.lower()}_bi.xlsx'
             save_to_excel(data, excel_filename)
@@ -2053,6 +2058,7 @@ def volatilidade():
                 )
         else:
             st.error("Não há dados disponíveis para a data selecionada. Por favor, tente outra data.")
+
 
 @st.cache_data
 def load_data():
