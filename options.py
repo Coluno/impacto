@@ -2039,14 +2039,6 @@ def volatilidade():
             st.write(f"**Beta[1]:** {model_fit.params['beta[1]']:.4f} "
                      f"(Intervalo: [{beta_lower:.4f}, {beta_upper:.4f}])")
 
-            # Exibição de explicação simplificada do modelo
-            st.subheader("Sobre o Modelo GARCH")
-            st.markdown(
-                "O modelo GARCH (Generalized Autoregressive Conditional Heteroskedasticity) "
-                "é utilizado para modelar e prever a volatilidade condicional de séries temporais. "
-                "Ele ajuda a capturar a persistência e os choques na volatilidade."
-            )
-
             # Botão para baixar o arquivo Excel
             excel_filename = f'{variable.lower()}_bi.xlsx'
             save_to_excel(data, excel_filename)
