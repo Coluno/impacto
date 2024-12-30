@@ -1987,7 +1987,6 @@ def get_historical_data(symbol, start_date):
 def save_to_excel(data, filename):
     data.to_excel(filename, index=True)
 
-# Função principal do aplicativo Streamlit
 def volatilidade():
     # Configuração da interface do usuário
     st.title("Volatilidade de Preços - Açúcar e Dólar")
@@ -2016,33 +2015,37 @@ def volatilidade():
             fig2 = px.line(data, x=data.index, y='GARCH Volatility', title=f'Volatilidade Condicional GARCH - {variable}')
             st.plotly_chart(fig2)
 
-            # Descrição simples do modelo GARCH
-            st.subheader("O que é o modelo GARCH?")
-            st.markdown("""
-            O modelo GARCH é usado para estimar e prever a volatilidade condicional, considerando que a volatilidade atual depende de choques passados e de sua persistência ao longo do tempo.
-            """)
-
-            # Exibindo os parâmetros do modelo GARCH de forma clara
+            # Exibindo os parâmetros do modelo GARCH
             st.subheader("Parâmetros do Modelo GARCH")
-            
-            # Obtendo os parâmetros relevantes
-            params = model_fit.params
-            table_data = {
-                "Parâmetro": ["ω (Omega)", "α1 (Alpha)", "β1 (Beta)"],
-                "Valor Estimado": [params['omega'], params['alpha[1]'], params['beta[1]']],
-                "Intervalo de Confiança (95%)": [
-                    f"[{model_fit.conf_int().loc['omega', 0]:.4f}, {model_fit.conf_int().loc['omega', 1]:.4f}]",
-                    f"[{model_fit.conf_int().loc['alpha[1]', 0]:.4f}, {model_fit.conf_int().loc['alpha[1]', 1]:.4f}]",
-                    f"[{model_fit.conf_int().loc['beta[1]', 0]:.4f}, {model_fit.conf_int().loc['beta[1]', 1]:.4f}]"
-                ]
-            }
-            st.table(table_data)
+            conf_int = model_fit.conf_int()
 
-            st.markdown("""
-            - **ω (Omega)**: Constante de variância incondicional.
-            - **α1 (Alpha)**: Impacto dos choques de volatilidade passados.
-            - **β1 (Beta)**: Persistência da volatilidade ao longo do tempo.
-            """)
+            # Verificar as colunas do DataFrame de intervalo de confiança
+            conf_int_columns = conf_int.columns.tolist()
+            lower_col = conf_int_columns[0]  # Geralmente é a primeira coluna
+            upper_col = conf_int_columns[1]  # Geralmente é a segunda coluna
+
+            # Extrair os intervalos de confiança
+            omega_lower = conf_int.loc['omega', lower_col]
+            omega_upper = conf_int.loc['omega', upper_col]
+            alpha_lower = conf_int.loc['alpha[1]', lower_col]
+            alpha_upper = conf_int.loc['alpha[1]', upper_col]
+            beta_lower = conf_int.loc['beta[1]', lower_col]
+            beta_upper = conf_int.loc['beta[1]', upper_col]
+
+            st.write(f"**Omega:** {model_fit.params['omega']:.4e} "
+                     f"(Intervalo: [{omega_lower:.4e}, {omega_upper:.4e}])")
+            st.write(f"**Alpha[1]:** {model_fit.params['alpha[1]']:.4f} "
+                     f"(Intervalo: [{alpha_lower:.4f}, {alpha_upper:.4f}])")
+            st.write(f"**Beta[1]:** {model_fit.params['beta[1]']:.4f} "
+                     f"(Intervalo: [{beta_lower:.4f}, {beta_upper:.4f}])")
+
+            # Exibição de explicação simplificada do modelo
+            st.subheader("Sobre o Modelo GARCH")
+            st.markdown(
+                "O modelo GARCH (Generalized Autoregressive Conditional Heteroskedasticity) "
+                "é utilizado para modelar e prever a volatilidade condicional de séries temporais. "
+                "Ele ajuda a capturar a persistência e os choques na volatilidade."
+            )
 
             # Botão para baixar o arquivo Excel
             excel_filename = f'{variable.lower()}_bi.xlsx'
@@ -2058,7 +2061,6 @@ def volatilidade():
                 )
         else:
             st.error("Não há dados disponíveis para a data selecionada. Por favor, tente outra data.")
-
 
 @st.cache_data
 def load_data():
