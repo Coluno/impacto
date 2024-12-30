@@ -1966,18 +1966,19 @@ def get_historical_data(symbol, start_date):
         data['Price'] = data['Close']
     else:
         raise KeyError("Erro: Nenhuma coluna válida encontrada nos dados ('Adj Close' ou 'Close').")
-
+    
+    #calculo Retornos Logarítmicos
+    data['Log Returns'] = np.log(data['Price'] / data['Price'].shift(1))
     # Cálculos de retornos diários e volatilidade EWMA
     data['Daily Returns'] = data['Price'].pct_change()
     data['EWMA Volatility'] = data['Daily Returns'].ewm(span=20).std()
     data['Abs Daily Returns'] = data['Daily Returns'].abs()
-    #calculo Retornos Logarítmicos
-    data['Log Returns'] = np.log(data['Price'] / data['Price'].shift(1))
-    # Modelagem de volatilidade condicional usando GARCH
-    model = arch_model(data['Log Returns'], vol='Garch', p=1, q=1)
     data.dropna(inplace=True)
     
+    # Modelagem de volatilidade condicional usando GARCH
+    model = arch_model(data['Log Returns'], vol='Garch', p=1, q=1)
     model_fit = model.fit(disp="off")
+    
     data['GARCH Volatility'] = model_fit.conditional_volatility  # Volatilidade condicional do GARCH
 
     return data, model_fit
