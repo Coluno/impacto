@@ -1972,9 +1972,10 @@ def get_historical_data(symbol, start_date):
     data['EWMA Volatility'] = data['Daily Returns'].ewm(span=20).std()
     data['Abs Daily Returns'] = data['Daily Returns'].abs()
     data.dropna(inplace=True)
-
+    #calculo Retornos Logarítmicos
+    data['Log Returns'] = np.log(data['Price'] / data['Price'].shift(1))
     # Modelagem de volatilidade condicional usando GARCH
-    model = arch_model(data['Daily Returns'], vol='Garch', p=1, q=1)
+    model = arch_model(data['Log Returns'], vol='Garch', p=1, q=1)
     model_fit = model.fit(disp="off")
     data['GARCH Volatility'] = model_fit.conditional_volatility  # Volatilidade condicional do GARCH
 
