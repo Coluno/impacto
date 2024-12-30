@@ -17,6 +17,7 @@ import plotly.graph_objs as go
 import plotly.subplots as sp
 import requests
 
+from arch import arch_model
 from bs4 import BeautifulSoup
 from statsmodels.graphics.tsaplots import plot_acf
 from statsmodels.tsa.stattools import acf
@@ -1952,7 +1953,6 @@ def noticias():
             st.write(f"Sentimento: **{noticia['sentimento'].capitalize()}**")  # Exibe se é altista/baixista
             st.write(f"Volatilidade: {mostrar_estrelas(noticia['volatilidade'])}")  # Exibe estrelas de volatilidade
 
-
 # Função para obter dados históricos de acordo com o símbolo selecionado
 def get_historical_data(symbol, start_date):
     data = yf.download(symbol, start=start_date, end="2099-01-01")
@@ -1967,13 +1967,18 @@ def get_historical_data(symbol, start_date):
     else:
         raise KeyError("Erro: Nenhuma coluna válida encontrada nos dados ('Adj Close' ou 'Close').")
 
-    #data.reset_index(inplace=True)
-    
+    # Cálculos de retornos diários e volatilidade EWMA
     data['Daily Returns'] = data['Price'].pct_change()
     data['EWMA Volatility'] = data['Daily Returns'].ewm(span=20).std()
     data['Abs Daily Returns'] = data['Daily Returns'].abs()
     data.dropna(inplace=True)
-    return data
+
+    # Modelagem de volatilidade condicional usando GARCH
+    model = arch_model(data['Daily Returns'], vol='Garch', p=1, q=1)
+    model_fit = model.fit(disp="off")
+    data['GARCH Volatility'] = model_fit.conditional_volatility  # Volatilidade condicional do GARCH
+
+    return data, model_fit
 
 # Função para salvar o DataFrame em um arquivo Excel
 def save_to_excel(data, filename):
@@ -1996,13 +2001,21 @@ def volatilidade():
     # Botão para iniciar a simulação
     if st.button("Simular"):
         # Obtenção dos dados históricos
-        data = get_historical_data(symbol, start_date.strftime('%Y-%m-%d'))
+        data, model_fit = get_historical_data(symbol, start_date.strftime('%Y-%m-%d'))
 
         # Verificação se há dados para exibir
         if not data.empty:
-            # Gráfico interativo com Plotly
-            fig = px.line(data, x=data.index, y='EWMA Volatility', title=f'Volatilidade EWMA - {variable}')
-            st.plotly_chart(fig)
+            # Gráfico de volatilidade EWMA
+            fig1 = px.line(data, x=data.index, y='EWMA Volatility', title=f'Volatilidade EWMA - {variable}')
+            st.plotly_chart(fig1)
+
+            # Gráfico de volatilidade condicional GARCH
+            fig2 = px.line(data, x=data.index, y='GARCH Volatility', title=f'Volatilidade Condicional GARCH - {variable}')
+            st.plotly_chart(fig2)
+
+            # Exibindo os parâmetros do modelo GARCH
+            st.subheader("Resumo do Modelo GARCH")
+            st.text(model_fit.summary())
 
             # Botão para baixar o arquivo Excel
             excel_filename = f'{variable.lower()}_bi.xlsx'
