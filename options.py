@@ -2028,11 +2028,10 @@ def volatilidade():
 
         # Verificação se há dados para exibir
         if not data.empty:
-            # Gráfico de volatilidade EWMA
+            # Exibir gráficos de volatilidade EWMA e GARCH antes de solicitar sigma
             fig1 = px.line(data, x=data.index, y='EWMA Volatility', title=f'Volatilidade EWMA - {variable}')
             st.plotly_chart(fig1)
 
-            # Gráfico de volatilidade condicional GARCH
             fig2 = px.line(data, x=data.index, y='GARCH Volatility', title=f'Volatilidade Condicional GARCH - {variable}')
             st.plotly_chart(fig2)
 
@@ -2057,24 +2056,25 @@ def volatilidade():
                      "presente mesmo na ausência de choques ou persistência.")
             st.write(f"**Omega:** {model_fit.params['omega']:.4e} "
                      f"(Intervalo: [{omega_lower:.4e}, {omega_upper:.4e}])")
-            
+
             st.write("- **Alpha[1] (α₁):** Mede o impacto imediato de choques passados na volatilidade atual.")
             st.write(f"**Alpha[1]:** {model_fit.params['alpha[1]']:.4f} "
                      f"(Intervalo: [{alpha_lower:.4f}, {alpha_upper:.4f}])")
-            
+
             st.write("- **Beta[1] (β₁):** Mede a persistência da volatilidade ao longo do tempo.")
             st.write(f"**Beta[1]:** {model_fit.params['beta[1]']:.4f} "
                      f"(Intervalo: [{beta_lower:.4f}, {beta_upper:.4f}])")
 
-            # Entrada de sigma para o modelo Jump-Diffusion
+            # Solicitar sigma após exibir os gráficos
             sigma = st.number_input("Digite o valor de sigma (volatilidade) para o modelo Jump-Diffusion", 
                                     min_value=0.01, max_value=3.0, value=0.2)
+
             # Parâmetros fixos do modelo Jump-Diffusion
-            mu = 0.05  # Retorno médio
-            lambda_jumps = 0.1  # Taxa de saltos 
-            mu_jump = -0.02  # Tamanho médio do salto
-            sigma_jump = 0.05  # Desvio padrão dos saltos 
-            T = 1  # Horizonte de tempo (1 ano)
+            mu = 0.05  # Retorno médio (fixo)
+            lambda_jumps = 0.1  # Taxa de saltos (fixo)
+            mu_jump = -0.02  # Tamanho médio do salto (fixo)
+            sigma_jump = 0.05  # Desvio padrão dos saltos (fixo)
+            T = 1  # Horizonte de tempo (1 ano, fixo)
             steps = 252  # Número de passos (dias úteis no ano)
 
             # Simulação do modelo Jump-Diffusion
