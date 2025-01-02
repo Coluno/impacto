@@ -2076,6 +2076,7 @@ def simulate_jump_diffusion(s0, mu, sigma, lambda_jumps, mu_jump, sigma_jump, T,
     return prices
 
 # Função principal para o Streamlit
+# Função principal
 def volatilidade_jump_diffusion():
     # Configuração da interface do usuário
     st.title("Simulação de Preços - Modelo Jump-Diffusion")
@@ -2095,60 +2096,7 @@ def volatilidade_jump_diffusion():
     # Se o usuário não inserir o valor de sigma, utilizar a volatilidade histórica
     sigma = float(sigma_input) if sigma_input else None
 
-    # Obtenção dos dados históricos
-    data = yf.download(symbol, start=start_date, end="2099-01-01")
-    data.reset_index(inplace=True)
-    data.columns = data.columns.droplevel(1)
-    data.set_index('Date', inplace=True)
-    
-    if 'Adj Close' in data.columns:
-        data['Price'] = data['Adj Close']
-    elif 'Close' in data.columns:
-        data['Price'] = data['Close']
-    else:
-        raise KeyError("Erro: Nenhuma coluna válida encontrada nos dados ('Adj Close' ou 'Close').")
-
-    # Cálculos de retornos diários
-    data['Log Returns'] = np.log(data['Price'] / data['Price'].shift(1))
-    data = data.dropna()
-
-    # Calcular a volatilidade histórica, se sigma não for fornecido
-    if sigma is None:
-        sigma = data['Log Returns'].std()  # Volatilidade histórica (desvio padrão dos retornos diários)
-
-    # Parâmetros do modelo
-    mu = data['Log Returns'].mean()  # Taxa de retorno média
-    s0 = data['Price'].iloc[-1]  # Último preço como preço inicial
-    lambda_jumps = 0.1  # Intensidade dos saltos
-    mu_jump = -0.02  # Média do salto
-    sigma_jump = 0.05  # Volatilidade dos saltos
-    T = 1  # Horizonte de tempo (1 ano)
-    steps = 252  # Passos diários
-
-    # Simulação do modelo Jump-Diffusion
-    simulated_prices = simulate_jump_diffusion(
-        s0=s0, mu=mu, sigma=sigma, lambda_jumps=lambda_jumps, mu_jump=mu_jump, sigma_jump=sigma_jump, T=T, steps=steps
-    )
-
-    # Preparando os dados para o gráfico
-    jump_diffusion_df = pd.DataFrame({'Step': range(len(simulated_prices)), 'Price': simulated_prices})
-    
-    # Calculando o valor médio da simulação
-    mean_simulated_price = np.mean(simulated_prices)
-    
-    # Exibindo o gráfico de preços simulados
-    fig = px.line(jump_diffusion_df, x='Step', y='Price', title="Simulação de Preços - Modelo Jump-Diffusion")
-    st.plotly_chart(fig)
-
-    # Exibindo a volatilidade utilizada
-    if sigma is None:
-        st.write(f"A volatilidade utilizada (sigma) foi calculada com base nos dados históricos do ativo.")
-    else:
-        st.write(f"A volatilidade utilizada (sigma) foi definida pelo usuário: {sigma}")
-    st.write(f"O valor médio da simulação para o ano é: {mean_simulated_price:.2f}")
-    st.write(jump_diffusion_df.tail())  # Exibindo as últimas linhas dos dados simulados
-
-    # Descrição explicativa sobre a simulação
+    # Botão de explicação fora do bloco do botão de simulação
     description = (
         "O modelo Jump-Diffusion simula o comportamento de preços de ativos financeiros com saltos. "
         "Ao contrário do modelo de difusão contínua (como o modelo de Black-Scholes), que assume um caminho suave e contínuo, "
@@ -2157,12 +2105,62 @@ def volatilidade_jump_diffusion():
         "1. **Difusão**: O preço do ativo segue um processo estocástico com retorno médio (mu) e volatilidade (sigma).\n"
         "2. **Saltos**: Eventos inesperados provocam saltos no preço, com intensidade determinada por lambda_jumps (a frequência dos saltos). "
         "O tamanho do salto é modelado por uma distribuição normal com média mu_jump e desvio padrão sigma_jump.\n\n"
+        "Esse modelo é útil para simular cenários mais realistas em mercados financeiros, onde os preços podem ter grandes variações devido a choques externos."
     )
-
-    # Adicionando o botão de explicação
+    
+    # Exibindo explicação
     if st.button("Explicação"):
-        st.write(description)
+        st.text_area("Explicação do Modelo Jump-Diffusion", description, height=300)
 
+    # Botão para iniciar a simulação
+    if st.button("Simular"):
+        # Obtenção dos dados históricos
+        data = yf.download(symbol, start=start_date, end="2099-01-01")
+        data.reset_index(inplace=True)
+        data.set_index('Date', inplace=True)
+
+        if 'Adj Close' in data.columns:
+            data['Price'] = data['Adj Close']
+        elif 'Close' in data.columns:
+            data['Price'] = data['Close']
+        else:
+            st.error("Erro: Nenhuma coluna válida encontrada nos dados ('Adj Close' ou 'Close').")
+            return
+
+        # Calculo de retornos logarítmicos
+        data['Log Returns'] = np.log(data['Price'] / data['Price'].shift(1))
+        data.dropna(inplace=True)
+
+        # Se sigma não for fornecido, calcular a volatilidade histórica
+        if sigma is None:
+            sigma = data['Log Returns'].std()
+
+        # Parâmetros do modelo
+        mu = data['Log Returns'].mean()  # Taxa de retorno média
+        s0 = data['Price'].iloc[-1]  # Último preço como preço inicial
+        lambda_jumps = 0.1  # Intensidade dos saltos
+        mu_jump = -0.02  # Média do salto
+        sigma_jump = 0.05  # Volatilidade dos saltos
+        T = 1  # Horizonte de tempo (1 ano)
+        steps = 252  # Passos diários
+
+        # Simulação do modelo Jump-Diffusion
+        simulated_prices = simulate_jump_diffusion(
+            s0=s0, mu=mu, sigma=sigma, lambda_jumps=lambda_jumps,
+            mu_jump=mu_jump, sigma_jump=sigma_jump, T=T, steps=steps
+        )
+        
+        # Criando o DataFrame para visualização
+        jump_diffusion_df = pd.DataFrame({'Step': range(len(simulated_prices)), 'Price': simulated_prices})
+
+        # Gráfico de preços simulados
+        fig = px.line(jump_diffusion_df, x='Step', y='Price', title=f"Simulação de Preços - {variable} com Jump-Diffusion")
+        st.plotly_chart(fig)
+
+        # Exibindo o valor médio da simulação
+        average_price = np.mean(simulated_prices)
+        st.write(f"O valor médio da simulação para o ano foi: {average_price:.2f}")
+        
 @st.cache_data
 def load_data():
     # Carregar apenas as colunas necessárias
