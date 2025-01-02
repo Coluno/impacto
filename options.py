@@ -2069,6 +2069,7 @@ def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, j
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
     data.set_index('Date', inplace=True)
+    
     if 'Adj Close' in data.columns:
         data['Price'] = data['Adj Close']
     elif 'Close' in data.columns:
@@ -2078,7 +2079,8 @@ def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, j
 
     # Cálculos de retornos diários
     data['Log Returns'] = np.log(data['Price'] / data['Price'].shift(1))
-    data = data.dropna(inplace=True)
+    data = data.dropna()
+
     # Calcular a volatilidade histórica, se sigma não for fornecido
     if sigma is None:
         sigma = data['Log Returns'].std()  # Volatilidade histórica (desvio padrão dos retornos diários)
@@ -2105,7 +2107,7 @@ def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, j
     data['Simulated Price'] = prices[:len(data)]  # Preço simulado
 
     # Gráfico de preço simulado
-    fig = px.line(data, x=data.index, y=['Adj Close', 'Simulated Price'], title=f"Simulação Jump-Diffusion - {symbol}")
+    fig = px.line(data, x=data.index, y=['Price', 'Simulated Price'], title=f"Simulação Jump-Diffusion - {symbol}")
     st.plotly_chart(fig)
 
     return data
@@ -2127,8 +2129,15 @@ def volatilidade_jump_diffusion():
     # Entrada do usuário para sigma (volatilidade), que pode ser deixado em branco para usar a volatilidade histórica
     sigma_input = st.text_input("Digite o valor de sigma (volatilidade):", value="")
 
-    # Se o usuário não inserir o valor de sigma, utilizar a volatilidade histórica
-    sigma = float(sigma_input) if sigma_input else None
+    # Validando a entrada de sigma
+    if sigma_input:
+        try:
+            sigma = float(sigma_input)
+        except ValueError:
+            st.error("Por favor, insira um valor numérico válido para sigma (volatilidade).")
+            return
+    else:
+        sigma = None  # Usar a volatilidade histórica se o campo for deixado em branco
 
     # Botão para iniciar a simulação
     if st.button("Simular"):
