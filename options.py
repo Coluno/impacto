@@ -2103,7 +2103,7 @@ def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, j
         # Cálculo do preço no próximo passo
         S_t = prices[-1] * np.exp((mu - 0.5 * sigma**2) * dt + sigma * dW + jump)
         prices.append(S_t)
-    
+    prices = prices[:len(data)]
     data['Simulated Price'] = prices[:len(data)]  # Preço simulado
 
     # Gráfico de preço simulado
