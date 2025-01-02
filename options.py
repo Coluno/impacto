@@ -2133,6 +2133,7 @@ def volatilidade_jump_diffusion():
 
         # Se sigma não for fornecido, calcular a volatilidade histórica
         if sigma is None:
+        st.write(f"A volatilidade utilizada (sigma) foi calculada com base nos dados históricos do ativo.")
             sigma = data['Log Returns'].std()
 
         # Parâmetros do modelo
@@ -2160,6 +2161,10 @@ def volatilidade_jump_diffusion():
         # Exibindo o valor médio da simulação
         average_price = np.mean(simulated_prices)
         st.write(f"O valor médio da simulação para o ano foi: {average_price:.2f}")
+            else:
+        st.write(f"A volatilidade utilizada (sigma) foi definida pelo usuário: {sigma}")
+
+    # Exibindo o valor médio da simulação
         
 @st.cache_data
 def load_data():
