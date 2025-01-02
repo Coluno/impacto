@@ -2089,7 +2089,7 @@ def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, j
     dt = T / steps  # Tamanho do intervalo de tempo
 
     # Inicializando os preços simulados
-    S0 = data['Adj Close'][-1]  # Preço inicial
+    S0 = data['Price'][-1]  # Preço inicial
     prices = [S0]
     
     # Simulação do preço com o modelo Jump-Diffusion
