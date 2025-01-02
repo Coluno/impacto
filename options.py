@@ -1980,9 +1980,6 @@ def get_historical_data(symbol, start_date):
     # Inicializando o modelo com os dados escalados
     model = arch_model(scaled_log_returns, vol='Garch', p=1, q=1)
     model_fit = model.fit(disp="off")
-    # Modelagem de volatilidade condicional usando GARCH
-    #model = arch_model(data['Log Returns'], vol='Garch', p=1, q=1)
-    #model_fit = model.fit(disp="off")
     data['GARCH Volatility'] = model_fit.conditional_volatility / 100 # Volatilidade condicional do GARCH volta ao original
 
     return data, model_fit
@@ -2036,10 +2033,16 @@ def volatilidade():
             beta_lower = conf_int.loc['beta[1]', lower_col]
             beta_upper = conf_int.loc['beta[1]', upper_col]
 
+            st.write("- **Omega (ω):** Constante que representa a volatilidade base nos dados, "
+                     "presente mesmo na ausência de choques ou persistência.")
             st.write(f"**Omega:** {model_fit.params['omega']:.4e} "
                      f"(Intervalo: [{omega_lower:.4e}, {omega_upper:.4e}])")
+            
+            st.write("- **Alpha[1] (α₁):** Mede o impacto imediato de choques passados na volatilidade atual.")
             st.write(f"**Alpha[1]:** {model_fit.params['alpha[1]']:.4f} "
                      f"(Intervalo: [{alpha_lower:.4f}, {alpha_upper:.4f}])")
+            
+            st.write("- **Beta[1] (β₁):** Mede a persistência da volatilidade ao longo do tempo.")
             st.write(f"**Beta[1]:** {model_fit.params['beta[1]']:.4f} "
                      f"(Intervalo: [{beta_lower:.4f}, {beta_upper:.4f}])")
 
