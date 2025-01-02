@@ -2028,10 +2028,11 @@ def volatilidade():
 
         # Verificação se há dados para exibir
         if not data.empty:
-            # Exibir gráficos de volatilidade EWMA e GARCH antes de solicitar sigma
+            # Gráfico de volatilidade EWMA
             fig1 = px.line(data, x=data.index, y='EWMA Volatility', title=f'Volatilidade EWMA - {variable}')
             st.plotly_chart(fig1)
 
+            # Gráfico de volatilidade condicional GARCH
             fig2 = px.line(data, x=data.index, y='GARCH Volatility', title=f'Volatilidade Condicional GARCH - {variable}')
             st.plotly_chart(fig2)
 
@@ -2056,53 +2057,47 @@ def volatilidade():
                      "presente mesmo na ausência de choques ou persistência.")
             st.write(f"**Omega:** {model_fit.params['omega']:.4e} "
                      f"(Intervalo: [{omega_lower:.4e}, {omega_upper:.4e}])")
-
+            
             st.write("- **Alpha[1] (α₁):** Mede o impacto imediato de choques passados na volatilidade atual.")
             st.write(f"**Alpha[1]:** {model_fit.params['alpha[1]']:.4f} "
                      f"(Intervalo: [{alpha_lower:.4f}, {alpha_upper:.4f}])")
-
+            
             st.write("- **Beta[1] (β₁):** Mede a persistência da volatilidade ao longo do tempo.")
             st.write(f"**Beta[1]:** {model_fit.params['beta[1]']:.4f} "
                      f"(Intervalo: [{beta_lower:.4f}, {beta_upper:.4f}])")
 
-            # Solicitar sigma após exibir os gráficos
+            # Solicitar sigma após exibir os gráficos de volatilidade
             sigma = st.number_input("Digite o valor de sigma (volatilidade) para o modelo Jump-Diffusion", 
                                     min_value=0.01, max_value=3.0, value=0.2)
 
-            # Parâmetros fixos do modelo Jump-Diffusion
-            mu = 0.05  # Retorno médio (fixo)
-            lambda_jumps = 0.1  # Taxa de saltos (fixo)
-            mu_jump = -0.02  # Tamanho médio do salto (fixo)
-            sigma_jump = 0.05  # Desvio padrão dos saltos (fixo)
-            T = 1  # Horizonte de tempo (1 ano, fixo)
-            steps = 252  # Número de passos (dias úteis no ano)
-
-            # Simulação do modelo Jump-Diffusion
-            s0 = data['Price'].iloc[-1]  # Último preço como preço inicial
-            simulated_prices = simulate_jump_diffusion(
-                s0=s0, mu=mu, sigma=sigma, lambda_jumps=lambda_jumps, 
-                mu_jump=mu_jump, sigma_jump=sigma_jump, T=T, steps=steps
-            )
-
-            # Exibir gráfico de simulação Jump-Diffusion
-            jump_diffusion_df = pd.DataFrame({'Step': range(len(simulated_prices)), 'Price': simulated_prices})
-            fig3 = px.line(jump_diffusion_df, x='Step', y='Price', title=f"Simulação de Preços - Modelo Jump-Diffusion ({variable})")
-            st.plotly_chart(fig3)
-
-            # Botão para baixar o arquivo Excel
-            excel_filename = f'{variable.lower()}_bi.xlsx'
-            save_to_excel(data, excel_filename)
-
-            # Botão de download
-            with open(excel_filename, "rb") as file:
-                st.download_button(
-                    label="Baixar Excel",
-                    data=file,
-                    file_name=excel_filename,
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            # Quando o usuário fornecer o sigma, rodar a simulação Jump-Diffusion
+            if sigma:
+                # Simulação do modelo Jump-Diffusion
+                s0 = data['Price'].iloc[-1]  # Último preço como preço inicial
+                simulated_prices = simulate_jump_diffusion(
+                    s0=s0, mu=0.05, sigma=sigma, lambda_jumps=0.1, mu_jump=-0.02, 
+                    sigma_jump=0.05, T=1, steps=252
                 )
+                jump_diffusion_df = pd.DataFrame({'Step': range(len(simulated_prices)), 'Price': simulated_prices})
+                fig3 = px.line(jump_diffusion_df, x='Step', y='Price', title=f"Simulação de Preços - Modelo Jump-Diffusion ({variable})")
+                st.plotly_chart(fig3)
+
+                # Botão para baixar o arquivo Excel
+                excel_filename = f'{variable.lower()}_bi.xlsx'
+                save_to_excel(data, excel_filename)
+
+                # Botão de download
+                with open(excel_filename, "rb") as file:
+                    st.download_button(
+                        label="Baixar Excel",
+                        data=file,
+                        file_name=excel_filename,
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+
         else:
             st.error("Não há dados disponíveis para a data selecionada. Por favor, tente outra data.")
+
 
 @st.cache_data
 def load_data():
