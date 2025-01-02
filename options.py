@@ -2125,22 +2125,6 @@ def volatilidade_jump_diffusion():
     T = 1  # Horizonte de tempo (1 ano)
     steps = 252  # Passos diários
 
-    # Descrição explicativa sobre a simulação
-    description = (
-        "O modelo Jump-Diffusion simula o comportamento de preços de ativos financeiros com saltos. "
-        "Ao contrário do modelo de difusão contínua (como o modelo de Black-Scholes), que assume um caminho suave e contínuo, "
-        "o modelo Jump-Diffusion incorpora saltos aleatórios, representando mudanças abruptas nos preços devido a eventos imprevistos.\n\n"
-        "A simulação funciona da seguinte forma:\n"
-        "1. **Difusão**: O preço do ativo segue um processo estocástico com retorno médio (mu) e volatilidade (sigma).\n"
-        "2. **Saltos**: Eventos inesperados provocam saltos no preço, com intensidade determinada por lambda_jumps (a frequência dos saltos). "
-        "O tamanho do salto é modelado por uma distribuição normal com média mu_jump e desvio padrão sigma_jump.\n\n"
-        "Esse modelo é útil para simular cenários mais realistas em mercados financeiros, onde os preços podem ter grandes variações devido a choques externos."
-    )
-
-    # Adicionando o botão de explicação
-    if st.button("Explicação"):
-        st.write(description)
-    
     # Simulação do modelo Jump-Diffusion
     simulated_prices = simulate_jump_diffusion(
         s0=s0, mu=mu, sigma=sigma, lambda_jumps=lambda_jumps, mu_jump=mu_jump, sigma_jump=sigma_jump, T=T, steps=steps
@@ -2163,6 +2147,21 @@ def volatilidade_jump_diffusion():
         st.write(f"A volatilidade utilizada (sigma) foi definida pelo usuário: {sigma}")
     st.write(f"O valor médio da simulação para o ano é: {mean_simulated_price:.2f}")
     st.write(jump_diffusion_df.tail())  # Exibindo as últimas linhas dos dados simulados
+
+    # Descrição explicativa sobre a simulação
+    description = (
+        "O modelo Jump-Diffusion simula o comportamento de preços de ativos financeiros com saltos. "
+        "Ao contrário do modelo de difusão contínua (como o modelo de Black-Scholes), que assume um caminho suave e contínuo, "
+        "o modelo Jump-Diffusion incorpora saltos aleatórios, representando mudanças abruptas nos preços devido a eventos imprevistos.\n\n"
+        "A simulação funciona da seguinte forma:\n"
+        "1. **Difusão**: O preço do ativo segue um processo estocástico com retorno médio (mu) e volatilidade (sigma).\n"
+        "2. **Saltos**: Eventos inesperados provocam saltos no preço, com intensidade determinada por lambda_jumps (a frequência dos saltos). "
+        "O tamanho do salto é modelado por uma distribuição normal com média mu_jump e desvio padrão sigma_jump.\n\n"
+    )
+
+    # Adicionando o botão de explicação
+    if st.button("Explicação"):
+        st.write(description)
 
 @st.cache_data
 def load_data():
