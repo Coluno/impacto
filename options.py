@@ -2069,9 +2069,15 @@ def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, j
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
     data.set_index('Date', inplace=True)
+    if 'Adj Close' in data.columns:
+        data['Price'] = data['Adj Close']
+    elif 'Close' in data.columns:
+        data['Price'] = data['Close']
+    else:
+        raise KeyError("Erro: Nenhuma coluna válida encontrada nos dados ('Adj Close' ou 'Close').")
 
     # Cálculos de retornos diários
-    data['Log Returns'] = np.log(data['Adj Close'] / data['Adj Close'].shift(1))
+    data['Log Returns'] = np.log(data['Price'] / data['Price'].shift(1))
     data.dropna(inplace=True)
     
     # Calcular a volatilidade histórica, se sigma não for fornecido
