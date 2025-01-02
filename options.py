@@ -1953,6 +1953,7 @@ def noticias():
             st.write(f"Sentimento: **{noticia['sentimento'].capitalize()}**")  # Exibe se é altista/baixista
             st.write(f"Volatilidade: {mostrar_estrelas(noticia['volatilidade'])}")  # Exibe estrelas de volatilidade
 
+# def's que fazer parte da volatilidade
 # Função para obter dados históricos de acordo com o símbolo selecionado
 def get_historical_data(symbol, start_date):
     data = yf.download(symbol, start=start_date, end="2099-01-01")
@@ -1983,26 +1984,6 @@ def get_historical_data(symbol, start_date):
     data['GARCH Volatility'] = model_fit.conditional_volatility / 100 # Volatilidade condicional do GARCH volta ao original
 
     return data, model_fit
-
-# Função para simular o modelo Jump-Diffusion
-def simulate_jump_diffusion(s0, mu, sigma, lambda_jumps, mu_jump, sigma_jump, T, steps):
-    dt = T / steps
-    prices = [s0]
-    
-    for _ in range(steps):
-        jump = np.random.poisson(lambda_jumps)  # Número de saltos no passo
-        if jump > 0:
-            jump_size = np.random.normal(mu_jump, sigma_jump)  # Tamanho do salto
-        else:
-            jump_size = 0
-
-        drift = mu * dt  # Drift do processo
-        volatility = sigma * np.sqrt(dt) * np.random.normal()  # Volatilidade do processo
-        price = prices[-1] * np.exp(drift + volatility + jump_size)  # Preço futuro
-
-        prices.append(price)
-    
-    return np.array(prices)
 
 # Função para salvar o DataFrame em um arquivo Excel
 def save_to_excel(data, filename):
@@ -2066,35 +2047,18 @@ def volatilidade():
             st.write(f"**Beta[1]:** {model_fit.params['beta[1]']:.4f} "
                      f"(Intervalo: [{beta_lower:.4f}, {beta_upper:.4f}])")
 
-            # Solicitar sigma após exibir os gráficos de volatilidade
-            sigma = st.number_input("Digite o valor de sigma (volatilidade) para o modelo Jump-Diffusion", 
-                                    min_value=0.01, max_value=3.0, value=0.2)
+            # Botão para baixar o arquivo Excel
+            excel_filename = f'{variable.lower()}_bi.xlsx'
+            save_to_excel(data, excel_filename)
 
-            # Quando o usuário fornecer o sigma, rodar a simulação Jump-Diffusion
-            if sigma:
-                # Simulação do modelo Jump-Diffusion
-                s0 = data['Price'].iloc[-1]  # Último preço como preço inicial
-                simulated_prices = simulate_jump_diffusion(
-                    s0=s0, mu=0.05, sigma=sigma, lambda_jumps=0.1, mu_jump=-0.02, 
-                    sigma_jump=0.05, T=1, steps=252
+            # Botão de download
+            with open(excel_filename, "rb") as file:
+                st.download_button(
+                    label="Baixar Excel",
+                    data=file,
+                    file_name=excel_filename,
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
-                jump_diffusion_df = pd.DataFrame({'Step': range(len(simulated_prices)), 'Price': simulated_prices})
-                fig3 = px.line(jump_diffusion_df, x='Step', y='Price', title=f"Simulação de Preços - Modelo Jump-Diffusion ({variable})")
-                st.plotly_chart(fig3)
-
-                # Botão para baixar o arquivo Excel
-                excel_filename = f'{variable.lower()}_bi.xlsx'
-                save_to_excel(data, excel_filename)
-
-                # Botão de download
-                with open(excel_filename, "rb") as file:
-                    st.download_button(
-                        label="Baixar Excel",
-                        data=file,
-                        file_name=excel_filename,
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-
         else:
             st.error("Não há dados disponíveis para a data selecionada. Por favor, tente outra data.")
 
