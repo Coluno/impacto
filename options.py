@@ -2064,7 +2064,38 @@ def volatilidade():
 
 #Funções que fazem parte do jump diffusion
 # Função para calcular o modelo Jump-Diffusion
-def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, jump_mean=0.02, jump_vol=0.1, T=1, steps=252):
+def simulate_jump_diffusion(s0, mu, sigma, lambda_jumps, mu_jump, sigma_jump, T, steps):
+    dt = T / steps
+    prices = [s0]
+    for _ in range(steps):
+        jump = np.random.poisson(lambda_jumps * dt)  # Número de saltos no intervalo
+        jump_magnitude = np.sum(np.random.normal(mu_jump, sigma_jump, jump))  # Soma dos impactos dos saltos
+        diffusion = (mu - 0.5 * sigma**2) * dt + sigma * np.random.normal() * np.sqrt(dt)
+        price = prices[-1] * np.exp(diffusion + jump_magnitude)
+        prices.append(price)
+    return prices
+
+# Função principal para o Streamlit
+def volatilidade_jump_diffusion():
+    # Configuração da interface do usuário
+    st.title("Simulação de Preços - Modelo Jump-Diffusion")
+
+    # Seleção da variável a ser estudada
+    variable = st.selectbox("Escolha a variável para estudar:", ["Açúcar", "Dólar"])
+
+    # Seleção da data de início
+    start_date = st.date_input("Selecione a data de início:", value=pd.to_datetime("2013-01-01"))
+
+    # Definindo o símbolo com base na variável escolhida
+    symbol = "SB=F" if variable == "Açúcar" else "USDBRL=X"
+
+    # Entrada do usuário para sigma (volatilidade), que pode ser deixado em branco para usar a volatilidade histórica
+    sigma_input = st.text_input("Digite o valor de sigma (volatilidade):", value="")
+
+    # Se o usuário não inserir o valor de sigma, utilizar a volatilidade histórica
+    sigma = float(sigma_input) if sigma_input else None
+
+    # Obtenção dos dados históricos
     data = yf.download(symbol, start=start_date, end="2099-01-01")
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
@@ -2087,70 +2118,32 @@ def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, j
 
     # Parâmetros do modelo
     mu = data['Log Returns'].mean()  # Taxa de retorno média
-    dt = T / steps  # Tamanho do intervalo de tempo
+    s0 = data['Price'].iloc[-1]  # Último preço como preço inicial
+    lambda_jumps = 0.1  # Intensidade dos saltos
+    mu_jump = -0.02  # Média do salto
+    sigma_jump = 0.05  # Volatilidade dos saltos
+    T = 1  # Horizonte de tempo (1 ano)
+    steps = 252  # Passos diários
 
-    # Inicializando os preços simulados
-    S0 = data['Price'][-1]  # Preço inicial
-    prices = [S0]
-    
-    # Simulação do preço com o modelo Jump-Diffusion
-    for _ in range(steps):
-        # Difusão Browniana
-        dW = np.random.normal(0, 1) * np.sqrt(dt)
-        # Saltos
-        jump = np.random.poisson(jump_intensity) * np.random.normal(jump_mean, jump_vol)
-        
-        # Cálculo do preço no próximo passo
-        S_t = prices[-1] * np.exp((mu - 0.5 * sigma**2) * dt + sigma * dW + jump)
-        prices.append(S_t)
-    prices = prices[:len(data)]
-    data['Simulated Price'] = prices[:len(data)]  # Preço simulado
+    # Simulação do modelo Jump-Diffusion
+    simulated_prices = simulate_jump_diffusion(
+        s0=s0, mu=mu, sigma=sigma, lambda_jumps=lambda_jumps, mu_jump=mu_jump, sigma_jump=sigma_jump, T=T, steps=steps
+    )
 
-    # Gráfico de preço simulado
-    fig = px.line(data, x=data.index, y=['Price', 'Simulated Price'], title=f"Simulação Jump-Diffusion - {symbol}")
+    # Preparando os dados para o gráfico
+    jump_diffusion_df = pd.DataFrame({'Step': range(len(simulated_prices)), 'Price': simulated_prices})
+
+    # Exibindo o gráfico de preços simulados
+    fig = px.line(jump_diffusion_df, x='Step', y='Price', title="Simulação de Preços - Modelo Jump-Diffusion")
     st.plotly_chart(fig)
 
-    return data
-
-# Função principal para Streamlit
-def volatilidade_jump_diffusion():
-    # Configuração da interface do usuário
-    st.title("Simulação de Preços - Modelo Jump-Diffusion")
-
-    # Seleção da variável a ser estudada
-    variable = st.selectbox("Escolha a variável para estudar:", ["Açúcar", "Dólar"])
-
-    # Seleção da data de início
-    start_date = st.date_input("Selecione a data de início:", value=pd.to_datetime("2013-01-01"))
-
-    # Definindo o símbolo com base na variável escolhida
-    symbol = "SB=F" if variable == "Açúcar" else "USDBRL=X"
-
-    # Entrada do usuário para sigma (volatilidade), que pode ser deixado em branco para usar a volatilidade histórica
-    sigma_input = st.text_input("Digite o valor de sigma (volatilidade):", value="")
-
-    # Validando a entrada de sigma
-    if sigma_input:
-        try:
-            sigma = float(sigma_input)
-        except ValueError:
-            st.error("Por favor, insira um valor numérico válido para sigma (volatilidade).")
-            return
+    # Exibindo a volatilidade utilizada
+    if sigma is None:
+        st.write(f"A volatilidade utilizada (sigma) foi calculada com base nos dados históricos do ativo.")
     else:
-        sigma = None  # Usar a volatilidade histórica se o campo for deixado em branco
+        st.write(f"A volatilidade utilizada (sigma) foi definida pelo usuário: {sigma}")
 
-    # Botão para iniciar a simulação
-    if st.button("Simular"):
-        # Obtenção dos dados históricos e simulação do modelo Jump-Diffusion
-        data = modelo_jump_diffusion(symbol, start_date.strftime('%Y-%m-%d'), sigma)
-
-        # Exibindo o gráfico de preços simulados
-        st.subheader(f"Simulação de Preços - {variable}")
-        if sigma is None:
-            st.write(f"A volatilidade utilizada (sigma) foi calculada com base nos dados históricos do ativo.")
-        else:
-            st.write(f"A volatilidade utilizada (sigma) foi definida pelo usuário: {sigma}")
-        st.write(data.tail())  # Exibindo as últimas linhas dos dados simulados
+    st.write(jump_diffusion_df.tail())  # Exibindo as últimas linhas dos dados simulados
 
 @st.cache_data
 def load_data():
