@@ -1257,7 +1257,7 @@ def monte_carlo():
     desvio_padrao_retornos_diarios = data['Daily Return'].std()
 
     # Selecionar a data para simulação
-    data_simulacao = st.date_input("Selecione a data para simulação", value=pd.to_datetime('2024-12-31'))
+    data_simulacao = st.date_input("Selecione a data para simulação", value=pd.to_datetime('2025-01-01'))
 
     # Calcular o número de dias úteis até a data de simulação
     hoje = pd.to_datetime('today').date()
