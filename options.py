@@ -2078,8 +2078,7 @@ def modelo_jump_diffusion(symbol, start_date, sigma=None, jump_intensity=0.01, j
 
     # Cálculos de retornos diários
     data['Log Returns'] = np.log(data['Price'] / data['Price'].shift(1))
-    data.dropna(inplace=True)
-    
+    data = data.dropna(inplace=True)
     # Calcular a volatilidade histórica, se sigma não for fornecido
     if sigma is None:
         sigma = data['Log Returns'].std()  # Volatilidade histórica (desvio padrão dos retornos diários)
