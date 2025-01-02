@@ -2236,7 +2236,7 @@ def main():
         elif page == "Volatilidade":
             st.image("./ibea.png", width=500)
             volatilidade()
-        elif page == "Simulação Jump-Diffusion"
+        elif page == "Simulação Jump-Diffusion":
             st.image("./ibea.png", width=500)
             volatilidade_jump_diffusion()
         elif page == "Monte Carlo":
