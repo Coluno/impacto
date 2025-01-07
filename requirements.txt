@@ -16,3 +16,4 @@ xlrd
 xlsxwriter
 vectorbt
 arch
+python-bcb
