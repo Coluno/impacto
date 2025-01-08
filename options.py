@@ -2205,7 +2205,7 @@ def expectativas():
             with st.spinner("Carregando dados..."):
                 try:
                     # Coletar os dados do endpoint
-                    data = ep.query().collect()
+                    data = ep.query().order_by(ep.Data.desc()).limit(100).collect()
                     
                     # Exibir os dados
                     st.success(f"Dados carregados com sucesso ({len(data)} registros).")
