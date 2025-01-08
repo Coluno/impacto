@@ -17,6 +17,7 @@ import plotly.graph_objs as go
 import plotly.subplots as sp
 import requests
 
+from bcb import Expectativas
 from arch import arch_model
 from bs4 import BeautifulSoup
 from statsmodels.graphics.tsaplots import plot_acf
@@ -2160,7 +2161,58 @@ def volatilidade_jump_diffusion():
         # Exibindo o valor médio da simulação
         average_price = np.mean(simulated_prices)
         st.write(f"O valor médio da simulação para o ano foi: {average_price:.2f}")
+
+# Função principal do app Streamlit
+def expectativas():
+    # Inicializar cliente para as expectativas
+    expec = Expectativas()
+    
+    # Obter a lista de EntitySets disponíveis
+    entitysets = [
+        "ExpectativasMercadoTop5Anuais",
+        "ExpectativaMercadoMensais",
+        "ExpectativasMercadoInflacao24Meses",
+        "ExpectativasMercadoInflacao12Meses",
+        "ExpectativasMercadoSelic",
+        "ExpectativasMercadoTop5Selic",
+        "ExpectativasMercadoTop5Mensais",
+        "ExpectativasMercadoTrimestrais",
+        "ExpectativasMercadoAnuais",
+    ]
+    
+    # Título do aplicativo
+    st.title("Consulta às Expectativas de Mercado - BCB")
+    
+    # Seletor de EntitySet
+    selected_entity = st.selectbox(
+        "Selecione um EntitySet para visualizar as informações:",
+        entitysets
+    )
+    
+    # Mostrar informações do EntitySet escolhido
+    if selected_entity:
+        st.subheader(f"Informações do EntitySet: {selected_entity}")
         
+        # Acessar o endpoint do EntitySet selecionado
+        ep = expec.get_endpoint(selected_entity)
+        
+        # Mostrar a descrição do EntitySet
+        description = expec.describe(selected_entity)
+        st.text(description)
+        
+        # Opção para coletar dados
+        if st.button("Carregar Dados"):
+            with st.spinner("Carregando dados..."):
+                try:
+                    # Coletar os dados do endpoint
+                    data = ep.query().collect()
+                    
+                    # Exibir os dados
+                    st.success(f"Dados carregados com sucesso ({len(data)} registros).")
+                    st.dataframe(data)  # Exibir dados em formato de tabela
+                except Exception as e:
+                    st.error(f"Erro ao carregar os dados: {e}")
+
 @st.cache_data
 def load_data():
     # Carregar apenas as colunas necessárias
@@ -2293,7 +2345,7 @@ def main():
             st.image("./ibea.png", width=500)
             regressao_sugar()
         elif page == "Expectativas de mercado - Focus":
-            noticias()
+            expectativas()
         if page == "Less Loss":
             lessloss()
 if __name__ == "__main__":
