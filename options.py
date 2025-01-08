@@ -2167,51 +2167,48 @@ def expectativas():
     # Inicializar cliente para as expectativas
     expec = Expectativas()
     
-    # Obter a lista de EntitySets disponíveis
-    entitysets = [
-        "ExpectativasMercadoTop5Anuais",
-        "ExpectativaMercadoMensais",
-        "ExpectativasMercadoInflacao24Meses",
-        "ExpectativasMercadoInflacao12Meses",
-        "ExpectativasMercadoSelic",
-        "ExpectativasMercadoTop5Selic",
-        "ExpectativasMercadoTop5Mensais",
-        "ExpectativasMercadoTrimestrais",
-        "ExpectativasMercadoAnuais",
-    ]
-    
     # Título do aplicativo
-    st.title("Consulta às Expectativas de Mercado - BCB")
+    st.title("Consulta às Expectativas de Mercado - Câmbio")
     
-    # Seletor de EntitySet
-    selected_entity = st.selectbox(
-        "Selecione um EntitySet para visualizar as informações:",
-        entitysets
+    # Seleção de data inicial
+    st.subheader("Escolha a data inicial para os dados")
+    data_inicial = st.date_input(
+        "Data inicial:", 
+        value=pd.to_datetime("2020-01-01"),  # Data padrão
+        min_value=pd.to_datetime("2000-01-01"),  # Data mínima permitida
+        max_value=pd.Timestamp.today()  # Data máxima permitida
     )
     
-    # Mostrar informações do EntitySet escolhido
-    if selected_entity:
-        st.subheader(f"Informações do EntitySet: {selected_entity}")
-        
-        # Acessar o endpoint do EntitySet selecionado
-        ep = expec.get_endpoint(selected_entity)
-        
-        # Mostrar a descrição do EntitySet
-        description = expec.describe(selected_entity)
-        st.text(description)
-        
-        # Opção para coletar dados
-        if st.button("Carregar Dados"):
-            with st.spinner("Carregando dados..."):
-                try:
-                    # Coletar os dados do endpoint
-                    data = ep.query().order_by(ep.Data.desc()).limit(100).collect()
-                    
-                    # Exibir os dados
+    # Botão para carregar os dados
+    if st.button("Carregar Dados"):
+        with st.spinner("Carregando dados..."):
+            try:
+                # Acessar o endpoint 'ExpectativasMercadoAnuais'
+                ep = expec.get_endpoint('ExpectativasMercadoAnuais')
+                
+                # Filtrar dados do câmbio e pela data inicial
+                data = (
+                    ep.query()
+                    .filter(ep.Indicador == 'Câmbio', ep.Data >= str(data_inicial))
+                    .collect()
+                )
+                
+                # Verificar se há dados disponíveis
+                if data.empty:
+                    st.warning("Nenhum dado encontrado para os filtros selecionados.")
+                else:
                     st.success(f"Dados carregados com sucesso ({len(data)} registros).")
-                    st.dataframe(data)  # Exibir dados em formato de tabela
-                except Exception as e:
-                    st.error(f"Erro ao carregar os dados: {e}")
+                    st.dataframe(data)  # Exibir os dados como tabela
+                    
+                    # Botão para baixar os dados em CSV
+                    st.download_button(
+                        label="Baixar dados em CSV",
+                        data=data.to_csv(index=False).encode("utf-8"),
+                        file_name="expectativas_cambio.csv",
+                        mime="text/csv"
+                    )
+            except Exception as e:
+                st.error(f"Erro ao carregar os dados: {e}")
 
 @st.cache_data
 def load_data():
