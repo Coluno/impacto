@@ -2199,6 +2199,41 @@ def expectativas():
                 else:
                     st.success(f"Dados carregados com sucesso ({len(data)} registros).")
                     st.dataframe(data)  # Exibir os dados como tabela
+                    # Criar gráfico interativo com Plotly
+                    fig = go.Figure()
+                    fig.add_trace(go.Scatter(
+                        x=data["Data"], 
+                        y=data["Mediana"], 
+                        mode="lines+markers", 
+                        name="Mediana",
+                        line=dict(color="blue"),
+                    ))
+                    fig.add_trace(go.Scatter(
+                        x=data["Data"], 
+                        y=data["Maximo"], 
+                        mode="lines", 
+                        name="Máximo",
+                        line=dict(dash="dash", color="green"),
+                    ))
+                    fig.add_trace(go.Scatter(
+                        x=data["Data"], 
+                        y=data["Minimo"], 
+                        mode="lines", 
+                        name="Mínimo",
+                        line=dict(dash="dot", color="red"),
+                    ))
+                    
+                    # Configurar layout do gráfico
+                    fig.update_layout(
+                        title="Expectativas de Mercado para o Câmbio",
+                        xaxis_title="Data",
+                        yaxis_title="Valor (R$)",
+                        legend_title="Indicadores",
+                        template="plotly_white"
+                    )
+                    
+                    # Exibir o gráfico no Streamlit
+                    st.plotly_chart(fig, use_container_width=True)
                     
                     # Botão para baixar os dados em CSV
                     st.download_button(
