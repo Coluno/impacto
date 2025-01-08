@@ -2203,9 +2203,9 @@ def expectativas():
                     fig = go.Figure()
                     fig.add_trace(go.Scatter(
                         x=data["Data"], 
-                        y=data["Mediana"], 
+                        y=data["Media"], 
                         mode="lines+markers", 
-                        name="Mediana",
+                        name="Media",
                         line=dict(color="blue"),
                     ))
                     fig.add_trace(go.Scatter(
