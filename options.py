@@ -2259,12 +2259,14 @@ def expectativas():
                     # Exibir o gráfico no Streamlit
                     st.plotly_chart(fig, use_container_width=True)
                     
-                    # Botão para baixar os dados em Excel
-                    output = io.BytesIO()  # Criar um buffer na memória
+                    # Criar um buffer na memória para armazenar o arquivo Excel
+                    output = io.BytesIO()
+                    
+                    # Escrever os dados no buffer
                     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
                         data.to_excel(writer, index=False, sheet_name='Expectativas')
-                        writer.save()
-                        
+                    
+                    # Botão de download para o arquivo Excel
                     st.download_button(
                         label="Baixar dados em Excel",
                         data=output.getvalue(),
