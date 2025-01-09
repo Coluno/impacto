@@ -1798,14 +1798,12 @@ def black_scholes(S, K, T, r, sigma, option_type):
 def blackscholes():
     # Parâmetros iniciais
     assets = {
-        'SBV24.NYB': datetime(2024, 9, 16),
         'SBH25.NYB': datetime(2025, 2, 16),
     }
 
     risk_free_rate = 0.053
 
     volatilities = {
-        'SBV24.NYB': 0.2973,
         'SBH25.NYB': 0.2573
     }
 
