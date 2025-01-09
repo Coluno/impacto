@@ -2166,17 +2166,36 @@ def volatilidade_jump_diffusion():
 def expectativas():
     # Inicializar cliente para as expectativas
     expec = Expectativas()
-    
-    # Título do aplicativo
     st.title("Consulta às Expectativas de Mercado - Câmbio")
     
+    # Seção de filtros
+    st.subheader("Filtros")
+    
     # Seleção de data inicial
-    st.subheader("Escolha a data inicial para os dados")
     data_inicial = st.date_input(
         "Data inicial:", 
         value=pd.to_datetime("2020-01-01"),  # Data padrão
         min_value=pd.to_datetime("2000-01-01"),  # Data mínima permitida
         max_value=pd.Timestamp.today()  # Data máxima permitida
+    )
+    
+    # Seleção de data final
+    data_final = st.date_input(
+        "Data final:", 
+        value=pd.Timestamp.today(),  # Data padrão
+        min_value=pd.to_datetime("2000-01-01"),  # Data mínima permitida
+        max_value=pd.Timestamp.today()  # Data máxima permitida
+    )
+    
+    # Seleção de DataReferencia
+    data_referencia = st.text_input("Ano de referência (exemplo: 2025):", value="")
+    
+    # Seleção de baseCalculo
+    base_calculo = st.radio(
+        "Selecione o tipo de cálculo:",
+        options=[0, 1],
+        index=0,
+        format_func=lambda x: "Respondentes Exclusivos" if x == 1 else "Todos os Respondentes"
     )
     
     # Botão para carregar os dados
@@ -2185,13 +2204,19 @@ def expectativas():
             try:
                 # Acessar o endpoint 'ExpectativasMercadoAnuais'
                 ep = expec.get_endpoint('ExpectativasMercadoAnuais')
+                # Construção do filtro
+                query = ep.query().filter(ep.Indicador == 'Câmbio')            
+                # Adicionar filtros de data inicial e final
+                query = query.filter(ep.Data >= str(data_inicial), ep.Data <= str(data_final))                
+                # Adicionar filtro de DataReferencia, se fornecido
+                if data_referencia:
+                    query = query.filter(ep.DataReferencia == data_referencia)
                 
-                # Filtrar dados do câmbio e pela data inicial
-                data = (
-                    ep.query()
-                    .filter(ep.Indicador == 'Câmbio', ep.Data >= str(data_inicial))
-                    .collect()
-                )
+                # Adicionar filtro de baseCalculo
+                query = query.filter(ep.baseCalculo == base_calculo)
+                
+                # Coletar os dados
+                data = query.collect()
                 
                 # Verificar se há dados disponíveis
                 if data.empty:
@@ -2199,6 +2224,7 @@ def expectativas():
                 else:
                     st.success(f"Dados carregados com sucesso ({len(data)} registros).")
                     st.dataframe(data)  # Exibir os dados como tabela
+                    
                     # Criar gráfico interativo com Plotly
                     fig = go.Figure()
                     fig.add_trace(go.Scatter(
@@ -2244,6 +2270,7 @@ def expectativas():
                     )
             except Exception as e:
                 st.error(f"Erro ao carregar os dados: {e}")
+
 
 @st.cache_data
 def load_data():
