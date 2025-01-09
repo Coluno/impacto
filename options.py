@@ -2259,12 +2259,17 @@ def expectativas():
                     # Exibir o gráfico no Streamlit
                     st.plotly_chart(fig, use_container_width=True)
                     
-                    # Botão para baixar os dados em CSV
+                    # Botão para baixar os dados em Excel
+                    output = io.BytesIO()  # Criar um buffer na memória
+                    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                        data.to_excel(writer, index=False, sheet_name='Expectativas')
+                        writer.save()
+                        
                     st.download_button(
-                        label="Baixar dados em CSV",
-                        data=data.to_csv(index=False).encode("utf-8"),
-                        file_name="expectativas_cambio.csv",
-                        mime="text/csv"
+                        label="Baixar dados em Excel",
+                        data=output.getvalue(),
+                        file_name="expectativas_cambio.xlsx",
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
                 st.error(f"Erro ao carregar os dados: {e}")
