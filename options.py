@@ -2545,7 +2545,7 @@ def main():
             regressao_sugar()
         elif page == "Relatorio Focus":
             expectativas()
-        elif paga == "Expectativa Focus":
+        elif page == "Expectativa Focus":
             simulacao_bcb()
         if page == "Less Loss":
             lessloss()
