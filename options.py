@@ -2350,7 +2350,7 @@ def grafico_histograma_bcb(media, desvio_padrao, numero_respondentes, minimo, ma
 
     # Histograma da distribuição simulada
     fig.add_trace(go.Histogram(
-        x=dados_simulados, nbinsx=5, name='Distribuição Simulada', opacity=0.7,
+        x=dados_simulados, nbinsx=20, name='Distribuição Simulada', opacity=0.7,
         marker=dict(color='blue')
     ))
 
