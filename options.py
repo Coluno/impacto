@@ -2325,7 +2325,7 @@ def grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro):
         y=norm.pdf(dolar_futuro, media, desvio_padrao) - 0.5,
         text=f'Probabilidade > R${dolar_futuro} : {probabilidade:.2f} %',
         showarrow=False,
-        font=dict(size=10, color="black")
+        font=dict(size=15, color="black")
     )
 
     # Ajustes no layout do gráfico
@@ -2350,7 +2350,7 @@ def grafico_histograma_bcb(media, desvio_padrao, numero_respondentes, minimo, ma
 
     # Histograma da distribuição simulada
     fig.add_trace(go.Histogram(
-        x=dados_simulados, nbinsx=20, name='Distribuição Simulada', opacity=0.7,
+        x=dados_simulados, nbinsx=25, name='Distribuição Simulada', opacity=0.7,
         marker=dict(color='blue')
     ))
 
