@@ -2381,10 +2381,23 @@ def grafico_histograma_bcb(media, desvio_padrao, numero_respondentes, minimo, ma
 # Função principal para Streamlit
 def simulacao_bcb():
     st.title("Análise de Expectativas de Mercado do Dólar")
-    
-    # Parâmetros de entrada para o usuário
-    data_inicio = st.date_input("Data de Início", pd.to_datetime("2022-01-01"))
-    data_fim = st.date_input("Data de Fim", pd.to_datetime("2025-12-31"))
+
+
+# Parâmetros de entrada para o usuário
+        # Seleção de data inicial
+    data_inicial = st.date_input(
+        "Data inicial:", 
+        value=pd.to_datetime("2020-01-01"), 
+        min_value=pd.to_datetime("2000-01-01"), 
+        max_value=pd.Timestamp.today()  
+    )
+    # Seleção de data final
+    data_final = st.date_input(
+        "Data final:", 
+        value=pd.Timestamp.today(),
+        min_value=pd.to_datetime("2000-01-01"), 
+        max_value=pd.Timestamp.today() 
+    )
     data_referencia = st.selectbox("Selecione o Ano de Expectativa", [2025, 2026, 2027, 2028, 2029])
     base_calculo = st.selectbox("Selecione a Base de Cálculo", [0, 1])
     dolar_futuro = st.number_input("Valor do Dólar Futuro", min_value=1.0, max_value=20.0, value=6.0, step=0.01)
