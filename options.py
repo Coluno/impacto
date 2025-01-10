@@ -2276,6 +2276,141 @@ def expectativas():
             except Exception as e:
                 st.error(f"Erro ao carregar os dados: {e}")
 
+# Funções expectativa Focus
+# Função para obter os dados do Banco Central
+def obter_dados_bcb(indicador, data_inicio, data_fim, data_referencia, base_calculo):
+    em = Expectativas()
+    ep = em.get_endpoint("ExpectativasMercadoAnuais")
+    
+    # Filtro dos dados conforme parâmetros
+    df = (
+        ep.query()
+        .filter(ep.Indicador == indicador)
+        .filter(ep.Data >= data_inicio, ep.Data <= data_fim)
+        .filter(ep.DataReferencia == data_referencia, ep.baseCalculo == base_calculo)
+        .select(ep.Data, ep.Media, ep.Mediana, ep.DesvioPadrao, ep.Minimo, ep.Maximo, ep.numeroRespondentes)
+        .collect()
+    )
+    
+    return df
+
+# Função para calcular e plotar o gráfico de probabilidade usando plotly (go)
+def grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro):
+    # Cálculo da densidade de probabilidade
+    x = np.linspace(media - 4 * desvio_padrao, media + 4 * desvio_padrao, 1000)
+    y = norm.pdf(x, media, desvio_padrao)
+
+    # Probabilidade de o dólar ser maior que o valor futuro
+    probabilidade = 100 * (1 - norm.cdf(dolar_futuro, media, desvio_padrao))
+    
+    # Criando o gráfico de distribuição
+    fig = go.Figure()
+
+    # Distribuição normal
+    fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Distribuição Normal'))
+    
+    # Linha do dólar futuro
+    fig.add_trace(go.Scatter(x=[dolar_futuro, dolar_futuro], y=[0, norm.pdf(dolar_futuro, media, desvio_padrao)],
+                             mode='lines', name=f'Dólar Futuro: R${dolar_futuro}', line=dict(dash='dash', color='red')))
+    
+    # Preenchimento para probabilidade <= dolar_futuro
+    fig.add_trace(go.Scatter(x=x, y=y, fill='tonexty', fillcolor='rgba(0,255,0,0.3)', name=f'Probabilidade <= R${dolar_futuro}'))
+    
+    # Preenchimento para probabilidade > dolar_futuro
+    fig.add_trace(go.Scatter(x=x, y=y, fill='tonexty', fillcolor='rgba(255,0,0,0.3)', name=f'Probabilidade > R${dolar_futuro}'))
+
+    # Adicionar anotações de probabilidade
+    fig.add_annotation(
+        x=dolar_futuro + 0.02,
+        y=norm.pdf(dolar_futuro, media, desvio_padrao) - 0.5,
+        text=f'Probabilidade > R${dolar_futuro} : {probabilidade:.2f} %',
+        showarrow=False,
+        font=dict(size=10, color="black")
+    )
+
+    # Ajustes no layout do gráfico
+    fig.update_layout(
+        title='Distribuição de Probabilidade do Dólar',
+        xaxis_title='Valor do Dólar',
+        yaxis_title='Densidade de Probabilidade',
+        showlegend=True,
+        plot_bgcolor="white"
+    )
+    
+    # Exibir gráfico no Streamlit
+    st.plotly_chart(fig)
+
+# Função para calcular e plotar o gráfico de histograma usando plotly (go)
+def grafico_histograma_bcb(media, desvio_padrao, numero_respondentes, minimo, maximo):
+    # Simulação de dados com base nos parâmetros fornecidos
+    dados_simulados = np.random.normal(loc=media, scale=desvio_padrao, size=numero_respondentes)
+
+    # Criando o histograma
+    fig = go.Figure()
+
+    # Histograma da distribuição simulada
+    fig.add_trace(go.Histogram(
+        x=dados_simulados, nbinsx=10, name='Distribuição Simulada', opacity=0.7,
+        marker=dict(color='blue')
+    ))
+
+    # Linha da média
+    fig.add_trace(go.Scatter(x=[media, media], y=[0, max(np.histogram(dados_simulados, bins=10)[0])],
+                             mode='lines', name=f'Média: {media}', line=dict(dash='dash', color='red')))
+    
+    # Linha do mínimo
+    fig.add_trace(go.Scatter(x=[minimo, minimo], y=[0, max(np.histogram(dados_simulados, bins=10)[0])],
+                             mode='lines', name=f'Mínimo: {minimo}', line=dict(dash='dash', color='orange')))
+    
+    # Linha do máximo
+    fig.add_trace(go.Scatter(x=[maximo, maximo], y=[0, max(np.histogram(dados_simulados, bins=10)[0])],
+                             mode='lines', name=f'Máximo: {maximo}', line=dict(dash='dash', color='purple')))
+
+    # Ajustes no layout do gráfico
+    fig.update_layout(
+        title='Histograma das Expectativas de Mercado',
+        xaxis_title='Valor do Dólar',
+        yaxis_title='Frequência',
+        showlegend=True,
+        plot_bgcolor="white"
+    )
+
+    # Exibir gráfico no Streamlit
+    st.plotly_chart(fig)
+
+# Função principal para Streamlit
+def simulacao_bcb():
+    st.title("Análise de Expectativas de Mercado do Dólar")
+    
+    # Parâmetros de entrada para o usuário
+    indicador = st.selectbox("Selecione o Indicador", ["Câmbio"])
+    data_inicio = st.date_input("Data de Início", pd.to_datetime("2022-01-01"))
+    data_fim = st.date_input("Data de Fim", pd.to_datetime("2025-12-31"))
+    data_referencia = st.selectbox("Selecione o Ano de Expectativa", [2025, 2026, 2027, 2028, 2029])
+    base_calculo = st.selectbox("Selecione a Base de Cálculo", [0, 1])
+    
+    # Botão para obter os dados
+    if st.button("Obter Dados e Gerar Gráficos"):
+        # Obter os dados do BCB
+        df = obter_dados_bcb(indicador, data_inicio.strftime("%Y-%m-%d"), data_fim.strftime("%Y-%m-%d"), data_referencia, base_calculo)
+        
+        if not df.empty:
+            # Pegar a última linha do filtro para os parâmetros de cálculo
+            ultima_linha = df.iloc[-1]
+            media = ultima_linha['Media']
+            desvio_padrao = ultima_linha['DesvioPadrao']
+            minimo = ultima_linha['Minimo']
+            maximo = ultima_linha['Maximo']
+            numero_respondentes = ultima_linha['numeroRespondentes']
+            
+            # Solicitar o valor do dólar futuro para o cálculo de probabilidade
+            dolar_futuro = st.number_input("Valor do Dólar Futuro", min_value=1.0, max_value=20.0, value=6.0, step=0.01)
+            
+            # Gerar os gráficos
+            grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro)
+            grafico_histograma_bcb(media, desvio_padrao, numero_respondentes, minimo, maximo)
+        else:
+            st.write("Não há dados para os filtros selecionados.")
 
 @st.cache_data
 def load_data():
@@ -2332,7 +2467,7 @@ def main():
         
         st.sidebar.title("Menu")
         #add Série temporal futuramente...
-        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade", "Simulação Jump-Diffusion", "Simulação de Opções", "Monte Carlo",  "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR", "Expectativas de mercado - Focus","Less Loss", "ARIMA Açúcar", "ARIMA Dolar"])
+        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade", "Simulação Jump-Diffusion", "Simulação de Opções", "Monte Carlo",  "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR", "Relatorio Focus","Expectativa Focus","Less Loss", "ARIMA Açúcar", "ARIMA Dolar"])
 
         if page == "Introdução":
             st.image("./ibea.png", width=500)
@@ -2408,8 +2543,10 @@ def main():
         elif page == "Regressão Açúcar":
             st.image("./ibea.png", width=500)
             regressao_sugar()
-        elif page == "Expectativas de mercado - Focus":
+        elif page == "Relatorio Focus":
             expectativas()
+        elif paga == "Expectativa Focus":
+            simulacao_bcb()
         if page == "Less Loss":
             lessloss()
 if __name__ == "__main__":
