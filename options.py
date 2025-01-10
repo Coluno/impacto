@@ -2310,22 +2310,21 @@ def grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro):
     fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Distribuição Normal'))
     
     # Linha do dólar futuro
-    fig.add_trace(go.Scatter(x=[dolar_futuro, dolar_futuro], y=[0, norm.pdf(dolar_futuro, media, desvio_padrao)],
-                             mode='lines', name=f'Dólar Futuro: R${dolar_futuro}', line=dict(dash='dash', color='red')))
+    fig.add_trace(go.Scatter(x=[dolar_futuro, dolar_futuro], y=[0, norm.pdf(dolar_futuro, media, desvio_padrao)],mode='lines', name=f'Dólar Futuro: R${dolar_futuro}', line=dict(dash='dash', color='red')))
     
-    # Preenchimento para probabilidade <= dolar_futuro
-    fig.add_trace(go.Scatter(x=x, y=y, fill='tonexty', fillcolor='rgba(0,255,0,0.3)', name=f'Probabilidade <= R${dolar_futuro}'))
+    # Preenchimento para probabilidade <= dolar_futuro (área verde à esquerda)
+    fig.add_trace(go.Scatter(x=x[x <= dolar_futuro], y=y[x <= dolar_futuro], fill='tonexty', fillcolor='rgba(0,255,0,0.3)', name=f'Probabilidade <= R${dolar_futuro}'))
     
-    # Preenchimento para probabilidade > dolar_futuro
-    fig.add_trace(go.Scatter(x=x, y=y, fill='tonexty', fillcolor='rgba(255,0,0,0.3)', name=f'Probabilidade > R${dolar_futuro}'))
-
+    # Preenchimento para probabilidade > dolar_futuro (área vermelha à direita)
+    fig.add_trace(go.Scatter(x=x[x > dolar_futuro], y=y[x > dolar_futuro], fill='tonexty', fillcolor='rgba(255,0,0,0.3)', name=f'Probabilidade > R${dolar_futuro}'))
+    
     # Adicionar anotações de probabilidade
     fig.add_annotation(
         x=dolar_futuro + 0.02,
         y=norm.pdf(dolar_futuro, media, desvio_padrao) - 0.5,
         text=f'Probabilidade > R${dolar_futuro} : {probabilidade:.2f} %',
         showarrow=False,
-        font=dict(size=15, color="black")
+        font=dict(size=15, color="black", family="Arial", weight="bold")
     )
 
     # Ajustes no layout do gráfico
