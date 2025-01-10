@@ -2383,16 +2383,16 @@ def simulacao_bcb():
     st.title("Análise de Expectativas de Mercado do Dólar")
     
     # Parâmetros de entrada para o usuário
-    indicador = st.selectbox("Selecione o Indicador", ["Câmbio"])
     data_inicio = st.date_input("Data de Início", pd.to_datetime("2022-01-01"))
     data_fim = st.date_input("Data de Fim", pd.to_datetime("2025-12-31"))
     data_referencia = st.selectbox("Selecione o Ano de Expectativa", [2025, 2026, 2027, 2028, 2029])
     base_calculo = st.selectbox("Selecione a Base de Cálculo", [0, 1])
+    dolar_futuro = st.number_input("Valor do Dólar Futuro", min_value=1.0, max_value=20.0, value=6.0, step=0.01)
     
     # Botão para obter os dados
     if st.button("Obter Dados e Gerar Gráficos"):
         # Obter os dados do BCB
-        df = obter_dados_bcb(indicador, data_inicio.strftime("%Y-%m-%d"), data_fim.strftime("%Y-%m-%d"), data_referencia, base_calculo)
+        df = obter_dados_bcb("Câmbio", data_inicio.strftime("%Y-%m-%d"), data_fim.strftime("%Y-%m-%d"), data_referencia, base_calculo)
         
         if not df.empty:
             # Pegar a última linha do filtro para os parâmetros de cálculo
@@ -2402,9 +2402,6 @@ def simulacao_bcb():
             minimo = ultima_linha['Minimo']
             maximo = ultima_linha['Maximo']
             numero_respondentes = ultima_linha['numeroRespondentes']
-            
-            # Solicitar o valor do dólar futuro para o cálculo de probabilidade
-            dolar_futuro = st.number_input("Valor do Dólar Futuro", min_value=1.0, max_value=20.0, value=6.0, step=0.01)
             
             # Gerar os gráficos
             grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro)
