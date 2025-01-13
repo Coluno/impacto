@@ -1995,8 +1995,26 @@ def volatilidade():
     # Seleção da variável a ser estudada
     variable = st.selectbox("Escolha a variável para estudar:", ["Açúcar", "Dólar"])
 
-    # Seleção da data de início
-    start_date = st.date_input("Selecione a data de início:", value=pd.to_datetime("2013-01-01"))
+    # Seleção de data inicial
+    start_date = st.date_input(
+        "Data inicial:", 
+        value=pd.to_datetime("2013-01-01"),  # Data padrão
+        min_value=pd.to_datetime("2000-01-01"),  # Data mínima permitida
+        max_value=pd.Timestamp.today()  # Data máxima permitida
+    )
+    
+    # Seleção de data final
+    end_date = st.date_input(
+        "Data final:", 
+        value=pd.Timestamp.today(),  # Data padrão
+        min_value=pd.to_datetime("2000-01-01"),  # Data mínima permitida
+        max_value=pd.Timestamp.today()  # Data máxima permitida
+    )
+
+    # Verificar se a data final é posterior à data inicial
+    if end_date <= start_date:
+        st.error("A data final deve ser posterior à data inicial.")
+        return
 
     # Definindo o símbolo com base na variável escolhida
     symbol = "SB=F" if variable == "Açúcar" else "USDBRL=X"
