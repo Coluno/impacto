@@ -2326,29 +2326,57 @@ def grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro):
 
     # Probabilidade de o dólar ser maior que o valor futuro
     probabilidade = 100 * (1 - norm.cdf(dolar_futuro, media, desvio_padrao))
-    
+
     # Criando o gráfico de distribuição
     fig = go.Figure()
 
     # Distribuição normal
     fig.add_trace(go.Scatter(x=x, y=y, mode='lines', name='Distribuição Normal'))
-    
+
+    # Área verde: probabilidade <= dolar_futuro
+    x_verde = x[x <= dolar_futuro]
+    y_verde = y[x <= dolar_futuro]
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([[x_verde[0]], x_verde, [x_verde[-1]]]),
+        y=np.concatenate([[0], y_verde, [0]]),
+        fill='toself',
+        fillcolor='rgba(0,255,0,0.3)',
+        line=dict(width=0),
+        name=f'Probabilidade <= R${dolar_futuro}'
+    ))
+
+    # Área vermelha: probabilidade > dolar_futuro
+    x_vermelho = x[x > dolar_futuro]
+    y_vermelho = y[x > dolar_futuro]
+    fig.add_trace(go.Scatter(
+        x=np.concatenate([[x_vermelho[0]], x_vermelho, [x_vermelho[-1]]]),
+        y=np.concatenate([[0], y_vermelho, [0]]),
+        fill='toself',
+        fillcolor='rgba(255,0,0,0.3)',
+        line=dict(width=0),
+        name=f'Probabilidade > R${dolar_futuro}'
+    ))
+
     # Linha do dólar futuro
-    fig.add_trace(go.Scatter(x=[dolar_futuro, dolar_futuro], y=[0, norm.pdf(dolar_futuro, media, desvio_padrao)],mode='lines', name=f'Dólar Futuro: R${dolar_futuro}', line=dict(dash='dash', color='red')))
-    
-    # Preenchimento para probabilidade <= dolar_futuro (área verde à esquerda)
-    fig.add_trace(go.Scatter(x=x[x <= dolar_futuro], y=y[x <= dolar_futuro], fill='tonexty', fillcolor='rgba(0,255,0,0.3)', name=f'Probabilidade <= R${dolar_futuro}'))
-    
-    # Preenchimento para probabilidade > dolar_futuro (área vermelha à direita)
-    fig.add_trace(go.Scatter(x=x[x > dolar_futuro], y=y[x > dolar_futuro], fill='tonexty', fillcolor='rgba(255,0,0,0.3)', name=f'Probabilidade > R${dolar_futuro}'))
-    
-    # Adicionar anotações de probabilidade
+    fig.add_trace(go.Scatter(
+        x=[dolar_futuro, dolar_futuro],
+        y=[0, norm.pdf(dolar_futuro, media, desvio_padrao)],
+        mode='lines',
+        name=f'Dólar Futuro: R${dolar_futuro}',
+        line=dict(dash='dash', color='red')
+    ))
+
+    # Adicionar anotação para probabilidade
     fig.add_annotation(
-        x=dolar_futuro + 0.02,
-        y=norm.pdf(dolar_futuro, media, desvio_padrao) - 0.5,
-        text=f'Probabilidade > R${dolar_futuro} : {probabilidade:.2f} %',
-        showarrow=False,
-        font=dict(size=15, color="black", family="Arial", weight="bold")
+        x=dolar_futuro,
+        y=norm.pdf(dolar_futuro, media, desvio_padrao),
+        text=f'Probabilidade > R${dolar_futuro}: {probabilidade:.2f}%',
+        showarrow=True,
+        arrowhead=2,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="black",
+        font=dict(size=14, color="black", family="Arial", weight="bold")
     )
 
     # Ajustes no layout do gráfico
@@ -2359,9 +2387,10 @@ def grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro):
         showlegend=True,
         plot_bgcolor="white"
     )
-    
+
     # Exibir gráfico no Streamlit
     st.plotly_chart(fig)
+
 
 # Função para calcular e plotar o gráfico de histograma usando plotly (go)
 def grafico_histograma_bcb(media, desvio_padrao, numero_respondentes, minimo, maximo):
