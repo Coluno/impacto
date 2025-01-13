@@ -2008,14 +2008,20 @@ def volatilidade():
 
         # Verificação se há dados para exibir
         if not data.empty:
+            # Cálculo e exibição da volatilidade média do período
+            ewma_vol_mean = data['EWMA Volatility'].mean()
+            garch_vol_mean = data['GARCH Volatility'].mean()
+            
             # Gráfico de volatilidade EWMA
             fig1 = px.line(data, x=data.index, y='EWMA Volatility', title=f'Volatilidade EWMA - {variable}')
             st.plotly_chart(fig1)
-
+            st.write(f"- **Volatilidade Média (EWMA):** {ewma_vol_mean:.4%}")
+            
             # Gráfico de volatilidade condicional GARCH
             fig2 = px.line(data, x=data.index, y='GARCH Volatility', title=f'Volatilidade Condicional GARCH - {variable}')
             st.plotly_chart(fig2)
-
+            st.write(f"- **Volatilidade Média (GARCH):** {garch_vol_mean:.4%}")
+            
             # Exibindo os parâmetros do modelo GARCH
             st.subheader("Parâmetros do Modelo GARCH")
             conf_int = model_fit.conf_int()
