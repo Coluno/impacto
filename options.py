@@ -1954,7 +1954,7 @@ def noticias():
 
 # def's que fazer parte da volatilidade
 # Função para obter dados históricos de acordo com o símbolo selecionado
-def get_historical_data(symbol, start_date):
+def get_historical_data(symbol, start_date, end_date):
     data = yf.download(symbol, start=start_date, end="2099-01-01")
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
@@ -2022,7 +2022,7 @@ def volatilidade():
     # Botão para iniciar a simulação
     if st.button("Simular"):
         # Obtenção dos dados históricos
-        data, model_fit = get_historical_data(symbol, start_date.strftime('%Y-%m-%d'))
+        data, model_fit = get_historical_data(symbol, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
 
         # Verificação se há dados para exibir
         if not data.empty:
