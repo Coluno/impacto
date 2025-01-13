@@ -2020,7 +2020,7 @@ def volatilidade():
     symbol = "SB=F" if variable == "Açúcar" else "USDBRL=X"
 
     # Botão para iniciar a simulação
-    if st.button("Simular"):
+    if st.button("Calcular"):
         # Obtenção dos dados históricos
         data, model_fit = get_historical_data(symbol, start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
 
