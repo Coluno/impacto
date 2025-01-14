@@ -32,6 +32,7 @@ from scipy.stats import norm
 from plotly.subplots import make_subplots
 from email.mime.text import MIMEText
 
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.ensemble import RandomForestRegressor
