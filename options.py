@@ -767,7 +767,6 @@ def load_and_transform_data_sugar(file_path):
     df = df.dropna()
     return df
 
-# Função principal do Streamlit
 def regressao_sugar():
     st.title("Previsão do Preço do Açúcar")
     st.write("Modelo de regressão para prever o preço futuro do açúcar (SB=F).")
@@ -789,12 +788,16 @@ def regressao_sugar():
         X = df[['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F']]
         y = df['Dif_Log_SB_F']
 
+        # Normalização MinMax
+        scaler = MinMaxScaler()
+        X_scaled = scaler.fit_transform(X)
+
         # Treinar o modelo
         model = LinearRegression()
-        model.fit(X, y)
+        model.fit(X_scaled, y)
 
         # Calcular previsões
-        y_pred = model.predict(X)
+        y_pred = model.predict(X_scaled)
         mse = mean_squared_error(y, y_pred)
         r2 = r2_score(y, y_pred)
 
@@ -810,7 +813,11 @@ def regressao_sugar():
 
         X_novo = pd.DataFrame([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]],
                               columns=['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F'])
-        dif_log_sb_f_previsto = model.predict(X_novo)[0]
+
+        # Normalizar os inputs para previsão
+        X_novo_scaled = scaler.transform(X_novo)
+
+        dif_log_sb_f_previsto = model.predict(X_novo_scaled)[0]
 
         # Reverter log para previsão final
         sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
@@ -825,6 +832,7 @@ def regressao_sugar():
                           xaxis_title="Ano Safra",
                           yaxis_title="Diferença Log (SB=F)")
         st.plotly_chart(fig)
+
         # Função para adicionar a linha de tendência aos gráficos de dispersão
         def add_trendline(x, y, fig, row, col, title, xlabel, ylabel):
             model = LinearRegression()
