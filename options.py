@@ -762,7 +762,7 @@ def load_and_transform_data_sugar(file_path):
     df['Log_Estoque_Uso'] = np.log(df['Estoque Uso(%)'])
     df['Dif_Log_USDBRL'] = np.log(df['USDBRL=X']).diff()
     df['Dif_Log_SB_F'] = np.log(df['SB=F']).diff()
-
+    df['Dif_Log_CL_F'] = np.log(df['CL=F']).diff()
     # Remover valores nulos
     df = df.dropna()
     return df
