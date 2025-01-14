@@ -2238,7 +2238,7 @@ def expectativas():
                 data_cambio = query_cambio.collect()
                 
                 # Acessar o endpoint 'ExpectativasAnuais' para a taxa SELIC
-                ep_selic = expec.get_endpoint('ExpectativasAnuais')
+                ep_selic = expec.get_endpoint('ExpectativasMercadoAnuais')
                 # Construção do filtro para a SELIC
                 query_selic = ep_selic.query().filter(ep_selic.Indicador == 'SELIC')
                 # Adicionar filtros de data inicial e final para SELIC
