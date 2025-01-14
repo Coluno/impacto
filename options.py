@@ -781,7 +781,7 @@ def regressao_sugar():
     usd_brl_proj = st.number_input("USDBRL=X", value=5.0)
     cl_f_proj = st.number_input("CL=F", value=80.0)
 
-    if st.button("Gerar Previsão com RandomForest"):
+    if st.button("Gerar Previsão"):
         # Carregar dados
         df = load_and_transform_data_sugar('dadosRegSugar.xlsx')
 
