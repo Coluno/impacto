@@ -811,7 +811,11 @@ def regressao_sugar():
         X_novo = pd.DataFrame([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]],
                               columns=['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F'])
         dif_log_sb_f_previsto = model.predict(X_novo)[0]
-
+        
+        # Reverter log para previsão final
+        sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
+        st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
+        
         # Reverter as diferenças logarítmicas para valores reais
         valores_reais = [df['SB=F'].iloc[0]]  # Iniciar com o primeiro valor real de 'SB=F'
         valores_previstos = [df['SB=F'].iloc[0]]  # Iniciar com o primeiro valor previsto como base
