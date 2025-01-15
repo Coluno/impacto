@@ -811,64 +811,50 @@ def regressao_sugar():
         X_novo = pd.DataFrame([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]],
                               columns=['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F'])
         dif_log_sb_f_previsto = model.predict(X_novo)[0]
-        
+
         # Reverter log para previsão final
         sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
         st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
-        
+
         # Reverter as diferenças logarítmicas para valores reais
         valores_reais = [df['SB=F'].iloc[0]]  # Iniciar com o primeiro valor real de 'SB=F'
         valores_previstos = [df['SB=F'].iloc[0]]  # Iniciar com o primeiro valor previsto como base
-        
-        # Calcular os valores reais e previstos acumulando as diferenças logarítmicas
+
         for i in range(1, len(y)):
             real = revert_log_diff(valores_reais[-1], y.iloc[i])
             previsto = revert_log_diff(valores_previstos[-1], y_pred[i])
             valores_reais.append(real)
             valores_previstos.append(previsto)
-        
+
         # Gerar o gráfico em valores reais
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=df['Ano safra'], y=valores_reais, mode='lines', name='Valor Real (SB=F)'))
         fig.add_trace(go.Scatter(x=df['Ano safra'], y=valores_previstos, mode='lines', name='Valor Previsto (SB=F)'))
-        
+
         fig.update_layout(title="Comparação de Preços Reais: Valores Reais vs Previstos",
                           xaxis_title="Ano Safra",
                           yaxis_title="Preço do Açúcar (SB=F)")
         st.plotly_chart(fig)
 
-        # Função para adicionar a linha de tendência aos gráficos de dispersão
-        def add_trendline(x, y, fig, row, col, title, xlabel, ylabel):
-            model = RandomForestRegressor(n_estimators=100, random_state=42)
-            model.fit(x.reshape(-1, 1), y)  # Ajuste da linha de regressão
-            y_pred = model.predict(x.reshape(-1, 1))  # Predição com o modelo ajustado
-            
-            # Adicionar pontos de dispersão
-            fig.add_trace(go.Scatter(x=x, y=y, mode='markers', name="Pontos de Dados", marker=dict(color='blue', opacity=0.6)), row=row, col=col)
-            # Adicionar linha de regressão
-            fig.add_trace(go.Scatter(x=x, y=y_pred, mode='lines', name="Linha de Tendência", line=dict(color='red', dash='dash', width=2)), row=row, col=col)
-            
-            # Títulos e rótulos
-            fig.update_xaxes(title_text=xlabel, row=row, col=col)
-            fig.update_yaxes(title_text=ylabel, row=row, col=col)
-            fig.update_layout(title_text=title)
-        
-        # Gráficos de dispersão
-        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=["Log_Dif_Estoque vs Dif_Log_SB_F", 
-                                                              "Log_Dif_Oferta_Demanda vs Dif_Log_SB_F", 
-                                                              "Log_Estoque_Uso vs Dif_Log_SB_F"])
+        # Gráficos de dispersão 
+        fig = sp.make_subplots(rows=1, cols=3, subplot_titles=[
+            "Log_Dif_Estoque vs Dif_Log_SB_F",
+            "Log_Dif_Oferta_Demanda vs Dif_Log_SB_F",
+            "Log_Estoque_Uso vs Dif_Log_SB_F"
+        ])
 
-        add_trendline(df['Log_Diferencial_Estoque'].values, y.values, fig, row=1, col=1, 
-                      title="Log_Diferencial_Estoque vs Dif_Log_SB_F", xlabel="Log(Diferencial Estoque)", ylabel="Dif_Log_SB_F")
+        fig.add_trace(go.Scatter(x=df['Log_Diferencial_Estoque'], y=y, mode='markers',
+                                 name="Log_Diferencial_Estoque vs Dif_Log_SB_F"), row=1, col=1)
 
-        add_trendline(df['Log_Diferencial_Oferta_Demanda'].values, y.values, fig, row=1, col=2, 
-                      title="Log_Diferencial_Oferta_Demanda vs Dif_Log_SB_F", xlabel="Log(Diferencial Oferta/Demanda)", ylabel="Dif_Log_SB_F")
+        fig.add_trace(go.Scatter(x=df['Log_Diferencial_Oferta_Demanda'], y=y, mode='markers',
+                                 name="Log_Dif_Oferta_Demanda vs Dif_Log_SB_F"), row=1, col=2)
 
-        add_trendline(df['Log_Estoque_Uso'].values, y.values, fig, row=1, col=3, 
-                      title="Log_Estoque_Uso vs Dif_Log_SB_F", xlabel="Log(Estoque/Uso)", ylabel="Dif_Log_SB_F")
+        fig.add_trace(go.Scatter(x=df['Log_Estoque_Uso'], y=y, mode='markers',
+                                 name="Log_Estoque_Uso vs Dif_Log_SB_F"), row=1, col=3)
 
-        fig.update_layout(height=400, width=1200, title_text="Gráficos de Dispersão com Linhas de Tendência")
+        fig.update_layout(height=400, width=1200, title_text="Gráficos de Dispersão (Sem Linha de Tendência)")
         st.plotly_chart(fig)
+
 
 #Funções que fazem parte do Mercado
 def calcular_MACD(data, short_window=12, long_window=26, signal_window=9):
