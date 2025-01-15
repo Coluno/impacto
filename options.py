@@ -2324,23 +2324,6 @@ def expectativas():
                     # Exibir o gráfico no Streamlit
                     st.plotly_chart(fig_selic, use_container_width=True)
 
-                    # Criar um buffer na memória para armazenar o arquivo Excel
-                    output = io.BytesIO()
-                    
-                    # Escrever os dados no buffer
-                    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                        data_cambio.to_excel(writer, index=False, sheet_name='Expectativas Câmbio')
-                        data_selic.to_excel(writer, index=False, sheet_name='Expectativas SELIC')
-                    
-                    # Botão de download para o arquivo Excel
-                    st.download_button(
-                        label="Baixar dados em Excel",
-                        data=output.getvalue(),
-                        file_name="expectativas_cambio_selic.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
-            except Exception as e:
-                st.error(f"Erro ao carregar os dados: {e}")
 
 # Funções expectativa Focus
 # Função para obter os dados do Banco Central
