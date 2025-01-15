@@ -812,18 +812,25 @@ def regressao_sugar():
                               columns=['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F'])
         dif_log_sb_f_previsto = model.predict(X_novo)[0]
 
-        # Reverter log para previsão final
-        sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
-        st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
-
-        # Visualização com Plotly
+        # Reverter as diferenças logarítmicas para valores reais
+        valores_reais = [df['SB=F'].iloc[0]]  # Iniciar com o primeiro valor real de 'SB=F'
+        valores_previstos = [df['SB=F'].iloc[0]]  # Iniciar com o primeiro valor previsto como base
+        
+        # Calcular os valores reais e previstos acumulando as diferenças logarítmicas
+        for i in range(1, len(y)):
+            real = revert_log_diff(valores_reais[-1], y.iloc[i])
+            previsto = revert_log_diff(valores_previstos[-1], y_pred[i])
+            valores_reais.append(real)
+            valores_previstos.append(previsto)
+        
+        # Gerar o gráfico em valores reais
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y, mode='lines', name='Diferença Log Real'))
-        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y_pred, mode='lines', name='Diferença Log Prevista'))
-
-        fig.update_layout(title="Comparação de Diferença Log: Valores Reais vs Previstos",
+        fig.add_trace(go.Scatter(x=df['Ano safra'], y=valores_reais, mode='lines', name='Valor Real (SB=F)'))
+        fig.add_trace(go.Scatter(x=df['Ano safra'], y=valores_previstos, mode='lines', name='Valor Previsto (SB=F)'))
+        
+        fig.update_layout(title="Comparação de Preços Reais: Valores Reais vs Previstos",
                           xaxis_title="Ano Safra",
-                          yaxis_title="Diferença Log (SB=F)")
+                          yaxis_title="Preço do Açúcar (SB=F)")
         st.plotly_chart(fig)
 
         # Função para adicionar a linha de tendência aos gráficos de dispersão
