@@ -2218,7 +2218,7 @@ def expectativas():
     # Opção para selecionar entre Câmbio ou SELIC
     indicador = st.radio(
         "Escolha o indicador que deseja visualizar:",
-        options=["Câmbio", "SELIC"],
+        options=["Câmbio", "Selic"],
         index=0
     )
     
