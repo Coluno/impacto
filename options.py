@@ -2178,8 +2178,8 @@ def volatilidade_jump_diffusion():
         # Exibindo o valor médio da simulação
         average_price = np.mean(simulated_prices)
         st.write(f"O valor médio da simulação para o ano foi: {average_price:.2f}")
-
-# função principal pro streamlit 
+        
+# Função principal para o Streamlit
 def expectativas():
     # Inicializar cliente para as expectativas
     expec = Expectativas()
@@ -2215,128 +2215,85 @@ def expectativas():
         format_func=lambda x: "Respondentes Exclusivos" if x == 1 else "Todos os Respondentes"
     )
     
+    # Opção para selecionar entre Câmbio ou SELIC
+    indicador = st.radio(
+        "Escolha o indicador que deseja visualizar:",
+        options=["Câmbio", "SELIC"],
+        index=0
+    )
+    
     # Botão para carregar os dados
     if st.button("Carregar Dados"):
         with st.spinner("Carregando dados..."):
             try:
-                # Acessar o endpoint 'ExpectativasMercadoAnuais' para Câmbio
-                ep_cambio = expec.get_endpoint('ExpectativasMercadoAnuais')
-                # Construção do filtro para Câmbio
-                query_cambio = ep_cambio.query().filter(ep_cambio.Indicador == 'Câmbio')            
-                # Adicionar filtros de data inicial e final para Câmbio
-                query_cambio = query_cambio.filter(ep_cambio.Data >= str(data_inicial), ep_cambio.Data <= str(data_final))                
-                # Adicionar filtro de DataReferencia, se fornecido
+                # Determinar o endpoint e os filtros com base no indicador selecionado
+                ep = expec.get_endpoint('ExpectativasMercadoAnuais')
+                query = ep.query().filter(ep.Indicador == indicador)
+                query = query.filter(ep.Data >= str(data_inicial), ep.Data <= str(data_final))
+                
                 if data_referencia:
-                    query_cambio = query_cambio.filter(ep_cambio.DataReferencia == data_referencia)
+                    query = query.filter(ep.DataReferencia == data_referencia)
                 
-                # Adicionar filtro de baseCalculo para Câmbio
-                query_cambio = query_cambio.filter(ep_cambio.baseCalculo == base_calculo)
+                query = query.filter(ep.baseCalculo == base_calculo)
                 
-                # Coletar os dados de Câmbio
-                data_cambio = query_cambio.collect()
-                
-                # Acessar o endpoint 'ExpectativasAnuais' para a taxa SELIC
-                ep_selic = expec.get_endpoint('ExpectativasMercadoAnuais')
-                # Construção do filtro para a SELIC
-                query_selic = ep_selic.query().filter(ep_selic.Indicador == 'SELIC')
-                # Adicionar filtros de data inicial e final para SELIC
-                query_selic = query_selic.filter(ep_selic.Data >= str(data_inicial), ep_selic.Data <= str(data_final))
-                
-                # Coletar os dados de SELIC
-                data_selic = query_selic.collect()
+                # Coletar os dados
+                data = query.collect()
 
-                # Verificar se há dados de Câmbio ou SELIC
-                if data_cambio.empty and data_selic.empty:
-                    st.warning("Nenhum dado encontrado para os filtros selecionados.")
+                # Verificar se há dados disponíveis
+                if data.empty:
+                    st.warning(f"Nenhum dado encontrado para o indicador {indicador} com os filtros selecionados.")
                 else:
-                    st.success(f"Dados carregados com sucesso.")
-                    st.dataframe(data_cambio)  # Exibir os dados de Câmbio
+                    st.success(f"Dados de {indicador} carregados com sucesso ({len(data)} registros).")
+                    st.dataframe(data)  # Exibir os dados como tabela
                     
-                    # Criar gráfico interativo para o Câmbio
-                    fig_cambio = go.Figure()
-                    fig_cambio.add_trace(go.Scatter(
-                        x=data_cambio["Data"], 
-                        y=data_cambio["Media"], 
+                    # Criar gráfico interativo com Plotly
+                    fig = go.Figure()
+                    fig.add_trace(go.Scatter(
+                        x=data["Data"], 
+                        y=data["Media"], 
                         mode="lines+markers", 
-                        name="Média do Câmbio",
+                        name="Média",
                         line=dict(color="blue"),
                     ))
-                    fig_cambio.add_trace(go.Scatter(
-                        x=data_cambio["Data"], 
-                        y=data_cambio["Maximo"], 
+                    fig.add_trace(go.Scatter(
+                        x=data["Data"], 
+                        y=data["Maximo"], 
                         mode="lines", 
-                        name="Máximo do Câmbio",
+                        name="Máximo",
                         line=dict(dash="dash", color="green"),
                     ))
-                    fig_cambio.add_trace(go.Scatter(
-                        x=data_cambio["Data"], 
-                        y=data_cambio["Minimo"], 
+                    fig.add_trace(go.Scatter(
+                        x=data["Data"], 
+                        y=data["Minimo"], 
                         mode="lines", 
-                        name="Mínimo do Câmbio",
+                        name="Mínimo",
                         line=dict(dash="dot", color="red"),
                     ))
-
-                    # Configurar layout do gráfico do Câmbio
-                    fig_cambio.update_layout(
-                        title="Expectativas de Mercado para o Câmbio",
+                    
+                    # Configurar layout do gráfico
+                    fig.update_layout(
+                        title=f"Expectativas de Mercado para o {indicador}",
                         xaxis_title="Data",
-                        yaxis_title="Valor (R$)",
+                        yaxis_title="Valor (R$)" if indicador == "Câmbio" else "Taxa SELIC (%)",
                         legend_title="Indicadores",
                         template="plotly_white"
                     )
                     
                     # Exibir o gráfico no Streamlit
-                    st.plotly_chart(fig_cambio, use_container_width=True)
+                    st.plotly_chart(fig, use_container_width=True)
                     
-                    # Criar gráfico interativo para a SELIC
-                    fig_selic = go.Figure()
-                    fig_selic.add_trace(go.Scatter(
-                        x=data_selic["Data"], 
-                        y=data_selic["Media"], 
-                        mode="lines+markers", 
-                        name="Média da SELIC",
-                        line=dict(color="blue"),
-                    ))
-                    fig_selic.add_trace(go.Scatter(
-                        x=data_selic["Data"], 
-                        y=data_selic["Maximo"], 
-                        mode="lines", 
-                        name="Máximo da SELIC",
-                        line=dict(dash="dash", color="green"),
-                    ))
-                    fig_selic.add_trace(go.Scatter(
-                        x=data_selic["Data"], 
-                        y=data_selic["Minimo"], 
-                        mode="lines", 
-                        name="Mínimo da SELIC",
-                        line=dict(dash="dot", color="red"),
-                    ))
-
-                    # Configurar layout do gráfico da SELIC
-                    fig_selic.update_layout(
-                        title="Expectativas de Mercado para a Taxa SELIC",
-                        xaxis_title="Data",
-                        yaxis_title="Taxa SELIC (%)",
-                        legend_title="Indicadores",
-                        template="plotly_white"
-                    )
-                    
-                    # Exibir o gráfico no Streamlit
-                    st.plotly_chart(fig_selic, use_container_width=True)
-
                     # Criar um buffer na memória para armazenar o arquivo Excel
                     output = io.BytesIO()
                     
                     # Escrever os dados no buffer
                     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                        data_cambio.to_excel(writer, index=False, sheet_name='Expectativas Câmbio')
-                        data_selic.to_excel(writer, index=False, sheet_name='Expectativas SELIC')
+                        data.to_excel(writer, index=False, sheet_name=f'Expectativas {indicador}')
                     
                     # Botão de download para o arquivo Excel
                     st.download_button(
-                        label="Baixar dados em Excel",
+                        label=f"Baixar dados de {indicador} em Excel",
                         data=output.getvalue(),
-                        file_name="expectativas_cambio_selic.xlsx",
+                        file_name=f"expectativas_{indicador.lower()}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
