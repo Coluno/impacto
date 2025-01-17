@@ -1242,7 +1242,7 @@ def monte_carlo():
     elif tipo_ativo == "Dólar":
         ativo = "USDBRL=X"
 
-    data = yf.download(ativo, start="2013-01-01", end="2026-01-01")
+    data = yf.download(ativo, start="2013-01-01", end="2099-01-01")
     data.reset_index(inplace=True)
     data.columns = data.columns.droplevel(1)
     data.set_index('Date', inplace=True)
@@ -1267,7 +1267,7 @@ def monte_carlo():
     limite_superior = data['Close'].iloc[-1] + 10
 
     # Simulação Monte Carlo
-    num_simulacoes = 100000
+    num_simulacoes = 1000000
     simulacoes = simulacao_monte_carlo(data, media_retornos_diarios, desvio_padrao_retornos_diarios, dias_simulados, num_simulacoes, limite_inferior, limite_superior)
 
     if st.button("Simular"):
