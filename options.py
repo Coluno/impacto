@@ -666,7 +666,7 @@ def risco():
     # Botão para simular
     if st.button("Simular"):
         # Realizar a simulação Monte Carlo
-        num_simulacoes = 1000000
+        num_simulacoes = 100000
         faturamentos, custos = simulacao_monte_carlo_alternativa(inputs, inputs, inputs, num_simulacoes)
 
         # Plotar o histograma do faturamento
