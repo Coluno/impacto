@@ -1342,11 +1342,8 @@ def monte_carlo():
         media_simulada = np.mean(hist_data)
         mediana_simulada = np.median(hist_data)
 
-        # Exibir as estatísticas
         st.write("Desvio padrão dos valores simulados: **{:.4f}**".format(desvio_padrao_simulado))
-        st.write("Média dos valores simulados: **{:.4f}**".format(media_simulada))
         st.write("Mediana dos valores simulados: **{:.4f}**".format(mediana_simulada))
-
 
 # Função para plotar o heatmap das metas
 def plot_heatmap(meta):
