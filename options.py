@@ -2306,9 +2306,9 @@ def expectativas():
 
 # Funções expectativa Focus
 # Função para obter os dados do Banco Central
-def obter_dados_bcb(indicador, data_inicio, data_fim, data_referencia, base_calculo):
+def obter_dados_bcb(endpoint, indicador, data_inicio, data_fim, data_referencia, base_calculo):
     em = Expectativas()
-    ep = em.get_endpoint("ExpectativasMercadoAnuais")
+    ep = em.get_endpoint(endpoint)
     
     # Filtro dos dados conforme parâmetros
     df = (
@@ -2438,6 +2438,12 @@ def grafico_histograma_bcb(media, desvio_padrao, numero_respondentes, minimo, ma
 def simulacao_bcb():
     st.title("Análise de Expectativas de Mercado do Dólar")
     # Parâmetros de entrada para o usuário
+        # Seleção do endpoint
+    endpoint = st.radio(
+        "Escolha o tipo de expectativa de mercado:",
+        options=["ExpectativasMercadoAnuais", "ExpectativaMercadoMensais"],
+        format_func=lambda x: "Anuais" if x == "ExpectativasMercadoAnuais" else "Mensais"
+    )
     # Seleção de data inicial
     data_inicio = st.date_input(
         "Data inicial:", 
