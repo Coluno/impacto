@@ -2465,7 +2465,7 @@ def simulacao_bcb():
     # Botão para obter os dados
     if st.button("Obter Dados e Gerar Gráficos"):
         # Obter os dados do BCB
-        df = obter_dados_bcb("Câmbio", data_inicio.strftime("%Y-%m-%d"), data_fim.strftime("%Y-%m-%d"), data_referencia, base_calculo)
+        df = obter_dados_bcb(endpoint, data_inicio.strftime("%Y-%m-%d"), data_fim.strftime("%Y-%m-%d"), data_referencia, base_calculo)
         
         if not df.empty:
             # Pegar a última linha do filtro para os parâmetros de cálculo
