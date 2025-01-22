@@ -2185,6 +2185,14 @@ def expectativas():
     # Seção de filtros
     st.subheader("Filtros")
     
+    # Seleção de endpoint
+    endpoint = st.radio(
+        "Expectativa de mercado:",
+        options=["ExpectativasMercadoAnuais", "ExpectativasMercadoMensais"],
+        index=0,
+        format_func=lambda x: "Anuais" if x == "ExpectativasMercadoAnuais" else "Mensais"
+    )
+    
     # Seleção de data inicial
     data_inicial = st.date_input(
         "Data inicial:", 
@@ -2223,8 +2231,8 @@ def expectativas():
     if st.button("Carregar Dados"):
         with st.spinner("Carregando dados..."):
             try:
-                # Determinar o endpoint e os filtros com base no indicador selecionado
-                ep = expec.get_endpoint('ExpectativasMercadoAnuais')
+                # Determinar o endpoint selecionado pelo usuário
+                ep = expec.get_endpoint(endpoint)
                 query = ep.query().filter(ep.Indicador == indicador)
                 query = query.filter(ep.Data >= str(data_inicial), ep.Data <= str(data_final))
                 
@@ -2269,7 +2277,7 @@ def expectativas():
                     
                     # Configurar layout do gráfico
                     fig.update_layout(
-                        title=f"Expectativas de Mercado para o {indicador}",
+                        title=f"Expectativas de Mercado para o {indicador} ({'Anuais' if endpoint == 'ExpectativasMercadoAnuais' else 'Mensais'})",
                         xaxis_title="Data",
                         yaxis_title="Valor (R$)" if indicador == "Câmbio" else "Taxa SELIC (%)",
                         legend_title="Indicadores",
@@ -2290,7 +2298,7 @@ def expectativas():
                     st.download_button(
                         label=f"Baixar dados de {indicador} em Excel",
                         data=output.getvalue(),
-                        file_name=f"expectativas_{indicador.lower()}.xlsx",
+                        file_name=f"expectativas_{indicador.lower()}_{endpoint.lower()}.xlsx",
                         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     )
             except Exception as e:
