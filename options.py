@@ -2188,7 +2188,7 @@ def expectativas():
     # Seleção de endpoint
     endpoint = st.radio(
         "Expectativa de mercado:",
-        options=["ExpectativasMercadoAnuais", "ExpectativasMercadoMensais"],
+        options=["ExpectativasMercadoAnuais", "ExpectativaMercadoMensais"],
         index=0,
         format_func=lambda x: "Anuais" if x == "ExpectativasMercadoAnuais" else "Mensais"
     )
