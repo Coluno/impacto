@@ -2210,7 +2210,7 @@ def expectativas():
     )
     
     # Seleção de DataReferencia
-    data_referencia = st.text_input("Ano de referência (exemplo: 2025):", value="")
+    data_referencia = st.text_input("Ano de referência (exemplo Anuais: 2025 Exemplo Mensais: 01/2025):", value="")
     
     # Seleção de baseCalculo
     base_calculo = st.radio(
