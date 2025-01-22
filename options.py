@@ -2306,14 +2306,14 @@ def expectativas():
 
 # Funções expectativa Focus
 # Função para obter os dados do Banco Central
-def obter_dados_bcb(endpoint, indicador, data_inicio, data_fim, data_referencia, base_calculo):
+def obter_dados_bcb(endpoint, data_inicio, data_fim, data_referencia, base_calculo):
     em = Expectativas()
     ep = em.get_endpoint(endpoint)
     
     # Filtro dos dados conforme parâmetros
     df = (
         ep.query()
-        .filter(ep.Indicador == indicador)
+        .filter(ep.Indicador == "Câmbio")
         .filter(ep.Data >= data_inicio, ep.Data <= data_fim)
         .filter(ep.DataReferencia == data_referencia, ep.baseCalculo == base_calculo)
         .select(ep.Data, ep.Media, ep.Mediana, ep.DesvioPadrao, ep.Minimo, ep.Maximo, ep.numeroRespondentes)
@@ -2458,7 +2458,7 @@ def simulacao_bcb():
         min_value=pd.to_datetime("2000-01-01"), 
         max_value=pd.Timestamp.today() 
     )
-    data_referencia = st.selectbox("Selecione o Ano de Expectativa", [2025, 2026, 2027, 2028, 2029])
+    data_referencia = st.text_input("Ano de referência (exemplo Anuais: 2025 Exemplo Mensais: 01/2025):", value="")
     base_calculo = st.selectbox("Selecione a Base de Cálculo", [0, 1])
     dolar_futuro = st.number_input("Valor do Dólar Futuro", min_value=1.0, max_value=20.0, value=6.0, step=0.01)
     
