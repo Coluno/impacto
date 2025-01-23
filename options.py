@@ -2465,10 +2465,10 @@ def simulacao_bcb():
     if st.button("Obter Dados e Gerar Gráficos"):
         # Obter os dados do BCB
         df = obter_dados_bcb(endpoint, data_inicio.strftime("%Y-%m-%d"), data_fim.strftime("%Y-%m-%d"), data_referencia, base_calculo)
+        df = df.sort_values(by='Data', ascending=True)
         
         if not df.empty:
             # Pegar a última linha do filtro para os parâmetros de cálculo
-            df = df.sort_values(by='Data', ascending=True)
             ultima_linha = df.iloc[-1]
             media = ultima_linha['Media']
             desvio_padrao = ultima_linha['DesvioPadrao']
