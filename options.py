@@ -2468,6 +2468,7 @@ def simulacao_bcb():
         
         if not df.empty:
             # Pegar a última linha do filtro para os parâmetros de cálculo
+            df = df.sort_values(by='Data', ascending=True)
             ultima_linha = df.iloc[-1]
             media = ultima_linha['Media']
             desvio_padrao = ultima_linha['DesvioPadrao']
