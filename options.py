@@ -2319,10 +2319,8 @@ def obter_dados_bcb(endpoint, data_inicio, data_fim, data_referencia, base_calcu
         .select(ep.Data, ep.Media, ep.Mediana, ep.DesvioPadrao, ep.Minimo, ep.Maximo, ep.numeroRespondentes)
         .collect()
     )
-    
     return df
 
-# Função para calcular e plotar o gráfico de probabilidade usando plotly (go)
 def grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro):
     # Cálculo da densidade de probabilidade
     x = np.linspace(media - 4 * desvio_padrao, media + 4 * desvio_padrao, 1000)
@@ -2340,26 +2338,28 @@ def grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro):
     # Área verde: probabilidade <= dolar_futuro
     x_verde = x[x <= dolar_futuro]
     y_verde = y[x <= dolar_futuro]
-    fig.add_trace(go.Scatter(
-        x=np.concatenate([[x_verde[0]], x_verde, [x_verde[-1]]]),
-        y=np.concatenate([[0], y_verde, [0]]),
-        fill='toself',
-        fillcolor='rgba(0,255,0,0.3)',
-        line=dict(width=0),
-        name=f'Probabilidade <= R${dolar_futuro}'
-    ))
+    if len(x_verde) > 0:
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([[x_verde[0]], x_verde, [x_verde[-1]]]),
+            y=np.concatenate([[0], y_verde, [0]]),
+            fill='toself',
+            fillcolor='rgba(0,255,0,0.3)',
+            line=dict(width=0),
+            name=f'Probabilidade <= R${dolar_futuro}'
+        ))
 
     # Área vermelha: probabilidade > dolar_futuro
     x_vermelho = x[x > dolar_futuro]
     y_vermelho = y[x > dolar_futuro]
-    fig.add_trace(go.Scatter(
-        x=np.concatenate([[x_vermelho[0]], x_vermelho, [x_vermelho[-1]]]),
-        y=np.concatenate([[0], y_vermelho, [0]]),
-        fill='toself',
-        fillcolor='rgba(255,0,0,0.3)',
-        line=dict(width=0),
-        name=f'Probabilidade > R${dolar_futuro}'
-    ))
+    if len(x_vermelho) > 0:
+        fig.add_trace(go.Scatter(
+            x=np.concatenate([[x_vermelho[0]], x_vermelho, [x_vermelho[-1]]]),
+            y=np.concatenate([[0], y_vermelho, [0]]),
+            fill='toself',
+            fillcolor='rgba(255,0,0,0.3)',
+            line=dict(width=0),
+            name=f'Probabilidade > R${dolar_futuro}'
+        ))
 
     # Linha do dólar futuro
     fig.add_trace(go.Scatter(
@@ -2394,7 +2394,6 @@ def grafico_probabilidade_focus(media, desvio_padrao, dolar_futuro):
 
     # Exibir gráfico no Streamlit
     st.plotly_chart(fig)
-
 
 # Função para calcular e plotar o gráfico de histograma usando plotly (go)
 def grafico_histograma_bcb(media, desvio_padrao, numero_respondentes, minimo, maximo):
