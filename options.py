@@ -935,10 +935,7 @@ def mercado():
     end_date = today.strftime('%Y-%m-%d')
     
     # Baixar os dados históricos do ativo
-    data = yf.download(ativo, start=start_date, end=end_date)
-    data.reset_index(inplace=True)
-    data.columns = data.columns.droplevel(1)
-    data.set_index('Date', inplace=True)  # Agora o índice é a data
+    data = yf.download(ativo, start=start_date, end=end_date, auto_adjust=True, multi_level_index=False)
 
     # Filtro de datas no corpo principal
     filtro_datas = st.date_input("Selecione um intervalo de datas:",value=[pd.to_datetime('2023-01-01'), pd.to_datetime('2025-01-01')])
