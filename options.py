@@ -1500,14 +1500,9 @@ def preco_acucar_atual():
     start_date = date(2013, 1, 1)
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
-    data = yf.download('SB=F', start=start_date, end=end_date, interval='1d')['Adj Close'].squeeze()
+    data = yf.download('SB=F', start=start_date, end=end_date, interval='1d', multi_level_index=False, auto_adjust=True)
     data = data.to_frame()
-    data.columns = ['Adj Close']
-    # Resetar o índice e renomear as colunas
-    #data.reset_index(inplace=True)
-    #data.columns = data.columns.droplevel(1)
-    #data.set_index('Date', inplace=True)
-    
+    data.columns = ['Close']
     return data
 
 def breakeven():
@@ -1935,10 +1930,7 @@ def noticias():
 # def's que fazer parte da volatilidade
 # Função para obter dados históricos de acordo com o símbolo selecionado
 def get_historical_data(symbol, start_date, end_date):
-    data = yf.download(symbol, start=start_date, end=end_date)
-    data.reset_index(inplace=True)
-    data.columns = data.columns.droplevel(1)
-    data.set_index('Date', inplace=True)
+    data = yf.download(symbol, start=start_date, end=end_date, multi_level_index=False, auto_adjust=True)
     
     if 'Adj Close' in data.columns:
         data['Price'] = data['Adj Close']
