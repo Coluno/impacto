@@ -306,10 +306,7 @@ def VaR():
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
     
-    data = yf.download(escolha, start=start_date, end=end_date)
-    data.reset_index(inplace=True)
-    data.columns = data.columns.droplevel(1)
-    data.set_index('Date', inplace=True)
+    data = yf.download(escolha, start=start_date, end=end_date, auto_adjust=True, multi_level_index=False)
 
     if "Adj Close" in data.columns:
         current_price = data["Adj Close"].iloc[-1]
