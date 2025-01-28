@@ -2110,9 +2110,7 @@ def volatilidade_jump_diffusion():
     # Botão para iniciar a simulação
     if st.button("Simular"):
         # Obtenção dos dados históricos
-        data = yf.download(symbol, start=start_date, end="2099-01-01")
-        data.reset_index(inplace=True)
-        data.set_index('Date', inplace=True)
+        data = yf.download(symbol, start=start_date, end="2099-01-01",  multi_level_index=False, auto_adjust=True)
 
         if 'Adj Close' in data.columns:
             data['Price'] = data['Adj Close']
