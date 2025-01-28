@@ -351,10 +351,7 @@ def baixar_dados_acucar():
     start_date = date(2014, 1, 1)
     today = date.today()
     end_date = today.strftime('%Y-%m-%d')
-    df = yf.download('SB=F', start=start_date, end=end_date)
-    df.reset_index(inplace=True)
-    df.columns = df.columns.droplevel(1)
-    df.set_index('Date', inplace=True)
+    df = yf.download('SB=F', start=start_date, end=end_date, auto_adjust=True, multi_level_index=False)
     return df
 
 # Função para decompor a série temporal
