@@ -2216,7 +2216,7 @@ def expectativas():
                 
                 if data_referencia:
                     if endpoint == "ExpectativaMercadoMensais":
-                        query = query.filter(ep.DataReferencia.str[-4:] == data_referencia)
+                        query = query.filter(ep.DataReferencia.cast("string").str[-4:] == data_referencia)
                     else:
                         query = query.filter(ep.DataReferencia == data_referencia)
                 
@@ -2286,7 +2286,7 @@ def expectativas():
                     )
             except Exception as e:
                 st.error(f"Erro ao carregar os dados: {e}")
-
+                
 # Funções expectativa Focus
 # Função para obter os dados do Banco Central
 def obter_dados_bcb(endpoint, data_inicio, data_fim, data_referencia, base_calculo):
