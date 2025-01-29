@@ -2424,7 +2424,7 @@ def main():
         
         st.sidebar.title("Menu")
         #add Série temporal futuramente...
-        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade", "Simulação Jump-Diffusion", "Simulação de Opções", "Monte Carlo",  "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR", "Relatorio Focus","Expectativa Focus","Less Loss", "ARIMA Açúcar", "ARIMA Dolar"])
+        page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade", "Simulação Jump-Diffusion", "Simulação de Opções", "Monte Carlo",  "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR", "Relatorio Focus","Expectativa Focus", "Teste de Stress", "Less Loss", "ARIMA Açúcar", "ARIMA Dolar"])
 
         if page == "Introdução":
             st.image("./ibea.png", width=500)
@@ -2501,9 +2501,13 @@ def main():
             st.image("./ibea.png", width=500)
             regressao_sugar()
         elif page == "Relatorio Focus":
+            st.image("./ibea.png", width=500)
             expectativas()
         elif page == "Expectativa Focus":
+            st.image("./ibea.png", width=500)
             simulacao_bcb()
+        elif page == "Teste de Stress"
+            st.image("./ibea.png", width=500)
         if page == "Less Loss":
             lessloss()
 if __name__ == "__main__":
