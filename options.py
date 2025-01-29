@@ -2577,7 +2577,7 @@ def main():
             simulacao_bcb()
         elif page == "Teste de Stress":
             st.image("./ibea.png", width=500)
-            teste_stresse()
+            app_teste_stresse()
         if page == "Less Loss":
             lessloss()
 if __name__ == "__main__":
