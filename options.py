@@ -2175,11 +2175,6 @@ def plotar_grafico_cascata(df):
     valores = df['Impacto (R$)'].values
     labels = df['Valor Hipotético (R$)'].values.round(2)
 
-    # Verificar se os valores não estão nulos ou muito pequenos
-    if len(valores) == 0 or np.all(valores == 0):
-        st.warning("Os valores de impacto estão muito pequenos ou nulos para plotar o gráfico.")
-        return
-
     # Inicializando o gráfico
     fig = go.Figure(go.Waterfall(
         x=labels,
@@ -2203,28 +2198,41 @@ def plotar_grafico_cascata(df):
 
     st.plotly_chart(fig)
 
+# Função para conversão de valores com vírgula para ponto
+def converter_valor(valor):
+    if isinstance(valor, str):
+        valor = valor.replace(',', '.')  # Substitui vírgula por ponto
+    return float(valor)
+
 # Função para as entradas do usuário e execução do teste
 def app_teste_stresse():
     # Título do aplicativo
-    st.title('Teste de Estresse com NDF')
+    st.title('Teste de Estresse com Dólar')
 
-    # Entradas do usuário
-    venda_media = st.number_input("Digite o valor da venda média (R$):", min_value=0.0, format="%.2f")
-    valor_total = st.number_input("Digite o valor total (R$):", min_value=0.0, format="%.2f")
-    min_hipotetico = st.number_input("Digite o valor mínimo hipotético do dólar (R$):", min_value=0.0, format="%.2f")
-    max_hipotetico = st.number_input("Digite o valor máximo hipotético do dólar (R$):", min_value=0.0, format="%.2f")
+    # Entradas do usuário com conversão para ponto
+    venda_media = st.text_input("Digite o valor da venda média (R$):")
+    valor_total = st.text_input("Digite o valor total (R$):")
+    min_hipotetico = st.text_input("Digite o valor mínimo hipotético do dólar (R$):")
+    max_hipotetico = st.text_input("Digite o valor máximo hipotético do dólar (R$):")
 
-    # Botão para calcular o teste de estresse
-    if st.button('Realizar Teste de Estresse'):
-        # Realiza o teste de estresse
-        df_resultado = teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico)
+    # Converte as entradas para float
+    if venda_media and valor_total and min_hipotetico and max_hipotetico:
+        venda_media = converter_valor(venda_media)
+        valor_total = converter_valor(valor_total)
+        min_hipotetico = converter_valor(min_hipotetico)
+        max_hipotetico = converter_valor(max_hipotetico)
 
-        # Exibe o resultado
-        st.subheader('Resultado do Teste de Estresse:')
-        st.write(df_resultado)
+        # Botão para calcular o teste de estresse
+        if st.button('Realizar Teste de Estresse'):
+            # Realiza o teste de estresse
+            df_resultado = teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico)
 
-        # Plotar o gráfico de cascata
-        plotar_grafico_cascata(df_resultado)
+            # Exibe o resultado
+            st.subheader('Resultado do Teste de Estresse:')
+            st.write(df_resultado)
+
+            # Plotar o gráfico de cascata
+            plotar_grafico_cascata(df_resultado)
 
 # Função principal para o Streamlit
 def expectativas():
