@@ -2154,6 +2154,75 @@ def volatilidade_jump_diffusion():
         average_price = np.mean(simulated_prices)
         st.write(f"O valor médio da simulação para o ano foi: {average_price:.2f}")
 
+
+
+# Função para realizar o teste de estresse com coluna cascata
+def teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico, intervalo=0.10):
+    # Gera valores hipotéticos do dólar com o intervalo fornecido
+    valores_hipoteticos = np.arange(min_hipotetico, max_hipotetico + intervalo, intervalo)
+
+    # Calcula o impacto para cada valor hipotético
+    impactos = (venda_media - valores_hipoteticos) * valor_total
+
+    # Cria um DataFrame para visualizar a coluna cascata
+    df = pd.DataFrame({
+        'Valor Hipotético (R$)': valores_hipoteticos,
+        'Impacto (R$)': impactos
+    })
+
+    return df
+
+# Função para plotar o gráfico de cascata usando Plotly
+def plotar_grafico_cascata(df):
+    valores = df['Impacto (R$)'].values
+    labels = df['Valor Hipotético (R$)'].values.round(2)
+
+    # Inicializando o gráfico
+    fig = go.Figure(go.Waterfall(
+        x=labels,
+        y=valores,
+        textposition="inside",
+        text=valores,
+        increasing={"marker": {"color": "green"}},
+        decreasing={"marker": {"color": "red"}},
+        totals={"marker": {"color": "blue"}},
+    ))
+
+    # Customizando o layout
+    fig.update_layout(
+        title='Teste de Stress: NDF',
+        xaxis_title='Valor esperado do Dólar (R$)',
+        yaxis_title='Impacto Acumulado (R$)',
+        xaxis=dict(tickmode='array'),
+        template="plotly_white",
+        showlegend=False
+    )
+
+    st.plotly_chart(fig)
+
+# Função para o streamlit 
+def app_teste_stresse():
+    # Título do aplicativo
+    st.title('Teste de Estresse NDF')
+
+    # Entradas do usuário
+    venda_media = st.number_input("Digite o valor da venda média (R$):", min_value=0.0, format="%.2f")
+    valor_total = st.number_input("Digite o valor total (R$):", min_value=0.0, format="%.2f")
+    min_hipotetico = st.number_input("Digite o valor mínimo hipotético do dólar (R$):", min_value=0.0, format="%.2f")
+    max_hipotetico = st.number_input("Digite o valor máximo hipotético do dólar (R$):", min_value=0.0, format="%.2f")
+
+    # Botão para calcular o teste de estresse
+    if st.button('Realizar Teste de Estresse'):
+        # Realiza o teste de estresse
+        df_resultado = teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico)
+
+        # Exibe o resultado
+        st.subheader('Resultado do Teste de Estresse:')
+        st.write(df_resultado)
+
+        # Plotar o gráfico de cascata
+        plotar_grafico_cascata(df_resultado)
+
 # Função principal para o Streamlit
 def expectativas():
     # Inicializar cliente para as expectativas
