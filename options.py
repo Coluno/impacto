@@ -2506,7 +2506,7 @@ def main():
         elif page == "Expectativa Focus":
             st.image("./ibea.png", width=500)
             simulacao_bcb()
-        elif page == "Teste de Stress"
+        elif page == "Teste de Stress":
             st.image("./ibea.png", width=500)
         if page == "Less Loss":
             lessloss()
