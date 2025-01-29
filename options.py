@@ -2174,21 +2174,21 @@ def expectativas():
     # Seleção de data inicial
     data_inicial = st.date_input(
         "Data inicial:", 
-        value=pd.to_datetime("2020-01-01"),  # Data padrão
-        min_value=pd.to_datetime("2000-01-01"),  # Data mínima permitida
-        max_value=pd.Timestamp.today()  # Data máxima permitida
+        value=pd.to_datetime("2020-01-01"),
+        min_value=pd.to_datetime("2000-01-01"),
+        max_value=pd.Timestamp.today()
     )
     
     # Seleção de data final
     data_final = st.date_input(
         "Data final:", 
-        value=pd.Timestamp.today(),  # Data padrão
-        min_value=pd.to_datetime("2000-01-01"),  # Data mínima permitida
-        max_value=pd.Timestamp.today()  # Data máxima permitida
+        value=pd.Timestamp.today(),
+        min_value=pd.to_datetime("2000-01-01"),
+        max_value=pd.Timestamp.today()
     )
     
-    # Seleção de DataReferencia
-    data_referencia = st.text_input("Ano de referência (exemplo Anuais: 2025 Exemplo Mensais: 01/2025):", value="")
+    # Seleção de Ano de Referência
+    ano_referencia = st.text_input("Ano de referência (exemplo: 2025):", value="")
     
     # Seleção de baseCalculo
     base_calculo = st.radio(
@@ -2214,39 +2214,45 @@ def expectativas():
                 query = ep.query().filter(ep.Indicador == indicador)
                 query = query.filter(ep.Data >= str(data_inicial), ep.Data <= str(data_final))
                 
-                if data_referencia:
-                    query = query.filter(ep.DataReferencia == data_referencia)
+                # Filtro de Ano de Referência para o Mensal
+                if ano_referencia and endpoint == "ExpectativaMercadoMensais":
+                    query = query.filter(ep.DataReferencia.str.endswith(ano_referencia))
+                elif ano_referencia:
+                    query = query.filter(ep.DataReferencia == ano_referencia)
                 
                 query = query.filter(ep.baseCalculo == base_calculo)
                 
                 # Coletar os dados
                 data = query.collect()
+                data = data.sort_values(by='Data', ascending=True)  # Ordenar do mais antigo para o mais novo
 
                 # Verificar se há dados disponíveis
                 if data.empty:
                     st.warning(f"Nenhum dado encontrado para o indicador {indicador} com os filtros selecionados.")
                 else:
                     st.success(f"Dados de {indicador} carregados com sucesso ({len(data)} registros).")
-                    st.dataframe(data)  # Exibir os dados como tabela
+                    st.dataframe(data)
                     
                     # Criar gráfico interativo com Plotly
                     fig = go.Figure()
+                    eixo_x = "DataReferencia" if endpoint == "ExpectativaMercadoMensais" else "Data"
+                    
                     fig.add_trace(go.Scatter(
-                        x=data["Data"], 
+                        x=data[eixo_x], 
                         y=data["Media"], 
                         mode="lines+markers", 
                         name="Média",
                         line=dict(color="blue"),
                     ))
                     fig.add_trace(go.Scatter(
-                        x=data["Data"], 
+                        x=data[eixo_x], 
                         y=data["Maximo"], 
                         mode="lines", 
                         name="Máximo",
                         line=dict(dash="dash", color="green"),
                     ))
                     fig.add_trace(go.Scatter(
-                        x=data["Data"], 
+                        x=data[eixo_x], 
                         y=data["Minimo"], 
                         mode="lines", 
                         name="Mínimo",
@@ -2256,7 +2262,7 @@ def expectativas():
                     # Configurar layout do gráfico
                     fig.update_layout(
                         title=f"Expectativas de Mercado para o {indicador} ({'Anuais' if endpoint == 'ExpectativasMercadoAnuais' else 'Mensais'})",
-                        xaxis_title="Data",
+                        xaxis_title="Ano de Referência" if endpoint == "ExpectativaMercadoMensais" else "Data",
                         yaxis_title="Valor (R$)" if indicador == "Câmbio" else "Taxa SELIC (%)",
                         legend_title="Indicadores",
                         template="plotly_white"
