@@ -2154,8 +2154,6 @@ def volatilidade_jump_diffusion():
         average_price = np.mean(simulated_prices)
         st.write(f"O valor médio da simulação para o ano foi: {average_price:.2f}")
 
-
-
 # Função para realizar o teste de estresse com coluna cascata
 def teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico, intervalo=0.10):
     # Gera valores hipotéticos do dólar com o intervalo fornecido
@@ -2176,6 +2174,11 @@ def teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico, inte
 def plotar_grafico_cascata(df):
     valores = df['Impacto (R$)'].values
     labels = df['Valor Hipotético (R$)'].values.round(2)
+
+    # Verificar se os valores não estão nulos ou muito pequenos
+    if len(valores) == 0 or np.all(valores == 0):
+        st.warning("Os valores de impacto estão muito pequenos ou nulos para plotar o gráfico.")
+        return
 
     # Inicializando o gráfico
     fig = go.Figure(go.Waterfall(
@@ -2200,10 +2203,10 @@ def plotar_grafico_cascata(df):
 
     st.plotly_chart(fig)
 
-# Função para o streamlit 
+# Função para as entradas do usuário e execução do teste
 def app_teste_stresse():
     # Título do aplicativo
-    st.title('Teste de Estresse NDF')
+    st.title('Teste de Estresse com NDF')
 
     # Entradas do usuário
     venda_media = st.number_input("Digite o valor da venda média (R$):", min_value=0.0, format="%.2f")
