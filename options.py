@@ -2216,7 +2216,7 @@ def expectativas():
                 
                 if data_referencia:
                     if endpoint == "ExpectativaMercadoMensais":
-                        query = query.filter(ep.DataReferencia.cast("string").str[-4:] == data_referencia)
+                        query = query.filter(ep.DataReferencia.astype(str).str[-4:] == data_referencia)
                     else:
                         query = query.filter(ep.DataReferencia == data_referencia)
                 
