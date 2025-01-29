@@ -2215,24 +2215,17 @@ def app_teste_stresse():
     min_hipotetico = st.text_input("Digite o valor mínimo hipotético do dólar (R$):")
     max_hipotetico = st.text_input("Digite o valor máximo hipotético do dólar (R$):")
 
-    # Converte as entradas para float
-    if venda_media and valor_total and min_hipotetico and max_hipotetico:
-        venda_media = converter_valor(venda_media)
-        valor_total = converter_valor(valor_total)
-        min_hipotetico = converter_valor(min_hipotetico)
-        max_hipotetico = converter_valor(max_hipotetico)
+    # Botão para calcular o teste de estresse
+    if st.button('Realizar Teste de Estresse'):
+        # Realiza o teste de estresse
+        df_resultado = teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico)
 
-        # Botão para calcular o teste de estresse
-        if st.button('Realizar Teste de Estresse'):
-            # Realiza o teste de estresse
-            df_resultado = teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico)
+        # Exibe o resultado
+        st.subheader('Resultado do Teste de Estresse:')
+        st.write(df_resultado)
 
-            # Exibe o resultado
-            st.subheader('Resultado do Teste de Estresse:')
-            st.write(df_resultado)
-
-            # Plotar o gráfico de cascata
-            plotar_grafico_cascata(df_resultado)
+        # Plotar o gráfico de cascata
+        plotar_grafico_cascata(df_resultado)
 
 # Função principal para o Streamlit
 def expectativas():
