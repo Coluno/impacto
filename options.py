@@ -2516,7 +2516,7 @@ def main():
             st.image("./ibea.png", width=500)
             st.title("Gestão de Risco e Derivativos")
 
-            dolar, acucar, petroleo = get_prices()
+            dolar, acucar, petroleo = get_prices_title()
             st.markdown(f"**Dólar:** R$ {dolar:.2f} | **Açúcar (SBH24):** ${acucar:.2f} | **Petróleo (WTI):** ${petroleo:.2f}")
 
             st.write("""
