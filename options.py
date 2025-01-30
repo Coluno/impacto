@@ -1266,24 +1266,28 @@ def monte_carlo():
         prob_acima_valor = np.mean(simulacoes[-1] > valor_simulado) * 100
         prob_abaixo_valor = np.mean(simulacoes[-1] < valor_simulado) * 100
 
-#-------------
-        
-        # Criando gráfico com médias mensais
-        datas_futuras = pd.date_range(start=hoje, periods=dias_simulados, freq=BDay())
-        df_simulacoes = pd.DataFrame(simulacoes, index=datas_futuras)
-        df_mensal = df_simulacoes.resample('ME').agg(['mean', lambda x: np.percentile(x, 20), lambda x: np.percentile(x, 80)])
-        df_mensal.columns = ['Média', 'Percentil 20', 'Percentil 80']
+        # Criar lista de figuras
+        fig = go.Figure()
+        # Cores para as linhas
+        cores = ['rgba(31,119,180,0.3)', 'rgba(255,127,14,0.3)', 'rgba(44,160,44,0.3)', 'rgba(214,39,40,0.3)', 'rgba(148,103,189,0.3)']
+        # Adicionar as simulações ao gráfico
+        for i in range(100):
+            fig.add_trace(go.Scatter(x=np.arange(1, dias_simulados + 1), y=simulacoes[:, i], mode='lines', line=dict(width=0.8, color=cores[i % len(cores)]), name='Simulação {}'.format(i+1)))
 
-        fig_mensal = go.Figure()
-        fig_mensal.add_trace(go.Scatter(x=df_mensal.index, y=df_mensal['Média'], mode='lines', name='Média'))
-        fig_mensal.add_trace(go.Scatter(x=df_mensal.index, y=df_mensal['Percentil 20'], mode='lines', name='Percentil 20'))
-        fig_mensal.add_trace(go.Scatter(x=df_mensal.index, y=df_mensal['Percentil 80'], mode='lines', name='Percentil 80'))
+        # Layout do gráfico
+        fig.update_layout(
+            xaxis_title="Dias",
+            yaxis_title="Preço de Fechamento",
+            yaxis_range=[data['Close'].min() - 5, data['Close'].max() + 5],
+            yaxis_gridcolor='lightgrey',
+            showlegend=False,
+            margin=dict(l=0, r=0, t=40, b=0),
+            plot_bgcolor='rgba(0,0,0,0)',
+            paper_bgcolor='rgba(0,0,0,0)'
+        )
 
-        st.plotly_chart(fig_mensal)
-
-        
-##------
-
+        # Exibindo o gráfico no Streamlit
+        st.plotly_chart(fig)
         
         # Calcular estatísticas
         desvio_padrao_simulado = np.std(hist_data)
