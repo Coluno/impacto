@@ -2517,7 +2517,7 @@ def main():
             st.title("Gestão de Risco e Derivativos")
 
             dolar, acucar, petroleo = get_prices_title()
-            st.markdown(f"**Dólar:** R$ {dolar:.2f} | **Açúcar (SB=F):** ${acucar:.2f} | **Petróleo (WTI):** ${petroleo:.2f}")
+            st.markdown(f" **Dólar:** {dolar:.2f} | **Açúcar (SB=F):** {acucar:.2f} | **Petróleo (WTI):** {petroleo:.2f}")
 
             st.write("""
                 A indústria açucareira é um dos pilares da economia em muitos países, mas está sujeita a flutuações significativas nos preços do açúcar e do dólar, entre outros fatores. Nesse cenário, a gestão de riscos desempenha um papel fundamental para garantir a estabilidade e a lucratividade das operações.
