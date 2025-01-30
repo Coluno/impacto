@@ -1271,7 +1271,7 @@ def monte_carlo():
         # Criando gráfico com médias mensais
         datas_futuras = pd.date_range(start=hoje, periods=dias_simulados, freq=BDay())
         df_simulacoes = pd.DataFrame(simulacoes, index=datas_futuras)
-        df_mensal = df_simulacoes.resample('M').agg(['mean', lambda x: np.percentile(x, 20), lambda x: np.percentile(x, 80)])
+        df_mensal = df_simulacoes.resample('ME').agg(['mean', lambda x: np.percentile(x, 20), lambda x: np.percentile(x, 80)])
         df_mensal.columns = ['Média', 'Percentil 20', 'Percentil 80']
 
         fig_mensal = go.Figure()
