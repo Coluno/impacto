@@ -2493,9 +2493,9 @@ def login():
             st.error("Login ou senha incorretos.")
             
 def get_prices_title():
-    dolar = yf.Ticker("USDBRL=X").history(period="1d")["Close"].iloc[-1]
-    acucar = yf.Ticker("SBH24.NYB").history(period="1d")["Close"].iloc[-1]
-    petroleo = yf.Ticker("CL=F").history(period="1d")["Close"].iloc[-1]
+    dolar = yf.Ticker("USDBRL=X").history(period="1d",auto_adjust=True, multi_level_index=False)["Close"].iloc[-1]
+    acucar = yf.Ticker("SBH24.NYB").history(period="1d",auto_adjust=True, multi_level_index=False)["Close"].iloc[-1]
+    petroleo = yf.Ticker("CL=F").history(period="1d",auto_adjust=True, multi_level_index=False)["Close"].iloc[-1]
     
     return dolar, acucar, petroleo
 
