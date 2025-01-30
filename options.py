@@ -1259,6 +1259,8 @@ def monte_carlo():
     simulacoes = simulacao_monte_carlo(data, media_retornos_diarios, desvio_padrao_retornos_diarios, dias_simulados, num_simulacoes, limite_inferior, limite_superior)
 
     if st.button("Simular"):
+        # Restante do código para a simulação Monte Carlo...
+
         # Calculando os outputs
         media_simulada = np.mean(simulacoes[-1])
         percentil_20 = np.percentile(simulacoes[-1], 20)
@@ -1268,8 +1270,10 @@ def monte_carlo():
 
         # Criar lista de figuras
         fig = go.Figure()
+
         # Cores para as linhas
         cores = ['rgba(31,119,180,0.3)', 'rgba(255,127,14,0.3)', 'rgba(44,160,44,0.3)', 'rgba(214,39,40,0.3)', 'rgba(148,103,189,0.3)']
+
         # Adicionar as simulações ao gráfico
         for i in range(100):
             fig.add_trace(go.Scatter(x=np.arange(1, dias_simulados + 1), y=simulacoes[:, i], mode='lines', line=dict(width=0.8, color=cores[i % len(cores)]), name='Simulação {}'.format(i+1)))
@@ -1288,20 +1292,13 @@ def monte_carlo():
 
         # Exibindo o gráfico no Streamlit
         st.plotly_chart(fig)
-        
-        # Calcular estatísticas
-        desvio_padrao_simulado = np.std(hist_data)
-        media_simulada = np.mean(hist_data)
-        mediana_simulada = np.median(hist_data)
-        
+
         # Exibir os outputs
         st.write("Média dos valores simulados: **{:.4f}**".format(media_simulada))
         st.write("Percentil 20: **{:.4f}**".format(percentil_20))
         st.write("Percentil 80: **{:.4f}**".format(percentil_80))
         st.write("Probabilidade do ativo estar acima do valor inserido: **{:.2f}%**".format(prob_acima_valor))
         st.write("Probabilidade do ativo estar abaixo do valor inserido: **{:.2f}%**".format(prob_abaixo_valor))
-        st.write("Desvio padrão dos valores simulados: **{:.4f}**".format(desvio_padrao_simulado))
-        st.write("Mediana dos valores simulados: **{:.4f}**".format(mediana_simulada))
 
         # Gerar o histograma e a curva de densidade
         hist_data = simulacoes[-1]
@@ -1327,6 +1324,14 @@ def monte_carlo():
 
         # Exibir o histograma no Streamlit
         st.plotly_chart(fig_hist)
+
+        # Calcular estatísticas
+        desvio_padrao_simulado = np.std(hist_data)
+        media_simulada = np.mean(hist_data)
+        mediana_simulada = np.median(hist_data)
+
+        st.write("Desvio padrão dos valores simulados: **{:.4f}**".format(desvio_padrao_simulado))
+        st.write("Mediana dos valores simulados: **{:.4f}**".format(mediana_simulada))
 
 # Função para plotar o heatmap das metas
 def plot_heatmap(meta):
