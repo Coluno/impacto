@@ -2491,6 +2491,13 @@ def login():
             st.success("Login realizado com sucesso!")
         else:
             st.error("Login ou senha incorretos.")
+            
+def get_prices_title():
+    dolar = yf.Ticker("USDBRL=X").history(period="1d")["Close"].iloc[-1]
+    acucar = yf.Ticker("SBH24.NYB").history(period="1d")["Close"].iloc[-1]
+    petroleo = yf.Ticker("CL=F").history(period="1d")["Close"].iloc[-1]
+    
+    return dolar, acucar, petroleo
 
 # Função principal
 def main():
@@ -2503,12 +2510,15 @@ def main():
         st.set_page_config(page_title="Gestão de Risco na Usina de Açúcar", page_icon="📈", layout="wide")
         
         st.sidebar.title("Menu")
-        #add Série temporal futuramente...
         page = st.sidebar.radio("Selecione uma opção", ["Introdução", "ATR", "Metas", "Regressão Dólar","Regressão Açúcar", "Volatilidade", "Simulação Jump-Diffusion", "Simulação de Opções", "Monte Carlo",  "Mercado", "Risco", "Breakeven", "Black Scholes", "Cenários", "VaR", "Relatorio Focus","Expectativa Focus", "Teste de Stress", "Less Loss", "ARIMA Açúcar", "ARIMA Dolar"])
 
         if page == "Introdução":
             st.image("./ibea.png", width=500)
             st.title("Gestão de Risco e Derivativos")
+
+            dolar, acucar, petroleo = get_prices()
+            st.markdown(f"**Dólar:** R$ {dolar:.2f} | **Açúcar (SBH24):** ${acucar:.2f} | **Petróleo (WTI):** ${petroleo:.2f}")
+
             st.write("""
                 A indústria açucareira é um dos pilares da economia em muitos países, mas está sujeita a flutuações significativas nos preços do açúcar e do dólar, entre outros fatores. Nesse cenário, a gestão de riscos desempenha um papel fundamental para garantir a estabilidade e a lucratividade das operações.
                  
