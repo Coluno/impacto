@@ -801,12 +801,18 @@ def regressao_sugar():
 
         X_novo = pd.DataFrame([[log_dif_estoque, log_dif_oferta_demanda, log_estoque_uso, dif_log_usd_brl, dif_log_cl_f]],
                               columns=['Log_Diferencial_Estoque', 'Log_Diferencial_Oferta_Demanda', 'Log_Estoque_Uso', 'Dif_Log_USDBRL', 'Dif_Log_CL_F'])
-        dif_log_sb_f_previsto = model.predict(X_novo)[0]
 
+        previsoes = np.array([tree.predict(X_novo)[0] for tree in model.estimators_])
+        dif_log_sb_f_previsto = previsoes.mean()
+        dif_log_sb_f_min = previsoes.min()
+        dif_log_sb_f_max = previsoes.max()
         # Reverter log para previsão final
         sb_f_previsto = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_previsto)
-        st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f}")
-
+        sb_f_min = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_min)
+        sb_f_max = revert_log_diff(df['SB=F'].iloc[-1], dif_log_sb_f_max)
+        
+        st.write(f"### Preço previsto de SB=F: {sb_f_previsto:.2f} (Min: {sb_f_min:.2f}, Max: {sb_f_max:.2f})")
+## parei aq
         # Reverter as diferenças logarítmicas para valores reais
         valores_reais = [df['SB=F'].iloc[0]]  # Iniciar com o primeiro valor real de 'SB=F'
         valores_previstos = [df['SB=F'].iloc[0]]  # Iniciar com o primeiro valor previsto como base
