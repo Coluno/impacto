@@ -806,6 +806,7 @@ def regressao_sugar():
 
         #previsoes = np.array([tree.predict(X_novo)[0] for tree in model.estimators_])
         #dif_log_sb_f_previsto = previsoes.mean()
+        dif_log_sb_f_previsto = model.predict(X_novo)[0]
         #dif_log_sb_f_min = np.percentile(previsoes, 25)
         #dif_log_sb_f_max = np.percentile(previsoes, 70)
         # Reverter log para previsão final
