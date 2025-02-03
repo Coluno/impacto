@@ -815,7 +815,7 @@ def regressao_sugar():
         
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=df['Ano safra'], y=df['SB=F'], mode='lines', name='Valor Real (SB=F)'))
-        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y_pred, mode='lines', name='Valor Previsto (SB=F)'))
+        fig.add_trace(go.Scatter(x=df['Ano safra'], y=np.exp(y_pred) * df['SB=F'].iloc[0], mode='lines', name='Valor Previsto (SB=F)'))
         fig.add_trace(go.Scatter(x=df['Ano safra'], y=[sb_f_min]*len(df), mode='lines', name='Valor Mínimo Previsto', line=dict(dash='dot')))
         fig.add_trace(go.Scatter(x=df['Ano safra'], y=[sb_f_max]*len(df), mode='lines', name='Valor Máximo Previsto', line=dict(dash='dot')))
         
