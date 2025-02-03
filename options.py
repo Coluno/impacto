@@ -787,9 +787,11 @@ def regressao_sugar():
         # Calcular previsões
         y_pred = model.predict(X)
         mse = mean_squared_error(y, y_pred)
+        rmse = np.sqrt(mse)
         r2 = r2_score(y, y_pred)
 
         st.write(f"**Erro Quadrático Médio (MSE):** {mse:.6f}")
+        st.write(f"**RMSE:** {rmse:.6f}")
         st.write(f"**Coeficiente de Determinação (R²):** {r2:.2f}")
 
         # Preparar inputs para previsão
