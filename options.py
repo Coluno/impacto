@@ -768,7 +768,7 @@ def regressao_sugar():
     estoque_final_proj = st.number_input("Estoque Final (mi)", value=1200.0)
     oferta_proj = st.number_input("Oferta (mi)", value=5000.0)
     demanda_proj = st.number_input("Demanda (mi)", value=4800.0)
-    estoque_uso_proj = st.number_input("Estoque/Uso (%)", value=20.0)
+    estoque_uso_proj = st.number_input("Estoque/Uso (%)", value=40.0)
     usd_brl_proj = st.number_input("USDBRL=X", value=5.0)
     cl_f_proj = st.number_input("CL=F", value=80.0)
 
@@ -815,7 +815,7 @@ def regressao_sugar():
         
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=df['Ano safra'], y=df['SB=F'], mode='lines', name='Valor Real (SB=F)'))
-        fig.add_trace(go.Scatter(x=df['Ano safra'], y=y_pred, mode='lines', name='Valor Previsto (SB=F)'))
+        fig.add_trace(go.Scatter(x=df['Ano safra'], y=np.exp(y_pred) * df['SB=F'].iloc[0], mode='lines', name='Valor Previsto (SB=F)'))
         fig.add_trace(go.Scatter(x=df['Ano safra'], y=[sb_f_min]*len(df), mode='lines', name='Valor Mínimo Previsto', line=dict(dash='dot')))
         fig.add_trace(go.Scatter(x=df['Ano safra'], y=[sb_f_max]*len(df), mode='lines', name='Valor Máximo Previsto', line=dict(dash='dot')))
         
