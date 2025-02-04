@@ -764,13 +764,13 @@ def regressao_sugar():
     st.write("Modelo de regressão para prever o preço futuro do açúcar (SB=F).")
 
     # Inputs do usuário
-    estoque_inicial_proj = st.number_input("Estoque Inicial (mi)", value=1000.0)
-    estoque_final_proj = st.number_input("Estoque Final (mi)", value=1200.0)
-    oferta_proj = st.number_input("Oferta (mi)", value=5000.0)
-    demanda_proj = st.number_input("Demanda (mi)/Human Dom. Consumption", value=4800.0)
-    estoque_uso_proj = st.number_input("Estoque/Uso (%) Estoque final/Demanda * 100", value=40.0)
-    usd_brl_proj = st.number_input("USDBRL=X", value=5.0)
-    cl_f_proj = st.number_input("CL=F", value=80.0)
+    estoque_inicial_proj = st.number_input("Estoque Inicial (mi)", value= 45000)
+    estoque_final_proj = st.number_input("Estoque Final (mi)", value=40000)
+    oferta_proj = st.number_input("Oferta/Production (mi)", value=160000)
+    demanda_proj = st.number_input("Demanda (mi)/Human Dom. Consumption", value=150000)
+    estoque_uso_proj = st.number_input("Estoque/Uso (%) Estoque final/Demanda * 100", value=20)
+    usd_brl_proj = st.number_input("USDBRL=X", value=6.0)
+    cl_f_proj = st.number_input("CL=F", value=75.0)
 
     if st.button("Gerar Previsão"):
         # Carregar dados
