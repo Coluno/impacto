@@ -767,8 +767,8 @@ def regressao_sugar():
     estoque_inicial_proj = st.number_input("Estoque Inicial (mi)", value=1000.0)
     estoque_final_proj = st.number_input("Estoque Final (mi)", value=1200.0)
     oferta_proj = st.number_input("Oferta (mi)", value=5000.0)
-    demanda_proj = st.number_input("Demanda (mi)", value=4800.0)
-    estoque_uso_proj = st.number_input("Estoque/Uso (%)", value=40.0)
+    demanda_proj = st.number_input("Demanda (mi)/Human Dom. Consumption", value=4800.0)
+    estoque_uso_proj = st.number_input("Estoque/Uso (%) Estoque final/Demanda * 100", value=40.0)
     usd_brl_proj = st.number_input("USDBRL=X", value=5.0)
     cl_f_proj = st.number_input("CL=F", value=80.0)
 
