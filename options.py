@@ -2151,85 +2151,48 @@ def volatilidade_jump_diffusion():
         average_price = np.mean(simulated_prices)
         st.write(f"O valor médio da simulação para o ano foi: {average_price:.2f}")
 
-# Função para realizar o teste de estresse com coluna cascata
-def teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico, intervalo=0.10):
-    # Gera valores hipotéticos do dólar com o intervalo fornecido
-    valores_hipoteticos = np.arange(min_hipotetico, max_hipotetico + intervalo, intervalo)
-
-    # Calcula o impacto para cada valor hipotético
-    impactos = (venda_media - valores_hipoteticos) * valor_total
-
-    # Cria um DataFrame para visualizar a coluna cascata
-    df = pd.DataFrame({
-        'Valor Hipotético (R$)': valores_hipoteticos,
-        'Impacto (R$)': impactos
-    })
-
-    return df
-
-# Função para plotar o gráfico de cascata usando Plotly
-def plotar_grafico_cascata(df):
-    valores = df['Impacto (R$)'].values
-    labels = df['Valor Hipotético (R$)'].values.round(2)
-
-    # Inicializando o gráfico
-    fig = go.Figure(go.Waterfall(
-        x=labels,
-        y=valores,
-        textposition="inside",
-        text=valores,
-        increasing={"marker": {"color": "green"}},
-        decreasing={"marker": {"color": "red"}},
-        totals={"marker": {"color": "blue"}},
-    ))
-
-    # Customizando o layout
-    fig.update_layout(
-        title='Teste de Stress: NDF',
-        xaxis_title='Valor esperado do Dólar (R$)',
-        yaxis_title='Impacto Acumulado (R$)',
-        xaxis=dict(tickmode='array'),
-        template="plotly_white",
-        showlegend=False
-    )
-
-    st.plotly_chart(fig)
-
-# Função para conversão de valores com vírgula para ponto
-def converter_valor(valor):
-    if isinstance(valor, str):
-        valor = valor.replace(',', '.')  # Substitui vírgula por ponto
-    return float(valor)
-
-# Função para as entradas do usuário e execução do teste
-def app_teste_stresse():
-    # Título do aplicativo
-    st.title('Teste de Estresse com Dólar')
-
-    # Entradas do usuário com conversão para ponto
-    venda_media = st.text_input("Digite o valor da venda média (R$):")
-    valor_total = st.text_input("Digite o valor total (R$):")
-    min_hipotetico = st.text_input("Digite o valor mínimo hipotético do dólar (R$):")
-    max_hipotetico = st.text_input("Digite o valor máximo hipotético do dólar (R$):")
-
-    # Converte as entradas para float
-    if venda_media and valor_total and min_hipotetico and max_hipotetico:
-        venda_media = converter_valor(venda_media)
-        valor_total = converter_valor(valor_total)
-        min_hipotetico = converter_valor(min_hipotetico)
-        max_hipotetico = converter_valor(max_hipotetico)
+def teste_stresse():
+    st.title("Teste de Estresse: Impacto Financeiro vs. Dólar")
     
-        # Botão para calcular o teste de estresse
-        if st.button('Realizar Teste de Estresse'):
-            # Realiza o teste de estresse
-            df_resultado = teste_stresse(venda_media, valor_total, min_hipotetico, max_hipotetico)
+    # Entradas do usuário
+    venda_media = st.number_input("Digite o valor da venda média do Dólar (R$):", min_value=0.0, step=0.01, format="%.2f")
+    valor_total = st.number_input("Digite o valor total (R$):", min_value=0.0, step=1000.0, format="%.2f")
+    min_hipotetico = st.number_input("Digite o valor mínimo hipotético do dólar (R$):", min_value=0.0, step=0.01, format="%.2f")
+    max_hipotetico = st.number_input("Digite o valor máximo hipotético do dólar (R$):", min_value=min_hipotetico + 0.01, step=0.01, format="%.2f")
+    intervalo = st.number_input("Intervalo entre os valores do dólar (R$):", min_value=0.01, step=0.01, format="%.2f", value=0.10)
     
-            # Exibe o resultado
-            st.subheader('Resultado do Teste de Estresse:')
-            st.write(df_resultado)
-    
-            # Plotar o gráfico de cascata
-            plotar_grafico_cascata(df_resultado)
+    if st.button("Executar Teste de Estresse"):
+        if min_hipotetico >= max_hipotetico:
+            st.error("O valor máximo hipotético deve ser maior que o valor mínimo.")
+            return
+        
+        valores_hipoteticos = np.round(np.arange(min_hipotetico, max_hipotetico + intervalo, intervalo), 2)
+        impactos = np.round((venda_media - valores_hipoteticos) * valor_total, 2)
+        
+        df = pd.DataFrame({
+            'Valor Hipotético (R$)': valores_hipoteticos,
+            'Impacto (R$)': impactos
+        })
+        
+        st.write("### Resultado do Teste de Estresse")
+        st.dataframe(df.style.format({'Valor Hipotético (R$)': "R$ {:.2f}", 'Impacto (R$)': "R$ {:.2f}"}))
+        
+        # Gráfico de barras horizontais
+        fig = go.Figure(go.Bar(
+            x=df['Impacto (R$)'],
+            y=[f'R$ {x:.2f}' for x in df['Valor Hipotético (R$)']],
+            orientation='h',
+            marker=dict(color=df['Impacto (R$)'], colorscale='RdYlGn_r'),
+        ))
+
+        fig.update_layout(
+            title='Teste de Estresse: Impacto Financeiro vs. Dólar',
+            xaxis_title='Impacto Financeiro (R$)',
+            yaxis_title='Valor do Dólar (R$)',
+            template="plotly_white"
+        )
+
+        st.plotly_chart(fig)
 
 # Função principal para o Streamlit
 def expectativas():
@@ -2686,7 +2649,7 @@ def main():
             simulacao_bcb()
         elif page == "Teste de Stress":
             st.image("./ibea.png", width=500)
-            app_teste_stresse()
+            teste_stresse()
         if page == "Less Loss":
             lessloss()
 if __name__ == "__main__":
